@@ -1,0 +1,4 @@
+#!/bin/bash
+
+CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o documents-database ../src/main.go 
+docker build -t documents-database .

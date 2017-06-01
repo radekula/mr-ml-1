@@ -4,6 +4,8 @@ import (
     "encoding/json"
     "net/http"
     "regexp"
+//    "gopkg.in/mgo.v2"
+//    "gopkg.in/mgo.v2/bson"
 )
 
 
@@ -34,7 +36,7 @@ type SimpleMessage struct {
 
 func get_document(id string) (DocumentData, int) {
     doc := DocumentData{}
-    
+
     doc.Id = "id"
     doc.Title = "title"
     doc.FileName = "file_name"
@@ -46,13 +48,13 @@ func get_document(id string) (DocumentData, int) {
     doc.Metadata = append(doc.Metadata, DocumentMetadata{"meta2", "value2"})
     doc.Thumbnail = "thumbnail"
     doc.Data = "data"
-    
+
     return doc, 0
 }
 
 func about(w http.ResponseWriter, r *http.Request) {
     test := SimpleMessage{200, "About!"}
-    
+
     message, err := json.Marshal(test)
 
     if err != nil {
@@ -71,7 +73,7 @@ func document(w http.ResponseWriter, r *http.Request) {
     }
 
     valid_request := re.FindString(r.URL.Path[1:])
-    
+
     if valid_request == "" {
         w.WriteHeader(http.StatusBadRequest)
         return
@@ -119,7 +121,7 @@ func documents(w http.ResponseWriter, r *http.Request) {
     }
 
     valid_request := re.FindString(r.URL.Path[1:])
-    
+
     if valid_request == "" {
         w.WriteHeader(http.StatusBadRequest)
         return
@@ -128,7 +130,7 @@ func documents(w http.ResponseWriter, r *http.Request) {
     switch r.Method {
         case "GET":
             var documents []DocumentData
-            
+
             doc, err := get_document("das")
             if err != 0 {
                 if err < 0 {
