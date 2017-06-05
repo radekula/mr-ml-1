@@ -1,11 +1,13 @@
 package main
 
 import (
+    "fmt"
+    "strings"
     "encoding/json"
     "net/http"
     "regexp"
     "gopkg.in/mgo.v2"
-    //"gopkg.in/mgo.v2/bson"
+    "gopkg.in/mgo.v2/bson"
 )
 
 
@@ -16,15 +18,15 @@ type DocumentMetadata struct {
 
 
 type DocumentData struct {
-    Id string `json:"id"`
-    Title string `json:"title"`
-    FileName string `json:"file_name"`
-    CreateDate string `json:"create_date"`
-    Description string `json:"description"`
-    Owner []string `json:"owner"`
-    Metadata []DocumentMetadata `json:"metadata"`
-    Thumbnail string `json:"thumbnail"`
-    Data string `json:"data"`
+    Id string `json:"id" bson:"id,omitempty"`
+    Title string `json:"title" bson:"title,omitempty"`
+    FileName string `json:"file_name bson:"file_name,omitempty""`
+    CreateDate string `json:"create_date" bson:"create_date,omitempty"`
+    Description string `json:"description" bson:"description,omitempty"`
+    Owner []string `json:"owner" bson:"owner,omitempty"`
+    Metadata []DocumentMetadata `json:"metadata" bson:"metadata,omitempty"`
+    Thumbnail string `json:"thumbnail" bson:"thumbnail,omitempty"`
+    Data string `json:"data" bson:"data,omitempty"`
 }
 
 
@@ -34,30 +36,35 @@ type SimpleMessage struct {
 }
 
 
-func get_document(id string) (DocumentData, int) {
-/*    session, err := mgo.Dial("documents-database-mongo")
+func get_documents() ([]DocumentData, int) {
+    session, err := mgo.Dial("documents-database-mongo")
     if err != nil {
         panic(err)
     }
     defer session.Close()
-   
-    collection := session.DB("documentsDatabase").C("documents")*/
 
-    doc := DocumentData{}
+    var documents []DocumentData;
 
-    doc.Id = "id"
-    doc.Title = "title"
-    doc.FileName = "file_name"
-    doc.CreateDate = "2017-05-05"
-    doc.Description = "description"
-    doc.Owner = append(doc.Owner, "owner1")
-    doc.Owner = append(doc.Owner, "owner2")
-    doc.Metadata = append(doc.Metadata, DocumentMetadata{"meta1", "value1"})
-    doc.Metadata = append(doc.Metadata, DocumentMetadata{"meta2", "value2"})
-    doc.Thumbnail = "thumbnail"
-    doc.Data = "data"
+    collection := session.DB("documentsDatabase").C("documents")
+    collection.Find(bson.M{}).All(&documents)
 
-    return doc, 0
+    return documents, 0
+}
+
+
+func get_document(id string) (DocumentData, int) {
+    session, err := mgo.Dial("documents-database-mongo")
+    if err != nil {
+        panic(err)
+    }
+    defer session.Close()
+
+    var document DocumentData;
+
+    collection := session.DB("documentsDatabase").C("documents")
+    collection.Find(bson.M{"id": id}).One(&document)
+
+    return document, 0
 }
 
 
@@ -66,15 +73,56 @@ func write_document(document DocumentData) (int) {
     session, err := mgo.Dial("documents-database-mongo")
     if err != nil {
         panic(err)
+        return 1
+    }
+    defer session.Close()
+   
+    collection := session.DB("documentsDatabase").C("documents")
+    collection.Insert(&document)
+
+    return 0
+}
+
+
+
+func update_document(document DocumentData) (int) {
+    session, err := mgo.Dial("documents-database-mongo")
+    if err != nil {
+        panic(err)
+        return 1
     }
     defer session.Close()
    
     collection := session.DB("documentsDatabase").C("documents")
 
-    collection.Insert(&document)
+    change := mgo.Change{
+        Update: bson.M{"$set": document},
+        ReturnNew: false,
+    }
 
-    return 0;
+    collection.Find(bson.M{"id": document.Id}).Apply(change, &document)
+
+    return 0
 }
+
+
+
+
+func delete_document(id string) (int) {
+    session, err := mgo.Dial("documents-database-mongo")
+    if err != nil {
+        panic(err)
+        return 1
+    }
+    defer session.Close()
+   
+    collection := session.DB("documentsDatabase").C("documents")
+
+    collection.Remove(bson.M{"id": id})
+
+    return 0
+}
+
 
 
 
@@ -105,9 +153,11 @@ func document(w http.ResponseWriter, r *http.Request) {
         return
     }
 
+    request := strings.Split(r.URL.Path, "/");
+
     switch r.Method {
         case "GET":
-            doc, err := get_document("das")
+            doc, err := get_document(request[2])
             if err != 0 {
                 if err < 0 {
                     w.WriteHeader(http.StatusInternalServerError)
@@ -123,21 +173,45 @@ func document(w http.ResponseWriter, r *http.Request) {
                 return
             }
             w.Write(json_message)
+            fmt.Println("Document returned");
         case "POST":
             var document DocumentData
 
             err := json.NewDecoder(r.Body).Decode(&document)
             if err != nil {
-                panic(err)
+                w.WriteHeader(http.StatusInternalServerError)
             }
 
-            write_document(document)
+            document.Id = request[2];
+            if(write_document(document) > 0) {
+                w.WriteHeader(http.StatusInternalServerError)
+                return
+            }
+
+            fmt.Println("New document added");
         case "PUT":
-            // Update an existing record.
-            w.WriteHeader(http.StatusBadRequest)
+            var document DocumentData
+
+            err := json.NewDecoder(r.Body).Decode(&document)
+            if err != nil {
+                w.WriteHeader(http.StatusInternalServerError)
+            }
+
+            document.Id = request[2];
+            if(update_document(document) > 0) {
+                w.WriteHeader(http.StatusInternalServerError)
+                return
+            }
+
+            fmt.Println("Document modified");
         case "DELETE":
-            // Remove the record.
-            w.WriteHeader(http.StatusBadRequest)
+            id := request[2];
+            if(delete_document(id) > 0) {
+                w.WriteHeader(http.StatusInternalServerError)
+                return
+            }
+
+            fmt.Println("Document removed");
         default:
             w.WriteHeader(http.StatusBadRequest)
             return
@@ -161,7 +235,12 @@ func documents(w http.ResponseWriter, r *http.Request) {
 
     switch r.Method {
         case "GET":
-            var documents []DocumentData
+            documents, err := get_documents()
+
+            if err != 0 {
+                w.WriteHeader(http.StatusInternalServerError)
+                return
+            }
 
             json_message, err_json := json.Marshal(documents)
             if err_json != nil {
@@ -170,13 +249,7 @@ func documents(w http.ResponseWriter, r *http.Request) {
             }
             w.Write(json_message)
         case "POST":
-            // Create a new record.
-            w.WriteHeader(http.StatusBadRequest)
-        case "PUT":
-            // Update an existing record.
-            w.WriteHeader(http.StatusBadRequest)
-        case "DELETE":
-            // Remove the record.
+            // Search documents.
             w.WriteHeader(http.StatusBadRequest)
         default:
             w.WriteHeader(http.StatusBadRequest)
@@ -189,5 +262,7 @@ func main() {
     http.HandleFunc("/", about)
     http.HandleFunc("/document/", document)
     http.HandleFunc("/documents/", documents)
+    
+    fmt.Println("Service started.")
     http.ListenAndServe(":8080", nil)
 }
