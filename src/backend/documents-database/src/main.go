@@ -4,8 +4,8 @@ import (
     "encoding/json"
     "net/http"
     "regexp"
-//    "gopkg.in/mgo.v2"
-//    "gopkg.in/mgo.v2/bson"
+    "gopkg.in/mgo.v2"
+    //"gopkg.in/mgo.v2/bson"
 )
 
 
@@ -35,6 +35,14 @@ type SimpleMessage struct {
 
 
 func get_document(id string) (DocumentData, int) {
+/*    session, err := mgo.Dial("documents-database-mongo")
+    if err != nil {
+        panic(err)
+    }
+    defer session.Close()
+   
+    collection := session.DB("documentsDatabase").C("documents")*/
+
     doc := DocumentData{}
 
     doc.Id = "id"
@@ -51,6 +59,24 @@ func get_document(id string) (DocumentData, int) {
 
     return doc, 0
 }
+
+
+
+func write_document(document DocumentData) (int) {
+    session, err := mgo.Dial("documents-database-mongo")
+    if err != nil {
+        panic(err)
+    }
+    defer session.Close()
+   
+    collection := session.DB("documentsDatabase").C("documents")
+
+    collection.Insert(&document)
+
+    return 0;
+}
+
+
 
 func about(w http.ResponseWriter, r *http.Request) {
     test := SimpleMessage{200, "About!"}
@@ -98,8 +124,14 @@ func document(w http.ResponseWriter, r *http.Request) {
             }
             w.Write(json_message)
         case "POST":
-            // Create a new record.
-            w.WriteHeader(http.StatusBadRequest)
+            var document DocumentData
+
+            err := json.NewDecoder(r.Body).Decode(&document)
+            if err != nil {
+                panic(err)
+            }
+
+            write_document(document)
         case "PUT":
             // Update an existing record.
             w.WriteHeader(http.StatusBadRequest)
@@ -130,19 +162,6 @@ func documents(w http.ResponseWriter, r *http.Request) {
     switch r.Method {
         case "GET":
             var documents []DocumentData
-
-            doc, err := get_document("das")
-            if err != 0 {
-                if err < 0 {
-                    w.WriteHeader(http.StatusInternalServerError)
-                    return
-                } else {
-                    w.WriteHeader(http.StatusNotFound)
-                    return
-                }
-            }
-            documents = append(documents, doc)
-            documents = append(documents, doc)
 
             json_message, err_json := json.Marshal(documents)
             if err_json != nil {
