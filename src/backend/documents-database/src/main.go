@@ -11,10 +11,14 @@ import (
 )
 
 
+
+
 type DocumentMetadata struct {
     Name string `json:"name"`
     Value string `json:"value"`
 }
+
+
 
 
 type DocumentData struct {
@@ -30,20 +34,37 @@ type DocumentData struct {
 }
 
 
+
+
+type DocumentDataLite struct {
+    Id string `json:"id" bson:"id,omitempty"`
+    Title string `json:"title" bson:"title,omitempty"`
+    FileName string `json:"file_name bson:"file_name,omitempty""`
+    CreateDate string `json:"create_date" bson:"create_date,omitempty"`
+    Description string `json:"description" bson:"description,omitempty"`
+    Owner []string `json:"owner" bson:"owner,omitempty"`
+    Metadata []DocumentMetadata `json:"metadata" bson:"metadata,omitempty"`
+}
+
+
+
+
 type SimpleMessage struct {
     Code int
     Text string
 }
 
 
-func get_documents() ([]DocumentData, int) {
+
+
+func get_documents() ([]DocumentDataLite, int) {
     session, err := mgo.Dial("documents-database-mongo")
     if err != nil {
         panic(err)
     }
     defer session.Close()
 
-    var documents []DocumentData;
+    var documents []DocumentDataLite;
 
     collection := session.DB("documentsDatabase").C("documents")
     collection.Find(bson.M{}).All(&documents)

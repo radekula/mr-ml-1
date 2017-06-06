@@ -1,0 +1,288 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "This is description of documents-database API",
+    "version": "0.1",
+    "title": "Documents-database"
+  },
+  "basePath": "/",
+  "tags": [
+    {
+      "name": "document",
+      "description": "Basic operations for managing documents"
+    },
+    {
+      "name": "documents",
+      "description": "Getting lists of documents"
+    }
+  ],
+  "schemes": [
+    "http"
+  ],
+  "paths": {
+    "/document/{documentId}": {
+      "get": {
+        "tags": [
+          "document"
+        ],
+        "summary": "Get document by id",
+        "description": "Only one document will be returned as a result",
+        "operationId": "getDocumentById",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "documentId",
+            "in": "path",
+            "description": "ID of document to return",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/Document"
+            }
+          },
+          "404": {
+            "description": "Document not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "document"
+        ],
+        "summary": "Store document with given id",
+        "description": "Save one document in database",
+        "operationId": "createDocumentById",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "documentId",
+            "in": "path",
+            "description": "ID of document",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "document",
+            "in": "body",
+            "description": "Definition of a document",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Document"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "document"
+        ],
+        "summary": "Update document with given id",
+        "description": "Save one document in database",
+        "operationId": "updateDocumentById",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "documentId",
+            "in": "path",
+            "description": "ID of document",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "document",
+            "in": "body",
+            "description": "New definition of a document",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Document"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "404": {
+            "description": "Document not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "document"
+        ],
+        "summary": "Delete document with given id",
+        "description": "Deletes document from database",
+        "operationId": "deleteDocumentById",
+        "parameters": [
+          {
+            "name": "documentId",
+            "in": "path",
+            "description": "ID of document",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "404": {
+            "description": "Document not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/documents": {
+      "get": {
+        "tags": [
+          "document"
+        ],
+        "summary": "Get all documents",
+        "description": "Returns list of all documents in database",
+        "operationId": "getDocuments",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/DocumentNoData"
+              }
+            }
+          },
+          "404": {
+            "description": "Documents not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Document": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "file_name": {
+          "type": "string"
+        },
+        "create_date": {
+          "type": "string",
+          "description": "Timestamp in YYYY-MM-DD HH:MM:SS format"
+        },
+        "description": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "metadata": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DocumentMetadata"
+          }
+        },
+        "thumbnail": {
+          "type": "string",
+          "description": "Thumbnail encoded in base64"
+        },
+        "data": {
+          "type": "string",
+          "description": "Document binary data encoded in base64"
+        }
+      }
+    },
+    "DocumentMetadata": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      }
+    },
+    "DocumentNoData": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "file_name": {
+          "type": "string"
+        },
+        "create_date": {
+          "type": "string",
+          "description": "Timestamp in YYYY-MM-DD HH:MM:SS format"
+        },
+        "description": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "metadata": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DocumentMetadata"
+          }
+        }
+      }
+    }
+  }
+}
