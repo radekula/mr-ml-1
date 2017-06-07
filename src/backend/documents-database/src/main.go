@@ -39,7 +39,7 @@ type DocumentData struct {
 type DocumentDataLite struct {
     Id string `json:"id" bson:"id,omitempty"`
     Title string `json:"title" bson:"title,omitempty"`
-    FileName string `json:"file_name bson:"file_name,omitempty""`
+    FileName string `json:"file_name" bson:"file_name,omitempty""`
     CreateDate string `json:"create_date" bson:"create_date,omitempty"`
     Description string `json:"description" bson:"description,omitempty"`
     Owner []string `json:"owner" bson:"owner,omitempty"`
