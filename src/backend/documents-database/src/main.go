@@ -268,6 +268,9 @@ func documents(w http.ResponseWriter, r *http.Request) {
                 w.WriteHeader(http.StatusInternalServerError)
                 return
             }
+            w.Header().Set("Access-Control-Allow-Origin", "*")
+            w.Header().Add("Access-Control-Allow-Headers", "Content-Type")
+            w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
             w.Write(json_message)
         case "POST":
             // Search documents.
