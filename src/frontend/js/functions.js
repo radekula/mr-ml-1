@@ -4,6 +4,91 @@
 /* End written by Jacek Wysocki (jacek.wysocki@gmail.com). */
 
 $(document).ready(function() {
+    /* Add document */
+    if ($('body').is('#add')) {
+
+        var file = null;
+        
+        /* Send form */
+        $('#form-add').on('click', '[type="submit"]', function(e) {
+            e.preventDefault();
+
+            var id = '1';
+            var file = $('#file').val();
+            var owners = $('#owner').val();
+            owners = owners.split(';');
+            var title = $('#title').val();
+            var desc = $('#description').val();
+
+            if (!file || !owners || !title) {
+                alert('Proszę o poprawne wypełnienie formularza.');
+            } else {
+                var document = new FormData();
+
+                document.append('id', id);
+                document.append('title', title);
+                document.append('file_name', file);
+
+                var date = new Date();
+                var dd = date.getDate();
+                var mm = date.getMonth() + 1;
+                var yyyy = date.getFullYear();
+
+                if (dd < 10) {
+                    dd = '0' + dd;
+                }
+                if (mm < 10) {
+                    mm = '0' + mm;
+                }
+
+                document.append('create_date', dd + '/' + mm + '/' + yyyy);
+                document.append('description', desc);
+
+                var owner = [];
+                owners.forEach(function(item) {
+                    owner.push(item);
+                });
+                document.append('owner', owner);
+
+                saveDocument(id, document);
+            }
+        });
+        
+        $('body').on('change', '#file', function(e) {
+            file = e.target.files[0];
+            var val = $(this).val();
+            $('#upload').find('#file-name').remove();
+            $('#upload').append('<p id="file-name" class="file-name">' + val + '</p>');
+        });
+        
+        /* Save document */
+        function saveDocument(id, document) {
+            $.ajax({
+                url: '/document/' + id,
+                type: 'PUT',
+                data: document,
+                cache: false,
+                dataType: 'json',
+                processData: false,
+                contentType: false,
+                success: function(data) {
+                    if (typeof data.error === 'undefined') {
+                        /* success */
+                        submitForm(event, data);
+                    } else {
+                        /* errors */
+                        alert('Wystąpił błąd podczas próby przesłania pliku.');
+                    }
+                },
+                error: function() {
+                    // errors
+                    alert('Wystąpił błąd podczas próby przesłania pliku.');
+                }
+            });
+        }
+    }
+    
+    
     /* List of documents */
     if ($("body").is("#documents")) {
 
