@@ -14,6 +14,7 @@
         3.3 - Form table
         3.4 - Table
         3.5 - Pagination
+        3.6 - Form add
 */
 
 
@@ -63,7 +64,7 @@ ul {
     2.0 - Header
 */
 
-.header > div.container {
+.header>div.container {
     position: fixed;
     top: 0;
     right: 0;
@@ -107,7 +108,7 @@ ul {
     transition: transform .3s, -webkit-transform .3s;
 }
 
-body.fold div.toggle img {
+.header div.toggle.active img {
     -webkit-transform: rotate(90deg);
     transform: rotate(90deg);
     -webkit-transition: -webkit-transform .3s;
@@ -152,12 +153,12 @@ nav.user-menu span.count {
     background-color: #df0024;
 }
 
-nav.user-menu > ul {
+nav.user-menu>ul {
     display: table;
     height: 80px;
 }
 
-nav.user-menu > ul > li {
+nav.user-menu>ul>li {
     display: table-cell;
     padding: 0 30px;
     vertical-align: middle;
@@ -166,22 +167,22 @@ nav.user-menu > ul > li {
     transition: background-color .3s;
 }
 
-nav.user-menu > ul > li:hover {
+nav.user-menu>ul>li:hover {
     background-color: #323945;
     -webkit-transition: background-color .3s;
     transition: background-color .3s;
 }
 
-nav.user-menu > ul > li.icon {
+nav.user-menu>ul>li.icon {
     position: relative;
 }
 
-nav.user-menu > ul > li.nav {
+nav.user-menu>ul>li.nav {
     width: 150px;
     box-sizing: border-box;
 }
 
-nav.user-menu > ul > li.nav:before {
+nav.user-menu>ul>li.nav:before {
     content: "";
     position: absolute;
     top: 36px;
@@ -197,7 +198,7 @@ nav.user-menu > ul > li.nav:before {
     transition: transform .3s, -webkit-transform .3s;
 }
 
-nav.user-menu > ul > li.nav:hover:before {
+nav.user-menu>ul>li.nav:hover:before {
     -webkit-transform: rotate(180deg);
     transform: rotate(180deg);
     -webkit-transition: -webkit-transform .3s;
@@ -210,7 +211,7 @@ nav.user-menu li.nav img {
     display: block;
 }
 
-nav.user-menu li > ul {
+nav.user-menu li>ul {
     position: fixed;
     top: 79px;
     right: 0;
@@ -225,7 +226,7 @@ nav.user-menu li > ul {
     transition: opacity .2s;
 }
 
-nav.user-menu li:hover > ul {
+nav.user-menu li:hover>ul {
     opacity: 1;
     -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
     -webkit-transition: opacity .2s;
@@ -266,7 +267,7 @@ form.form-search {
     margin: 19px 60px 0;
 }
 
-form.form-search > input {
+form.form-search>input {
     float: left;
     padding: 0 11px;
     width: 65px;
@@ -280,37 +281,37 @@ form.form-search > input {
     transition: width .5s;
 }
 
-form.form-search > input::-webkit-input-placeholder {
+form.form-search>input::-webkit-input-placeholder {
     font-size: 16px;
     font-style: italic;
     color: #999;
 }
 
-form.form-search > input::-moz-placeholder {
+form.form-search>input::-moz-placeholder {
     font-size: 16px;
     font-style: italic;
     color: #999;
 }
 
-form.form-search > input:-ms-input-placeholder {
+form.form-search>input:-ms-input-placeholder {
     font-size: 16px;
     font-style: italic;
     color: #999;
 }
 
-form.form-search > input:-moz-placeholder {
+form.form-search>input:-moz-placeholder {
     font-size: 16px;
     font-style: italic;
     color: #999;
 }
 
-form.form-search > input.input:focus {
+form.form-search>input.input:focus {
     width: 250px;
     -webkit-transition: width .4s;
     transition: width .4s;
 }
 
-form.form-search > button {
+form.form-search>button {
     float: left;
     padding: 0;
     width: 43px;
@@ -420,8 +421,9 @@ nav.menu li img {
     transition: left .5s, width .5s;
 }
 
-.main > .article {
+.main>.article {
     position: relative;
+    overflow: hidden;
     padding: 50px;
 }
 
@@ -431,6 +433,7 @@ nav.menu li img {
 */
 
 .main .breadcrumb {
+    float: left;
     display: inline-block;
     margin: 0 0 50px;
     padding: 26px 28px 28px;
@@ -494,14 +497,21 @@ nav.menu li img {
 */
 
 .main .content {
+    float: left;
+    clear: both;
     position: relative;
     min-width: 960px;
     background-color: #fafafa;
 }
 
+body.add .main .content {
+    display: inline-block;
+    min-width: auto;
+}
+
 
 /*
-    3.3 - Form table
+    3.2 - Form table
 */
 
 .main .form-table {
@@ -509,12 +519,12 @@ nav.menu li img {
     padding: 39px 29px;
 }
 
-.main .form-table > * {
+.main .form-table>* {
     float: left;
     margin: 0 0 0 11px;
 }
 
-.main .form-table > *:first-child {
+.main .form-table>*:first-child {
     margin: 0;
 }
 
@@ -543,7 +553,7 @@ nav.menu li img {
     position: relative;
     min-width: 150px;
     line-height: 1;
-    background: #e8ebf1 url(../img/arrow-select.png) 90% center no-repeat;
+    background: #e8ebf1 url(../img/arrow-select.png) right 10px center no-repeat;
     cursor: pointer;
 }
 
@@ -556,22 +566,26 @@ nav.menu li img {
     display: none;
 }
 
-.main .form-table input::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+.main .form-table input::-webkit-input-placeholder {
+    /* Chrome/Opera/Safari */
     font: 400 16px/48px 'Open Sans', sans-serif;
     color: #999;
 }
 
-.main .form-table input::-moz-placeholder { /* Firefox 19+ */
+.main .form-table input::-moz-placeholder {
+    /* Firefox 19+ */
     font: 400 16px/24px 'Open Sans', sans-serif;
     color: #999;
 }
 
-.main .form-table input:-ms-input-placeholder { /* IE 10+ */
+.main .form-table input:-ms-input-placeholder {
+    /* IE 10+ */
     font: 400 16px/48px 'Open Sans', sans-serif;
     color: #999;
 }
 
-.main .form-table input:-moz-placeholder { /* Firefox 18- */
+.main .form-table input:-moz-placeholder {
+    /* Firefox 18- */
     font: 400 16px/24px 'Open Sans', sans-serif;
     color: #999;
 }
@@ -635,24 +649,24 @@ nav.menu li img {
     background-color: #df0024;
 }
 
-nav.actions > ul {
+nav.actions>ul {
     display: table;
     margin: 0 auto;
     padding: 0;
     list-style-type: none;
 }
 
-nav.actions > ul > li {
+nav.actions>ul>li {
     margin: 0 16px 0 0;
     display: block;
     float: left;
 }
 
-nav.actions > ul > li:last-child {
+nav.actions>ul>li:last-child {
     margin: 0;
 }
 
-nav.actions > ul > li a {
+nav.actions>ul>li a {
     display: block;
     opacity: 1;
     -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
@@ -660,7 +674,7 @@ nav.actions > ul > li a {
     transition: opacity .3s;
 }
 
-nav.actions > ul > li a:hover {
+nav.actions>ul>li a:hover {
     opacity: .8;
     -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=90)";
     -webkit-transition: opacity .3s;
@@ -677,7 +691,7 @@ nav.pagination {
     padding: 40px 29px;
 }
 
-nav.pagination > ul {
+nav.pagination>ul {
     overflow: hidden;
     float: right;
     margin: 0;
@@ -685,17 +699,17 @@ nav.pagination > ul {
     list-style-type: none;
 }
 
-nav.pagination > ul > li {
+nav.pagination>ul>li {
     float: left;
     display: block;
     margin: 0 0 0 9px;
 }
 
-nav.pagination > ul > li:first-child {
+nav.pagination>ul>li:first-child {
     margin: 0;
 }
 
-nav.pagination > ul > li a {
+nav.pagination>ul>li a {
     display: block;
     padding: 15px 24px;
     font-size: 16px;
@@ -704,15 +718,14 @@ nav.pagination > ul > li a {
     background-color: #e8ebf1;
     border: 1px solid #dcdcdc;
     border-radius: 3px;
-    cursor: pointer;
 }
 
-nav.pagination > ul > li.current a {
+nav.pagination>ul>li.current a {
     font-weight: 700;
 }
 
-nav.pagination > ul > li.prev a,
-nav.pagination > ul > li.next a {
+nav.pagination>ul>li.prev a,
+nav.pagination>ul>li.next a {
     margin: 1px 0 0 0;
     padding: 15px 24px;
     color: #fafafa;
@@ -722,9 +735,171 @@ nav.pagination > ul > li.next a {
     transition: background-color .3s;
 }
 
-nav.pagination > ul > li.prev a:hover,
-nav.pagination > ul > li.next a:hover {
+nav.pagination>ul>li.prev a:hover,
+nav.pagination>ul>li.next a:hover {
     background-color: #3f4651;
     -webkit-transition: background-color .3s;
     transition: background-color .3s;
+}
+
+
+/*
+    3.6 - Form add
+*/
+
+.main .form-add {
+    overflow: hidden;
+    padding: 39px 29px;
+}
+
+.main .form-add input,
+.main .form-add textarea,
+.main .form-add select {
+    margin: 0 0 40px;
+    padding: 11px 12px;
+    width: 330px;
+    height: 48px;
+    font: 400 16px/48px 'Open Sans', sans-serif;
+    color: #999;
+    background-color: #e8ebf1;
+    border: 1px solid #dedede;
+    border-radius: 3px;
+    box-sizing: border-box;
+}
+
+.main .form-add input::-webkit-input-placeholder {
+    /* Chrome/Opera/Safari */
+    font: 400 16px/48px 'Open Sans', sans-serif;
+    color: #999;
+}
+
+.main .form-add input::-moz-placeholder {
+    /* Firefox 19+ */
+    font: 400 16px/24px 'Open Sans', sans-serif;
+    color: #999;
+}
+
+.main .form-add input:-ms-input-placeholder {
+    /* IE 10+ */
+    font: 400 16px/48px 'Open Sans', sans-serif;
+    color: #999;
+}
+
+.main .form-add input:-moz-placeholder {
+    /* Firefox 18- */
+    font: 400 16px/24px 'Open Sans', sans-serif;
+    color: #999;
+}
+
+.main .form-add input[type="file"] {
+    position: relative;
+    float: none;
+    z-index: 1;
+    display: table;
+    opacity: 0;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+    margin: 0 auto;
+    padding: 0;
+    width: 685px;
+    height: 276px;
+    border: 0;
+    cursor: pointer;
+}
+
+.main .form-add textarea {
+    height: 171px;
+    line-height: normal;
+    resize: none;
+}
+
+.main .form-add select {
+    position: relative;
+    line-height: 1;
+    background: #e8ebf1 url(../img/arrow-select.png) right 10px center no-repeat;
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.main .form-add select::-ms-expand {
+    display: none;
+}
+
+.main .form-add div.upload {
+    position: relative;
+    margin-bottom: 40px;
+    width: 687px;
+    height: 278px;
+    color: #999;
+    border: 1px dashed #dedede;
+    box-sizing: border-box;
+}
+
+.main .form-add div.upload:before {
+    content: 'Upuść plik tutaj lub';
+    position: absolute;
+    top: 61px;
+    right: 0;
+    left: 0;
+    display: block;
+    margin: 0 auto;
+    max-width: 204px;
+    height: 10px;
+    font-weight: 300;
+    font-size: 28px;
+    line-height: 40px;
+    color: #999;
+    text-align: center;
+}
+
+.main .form-add div.upload:after {
+    content: "Wybierz plik";
+    position: absolute;
+    top: 176px;
+    right: 0;
+    left: 0;
+    margin: 0 auto;
+    width: 142px;
+    height: 46px;
+    color: #323945;
+    line-height: 46px;
+    text-align: center;
+    background-color: #e8ebf1;
+    border-radius: 3px;
+}
+
+.main .form-add div.upload p.file-name {
+    position: absolute;
+    right: 0;
+    left: 0;
+    bottom: 20px;
+    margin: 0;
+    font-weight: 300;
+    font-size: 18px;
+    color: #3f4651;
+    text-align: center;
+}
+
+.main .form-add label {
+    clear: both;
+    float: left;
+    display: inline-block;
+    width: 110px;
+    font-size: 18px;
+    line-height: 48px;
+    color: #3f4651;
+}
+
+.main .form-add label span {
+    color: red;
+}
+
+.main .form-add label+input,
+.main .form-add label+textarea {
+    float: left;
+}
+
+.main .form-add button {
+    clear: both;
+    float: right;
 }
