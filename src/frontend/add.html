@@ -4,37 +4,63 @@
     <meta charset="UTF-8">
     <title>Dodaj dokument - Document Management System</title>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&amp;subset=latin-ext" rel="stylesheet">
-    <link rel="stylesheet" href="http://ajax.aspnetcdn.com/ajax/jquery.ui/1.11.4/themes/smoothness/jquery-ui.css">
-    <link rel="stylesheet" href="css/styles.css">
+    <link href="/css/styles.css?ver=1.0" rel="stylesheet">
+    <script>
+        function getCookie( name ){
+            var tmpName = name + '=';
+            var decodedCookie = decodeURIComponent( document.cookie );
+            var split = decodedCookie.split( ';' );
+            var i = 0, splitLength = split.length;
+            
+            for( ; i < splitLength; i++ ){
+                var char_ = split[i];
+                
+                while( char_.charAt(0) == ' ' ){
+                    char_ = char_.substring( 1 );
+                }
+                
+                if( char_.indexOf(tmpName) == 0 ){
+                    return char_.substring( tmpName.length, char_.length );
+                }
+            }
+            
+            return '';
+        }
+    </script>
 </head>
-<body id="add" class="body add">
+<body id="documents" class="body">
+    <script>
+        if( getCookie( 'toggle' ) == 'true' ){
+            document.getElementsByTagName('body')[0].classList.add( 'fold' );
+        }
+    </script>
     <header class="header">
         <div class="container">
             <div id="toggle" class="toggle">
                 <a>
-                    <img src="img/hamburger.png" alt="">
+                    <img src="/img/hamburger.png" alt="">
                 </a>
             </div><!-- .toggle -->
             <a class="brand" href="#">
-                <img src="img/logo.png" alt="Document Management System">
+                <img src="/img/logo.png" alt="Document Management System">
             </a><!-- .brand -->
             <nav class="user-menu">
                 <ul>
                     <li class="icon">
                         <a href="#">
-                            <img src="img/email.png" alt="">
+                            <img src="/img/email.png" alt="">
                         </a>
                         <span class="count">12</span>
                     </li><!-- .icon -->
                     <li class="icon">
                         <a href="#">
-                            <img src="img/bell.png" alt="">
+                            <img src="/img/bell.png" alt="">
                         </a>
                         <span class="count">12</span>
                     </li><!-- .icon -->
                     <li class="nav">
                         <a>
-                            <img src="img/avatar.png" alt="">
+                            <img src="/img/avatar.png" alt="">
                         </a>
                         <ul>
                             <li>
@@ -58,9 +84,9 @@
         <nav id="menu" class="menu">
             <ul>
                 <li>
-                    <a href="/">
+                    <a href="#">
                         <div>
-                            <img src="img/icon-home.png" alt="">
+                            <img src="/img/icon-home.png" alt="">
                         </div>
                         <span>Strona główna</span>
                     </a>
@@ -68,7 +94,7 @@
                 <li class="current">
                     <a href="/add">
                         <div>
-                            <img src="img/icon-add-document.png" alt="">
+                            <img src="/img/icon-add-document.png" alt="">
                         </div>
                         <span>Dodaj dokument</span>
                     </a>
@@ -76,7 +102,7 @@
                 <li>
                     <a href="/documents">
                         <div>
-                            <img src="img/icon-document.png" alt="">
+                            <img src="/img/icon-document.png" alt="">
                         </div>
                         <span>Lista dokumentów</span>
                     </a>
@@ -90,7 +116,7 @@
                 <h1>Dodaj dokument</h1>
                 <ul>
                     <li>
-                        <a href="/">Home</a>
+                        <a href="#">Home</a>
                     </li>
                     <li>
                         <span>Dodaj dokument</span>
@@ -113,8 +139,9 @@
             </div><!-- .content -->
         </article><!-- .article -->
     </main><!-- .main -->
+    <link href="http://ajax.aspnetcdn.com/ajax/jquery.ui/1.11.4/themes/smoothness/jquery-ui.css" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-    <script src="js/functions.js"></script>
+    <script src="/js/functions.js?ver=1.0"></script>
 </body>
 </html>
