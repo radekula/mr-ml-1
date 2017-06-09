@@ -143,7 +143,7 @@ $(document).ready(function() {
         function getDocuments() {
             $("#loader").remove();
             $("#form-table").find("[type='submit']").after("<img id='loader' src='/img/ajax-loader.svg' alt=''>");
-            $.getJSON("/documents.json?ver=1.0", function(results) {
+            $.getJSON("http://35.185.44.195:8080/documents/", function(results) {
                 if (Array.isArray(results)) {
                     data = []; // reset
                     page = 1; // reset
