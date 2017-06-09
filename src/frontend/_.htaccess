@@ -1,2 +1,3 @@
 RewriteEngine On
 RewriteRule ^documents$ documents.html [L]
+RewriteRule ^add$ add.html [L]
