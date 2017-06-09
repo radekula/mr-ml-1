@@ -2,128 +2,146 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>Document management system - Home</title>
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800&amp;subset=latin-ext" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles1.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <title>Dodaj dokument - Document Management System</title>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&amp;subset=latin-ext" rel="stylesheet">
+    <link href="/css/styles.css?ver=1.0" rel="stylesheet">
+    <script>
+        function getCookie( name ){
+            var tmpName = name + '=';
+            var decodedCookie = decodeURIComponent( document.cookie );
+            var split = decodedCookie.split( ';' );
+            var i = 0, splitLength = split.length;
+            
+            for( ; i < splitLength; i++ ){
+                var char_ = split[i];
+                
+                while( char_.charAt(0) == ' ' ){
+                    char_ = char_.substring( 1 );
+                }
+                
+                if( char_.indexOf(tmpName) == 0 ){
+                    return char_.substring( tmpName.length, char_.length );
+                }
+            }
+            
+            return '';
+        }
+    </script>
 </head>
-<body class="body">
-    <!-- nagłówek strony -->
+<body id="add" class="body add">
+    <script>
+        if( getCookie( 'toggle' ) == 'true' ){
+            document.getElementsByTagName('body')[0].classList.add( 'fold' );
+        }
+    </script>
     <header class="header">
-        <div class="header__top">
-            <a class="brand header__brand" href="#">
-                <img class="brand__logo" src="img/logo.png" alt="Document management system">
-            </a>
-            <form id="form-search" class="form-search header__search" method="post" action="#">
-               <input class="form-search__input" name="search" type="text" value="">
-               <button class="form-search__button" type="submit"></button>
-            </form>
-        </div>
-        <nav class="nav header__nav">
-            <div class="toggle header__toggle">
-                <a class="toggle__link" href="#">
-                    <img class="toggle__icon" src="img/hamburger.png" alt="">
+        <div class="container">
+            <div id="toggle" class="toggle">
+                <a>
+                    <img src="/img/hamburger.png" alt="">
                 </a>
-            </div>
-            <ul class="ul nav__ul">
-                <li class="nav__li header__li">
-                    <a href="index.html">
-                        <img class="nav__img" src="img/icon-home.png" alt="">
+            </div><!-- .toggle -->
+            <a class="brand" href="#">
+                <img src="/img/logo.png" alt="Document Management System">
+            </a><!-- .brand -->
+            <nav class="user-menu">
+                <ul>
+                    <li class="icon">
+                        <a href="#">
+                            <img src="/img/email.png" alt="">
+                        </a>
+                        <span class="count">12</span>
+                    </li><!-- .icon -->
+                    <li class="icon">
+                        <a href="#">
+                            <img src="/img/bell.png" alt="">
+                        </a>
+                        <span class="count">12</span>
+                    </li><!-- .icon -->
+                    <li class="nav">
+                        <a>
+                            <img src="/img/avatar.png" alt="">
+                        </a>
+                        <ul>
+                            <li>
+                                <a href="#">Ustawienia</a>
+                            </li>
+                            <li>
+                                <a href="#">Profil</a>
+                            </li>
+                            <li>
+                                <a href="#">Wyloguj się</a>
+                            </li>
+                        </ul>
+                    </li><!-- .nav -->
+                </ul>
+            </nav><!-- .user-menu -->
+            <form id="form-search" class="form-search" method="get" action="#">
+                <input name="search" type="text">
+                <button type="submit"></button>
+            </form><!-- .form-search -->
+        </div><!-- .container -->
+        <nav id="menu" class="menu">
+            <ul>
+                <li>
+                    <a href="#">
+                        <div>
+                            <img src="/img/icon-home.png" alt="">
+                        </div>
+                        <span>Strona główna</span>
                     </a>
                 </li>
-                <li class="nav__li header__li">
-                    <a href="dodaj.html">
-                        <img class="nav__img" src="img/icon-add-document.png" alt="">
+                <li class="current">
+                    <a href="/add">
+                        <div>
+                            <img src="/img/icon-add-document.png" alt="">
+                        </div>
+                        <span>Dodaj dokument</span>
                     </a>
                 </li>
-                <li class="nav__li header__li">
-                    <a href="dok.html">
-                        <img class="nav__img" src="img/eye-9.png" alt="">
-                    </a>
-                </li>
-                <li class="nav__li header__li">
-                    <a href="">
-                        <img class="nav__img" src="img/icon-document.png" alt="">
-                    </a>
-                </li>
-                <li class="nav__li header__li">
-                    <a href="">
-                        <img class="nav__img" src="img/icon-document.png" alt="">
+                <li>
+                    <a href="/documents">
+                        <div>
+                            <img src="/img/icon-document.png" alt="">
+                        </div>
+                        <span>Lista dokumentów</span>
                     </a>
                 </li>
             </ul>
-        </nav>
-    </header>
-    <!-- treść strony -->
- 
-		<main>
-  		<article>
-        <div class="add_doc">
-				<h2>Dodaj dokument</h2>
-				<p>
-				<a href="index.html">Strona główna</a>
-				</p>
-				</div>
-					<div class="add_doc1">
-					<h4>Obieg:</h4>
-								<span style="text-align: center;"><form action="...">
-								<select name="Obieg" class="center" class="dropbtn" multiple="multiple">
-								<option></option>
-								<option>obieg 1</option>
-								<option>obieg 2</option>
-								<option>obieg 3</option>
-								</select>
-					</form>		</span>
-						</div>
-			</article>
-			<article>
-   				<div class="drop_box">
-   						<div class="center">
-						 <h4>Upuść plik tutaj</h4>
-						 </div>
-						<div id="div1" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-						<img id="drag1" src="#" draggable="true"
-						ondragstart="drag(event)" width="500" height="69">
-						<div class="center">
-						 <h4>lub</h4>
-						 <p>
-						<form action="..." enctype="multipart/form-data">
-						<input type="file" class="button_wybierz"name="nazwa" />
-						</form>
-						 </p>
-						 </div>
-						 </div>
-   		</article>
-			<atricle>
-   				<div class="add_doc2">
-   			<p><h4>Właściciel:</h4>	
-				 			<form action="...">
-						 <input type="text" name="owner">
-						</p>
-						<p><h4>Tagi:</h4>
-				 			<form action="...">
-							<textarea name="tagi" cols="50" rows="5"></textarea>
-							</form>
-						</p>
-					<h4>Priorytet:</h4>
-								<span style="text-align: center;"><form action="...">
-								<select name="Obieg" class="center" class="dropbtn">
-								<option></option>
-								<option>Wysoki</option>
-								<option>Średni</option>
-								<option>Niski</option>
-								</select>
-					</form>	</span>
-					
- 			<button type="submmit"  >Zapisz</button>
-				 </div>
-  		</article>
-
-
-        
-		</main>
-    <!-- stopka strony -->
-    <footer></footer>
-    <script src="js/functions.js"></script>
+        </nav><!-- .menu -->
+    </header><!-- .header -->
+    <main class="main">
+        <article class="article">
+            <div class="breadcrumb">
+                <h1>Dodaj dokument</h1>
+                <ul>
+                    <li>
+                        <a href="#">Home</a>
+                    </li>
+                    <li>
+                        <span>Dodaj dokument</span>
+                    </li>
+                </ul>
+            </div><!-- breadcrumb -->
+            <div class="content">
+                <form id="form-add" class="form-add" method="post" action="#">
+                    <div id="upload" class="upload">
+                        <input id="file" name="file" type="file">
+                    </div>
+                    <label for="owner">Właściciel:<span>*</span></label>
+                    <input id="owner" name="owner" type="text">
+                    <label for="title">Tytuł:<span>*</span></label>
+                    <input id="title" name="title" type="text">
+                    <label for="description">Opis:</label>
+                    <textarea id="description" name="description"></textarea>
+                    <button class="button" type="submit">Szukaj</button>
+                </form>
+            </div><!-- .content -->
+        </article><!-- .article -->
+    </main><!-- .main -->
+    <link href="http://ajax.aspnetcdn.com/ajax/jquery.ui/1.11.4/themes/smoothness/jquery-ui.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="/js/functions.js?ver=1.0"></script>
 </body>
 </html>
