@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Document management system - Home</title>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800&amp;subset=latin-ext" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles1.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+</head>
+<body class="body">
+    <!-- nagłówek strony -->
+    <header class="header">
+        <div class="header__top">
+            <a class="brand header__brand" href="#">
+                <img class="brand__logo" src="img/logo.png" alt="Document management system">
+            </a>
+            <form id="form-search" class="form-search header__search" method="post" action="#">
+               <input class="form-search__input" name="search" type="text" value="">
+               <button class="form-search__button" type="submit"></button>
+            </form>
+        </div>
+        <nav class="nav header__nav">
+            <div class="toggle header__toggle">
+                <a class="toggle__link" href="#">
+                    <img class="toggle__icon" src="img/hamburger.png" alt="">
+                </a>
+            </div>
+            <ul class="ul nav__ul">
+                <li class="nav__li header__li">
+                    <a href="index.html">
+                        <img class="nav__img" src="img/icon-home.png" alt="">
+                    </a>
+                </li>
+                <li class="nav__li header__li">
+                    <a href="dodaj.html">
+                        <img class="nav__img" src="img/icon-add-document.png" alt="">
+                    </a>
+                </li>
+                <li class="nav__li header__li">
+                    <a href="dok.html">
+                        <img class="nav__img" src="img/eye-9.png" alt="">
+                    </a>
+                </li>
+                <li class="nav__li header__li">
+                    <a href="">
+                        <img class="nav__img" src="img/icon-document.png" alt="">
+                    </a>
+                </li>
+                <li class="nav__li header__li">
+                    <a href="">
+                        <img class="nav__img" src="img/icon-document.png" alt="">
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+    <!-- treść strony -->
+ 
+		<main>
+  		<article>
+        <div class="add_doc">
+				<h2>Dodaj dokument</h2>
+				<p>
+				<a href="index.html">Strona główna</a>
+				</p>
+				</div>
+					<div class="add_doc1">
+					<h4>Obieg:</h4>
+								<span style="text-align: center;"><form action="...">
+								<select name="Obieg" class="center" class="dropbtn" multiple="multiple">
+								<option></option>
+								<option>obieg 1</option>
+								<option>obieg 2</option>
+								<option>obieg 3</option>
+								</select>
+					</form>		</span>
+						</div>
+			</article>
+			<article>
+   				<div class="drop_box">
+   						<div class="center">
+						 <h4>Upuść plik tutaj</h4>
+						 </div>
+						<div id="div1" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+						<img id="drag1" src="#" draggable="true"
+						ondragstart="drag(event)" width="500" height="69">
+						<div class="center">
+						 <h4>lub</h4>
+						 <p>
+						<form action="..." enctype="multipart/form-data">
+						<input type="file" class="button_wybierz"name="nazwa" />
+						</form>
+						 </p>
+						 </div>
+						 </div>
+   		</article>
+			<atricle>
+   				<div class="add_doc2">
+   			<p><h4>Właściciel:</h4>	
+				 			<form action="...">
+						 <input type="text" name="owner">
+						</p>
+						<p><h4>Tagi:</h4>
+				 			<form action="...">
+							<textarea name="tagi" cols="50" rows="5"></textarea>
+							</form>
+						</p>
+					<h4>Priorytet:</h4>
+								<span style="text-align: center;"><form action="...">
+								<select name="Obieg" class="center" class="dropbtn">
+								<option></option>
+								<option>Wysoki</option>
+								<option>Średni</option>
+								<option>Niski</option>
+								</select>
+					</form>	</span>
+					
+ 			<button type="submmit"  >Zapisz</button>
+				 </div>
+  		</article>
+
+
+        
+		</main>
+    <!-- stopka strony -->
+    <footer></footer>
+    <script src="js/functions.js"></script>
+</body>
+</html>
