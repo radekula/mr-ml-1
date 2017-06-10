@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Document management system - Wyświetlanie</title>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800&amp;subset=latin-ext" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles1.css">
+     <script>
+        function getCookie( name ){
+            var tmpName = name + '=';
+            var decodedCookie = decodeURIComponent( document.cookie );
+            var split = decodedCookie.split( ';' );
+            var i = 0, splitLength = split.length;
+            
+            for( ; i < splitLength; i++ ){
+                var char_ = split[i];
+                
+                while( char_.charAt(0) == ' ' ){
+                    char_ = char_.substring( 1 );
+                }
+                
+                if( char_.indexOf(tmpName) == 0 ){
+                    return char_.substring( tmpName.length, char_.length );
+                }
+            }
+            
+            return '';
+        }
+    </script>
+   
+	 
+	  <body id="documents" class="body">
+    <script>
+        if( getCookie( 'toggle' ) == 'true' ){
+            document.getElementsByTagName('body')[0].classList.add( 'fold' );
+        }
+    </script>
+</head>
+<body class="body">
+    <!-- nagłówek strony -->
+    <header class="header">
+        <div class="header__top">
+            <a class="brand header__brand" href="#">
+                <img class="brand__logo" src="img/logo.png" alt="Document management system">
+            </a>
+            <form id="form-search" class="form-search header__search" method="post" action="#">
+               <input class="form-search__input" name="search" type="text" value="">
+               <button class="form-search__button" type="submit"></button>
+            </form>
+        </div>
+        <nav class="nav header__nav">
+            <div class="toggle header__toggle">
+                <a class="toggle__link" href="#">
+                    <img class="toggle__icon" src="img/hamburger.png" alt="">
+                </a>
+            </div>
+            <ul class="ul nav__ul">
+                <li class="nav__li header__li">
+                    <a href="index.html">
+                        <img class="nav__img" src="img/icon-home.png" alt="">
+                    </a>
+                </li>
+                <li class="nav__li header__li">
+                    <a href="dodaj.html">
+                        <img class="nav__img" src="img/icon-add-document.png" alt="">
+                    </a>
+                </li>
+                <li class="nav__li header__li">
+                    <a href="dok.html">
+                        <img class="nav__img" src="img/eye-9.png" alt="">
+                    </a>
+                </li>
+                <li class="nav__li header__li">
+                    <a href="">
+                        <img class="nav__img" src="img/icon-document.png" alt="">
+                    </a>
+                </li>
+                <li class="nav__li header__li">
+                    <a href="">
+                        <img class="nav__img" src="img/icon-document.png" alt="">
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+    <div class="add_doc">
+				<h2>Nazwa wgranego dokumentu</h2>
+				<p>
+				<a href="index.html">Home</a> <a href="dodaj.html">Dodawanie</a> <a href="lista.html">Lista dokumentów</a>
+				</p>
+				</div>
+				<table>
+ 					 <tr>
+    					<th> 
+							<div class="add_doc4">
+									<form id="form-search" class="form-search header__search1" method="post" action="#">
+               		<input class="form-search__input" name="search" type="text" value="">
+              		 <button class="form-search__button" type="submit"></button>
+            			</form>
+									<iframe src="kalendarz.html" class="calendar_toogle" "width="300" height="50">
+									</iframe>
+									</div>
+							</th>
+    					<th>
+							<div class="add_doc3">
+    					<p class="left" <h5>Nazwa wgranego dokumentu </h5> </p> <button title="Pobierz" type="submit"><img src="img/icon-download.png" alt=""></title></button> <button title="Usuń" type="submit"><img src="img/icon-delete.png" alt=""></title></button>
+								</div>
+								</th>
+    				</tr>
+    		</table>
+    
+									
+					
+ 
+    <main>
+        <article>
+        
+					</article>
+				
+       
+    </main>
+    <link href="http://ajax.aspnetcdn.com/ajax/jquery.ui/1.11.4/themes/smoothness/jquery-ui.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="/js/functions.js?ver=1.0"></script>
+</body>
+</html>
