@@ -11,7 +11,7 @@
     3.0 - Main
         3.1 - Breadcrumb
         3.2 - Content
-        3.3 - Form table
+        3.3 - Form tablef
         3.4 - Table
         3.5 - Pagination
         3.6 - Form add
@@ -433,13 +433,16 @@ nav.menu li img {
 */
 
 .main .breadcrumb {
-    float: left;
     display: inline-block;
     margin: 0 0 50px;
     padding: 26px 28px 28px;
     min-width: 500px;
     background-color: #fff;
     box-sizing: border-box;
+}
+
+body.add .main .breadcrumb {
+    float: left;
 }
 
 .main .breadcrumb h1 {
@@ -497,7 +500,6 @@ nav.menu li img {
 */
 
 .main .content {
-    float: left;
     clear: both;
     position: relative;
     min-width: 960px;
@@ -505,6 +507,7 @@ nav.menu li img {
 }
 
 body.add .main .content {
+    float: left;
     display: inline-block;
     min-width: auto;
 }
