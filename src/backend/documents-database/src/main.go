@@ -39,7 +39,7 @@ type DocumentData struct {
 type DocumentDataLite struct {
     Id string `json:"id" bson:"id,omitempty"`
     Title string `json:"title" bson:"title,omitempty"`
-    FileName string `json:"file_name" bson:"file_name,omitempty""`
+    FileName string `json:"file_name" bson:"file_name,omitempty"`
     CreateDate string `json:"create_date" bson:"create_date,omitempty"`
     Description string `json:"description" bson:"description,omitempty"`
     Owner []string `json:"owner" bson:"owner,omitempty"`
@@ -64,7 +64,7 @@ func get_documents() ([]DocumentDataLite, int) {
     }
     defer session.Close()
 
-    var documents []DocumentDataLite;
+    var documents []DocumentDataLite
 
     collection := session.DB("documentsDatabase").C("documents")
     collection.Find(bson.M{}).All(&documents)
@@ -80,7 +80,7 @@ func get_document(id string) (DocumentData, int) {
     }
     defer session.Close()
 
-    var document DocumentData;
+    var document DocumentData
 
     collection := session.DB("documentsDatabase").C("documents")
     collection.Find(bson.M{"id": id}).One(&document)
@@ -160,7 +160,7 @@ func about(w http.ResponseWriter, r *http.Request) {
 }
  
 func document(w http.ResponseWriter, r *http.Request) {
-    re, err := regexp.CompilePOSIX("document/[^/]+/{0,1}$")
+    re, err := regexp.CompilePOSIX("document/[^/]+/?$")
 
     if err != nil {
         w.WriteHeader(http.StatusInternalServerError)
@@ -174,7 +174,7 @@ func document(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    request := strings.Split(r.URL.Path, "/");
+    request := strings.Split(r.URL.Path, "/")
 
     switch r.Method {
         case "GET":
@@ -204,7 +204,7 @@ func document(w http.ResponseWriter, r *http.Request) {
             }
 
             document.Id = request[2];
-            if(write_document(document) > 0) {
+            if write_document(document) > 0 {
                 w.WriteHeader(http.StatusInternalServerError)
                 return
             }
@@ -219,7 +219,7 @@ func document(w http.ResponseWriter, r *http.Request) {
             }
 
             document.Id = request[2];
-            if(update_document(document) > 0) {
+            if update_document(document) > 0 {
                 w.WriteHeader(http.StatusInternalServerError)
                 return
             }
@@ -227,7 +227,7 @@ func document(w http.ResponseWriter, r *http.Request) {
             fmt.Println("Document modified");
         case "DELETE":
             id := request[2];
-            if(delete_document(id) > 0) {
+            if delete_document(id) > 0 {
                 w.WriteHeader(http.StatusInternalServerError)
                 return
             }
