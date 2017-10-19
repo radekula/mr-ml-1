@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Rejestracja - Document Management System</title>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&amp;subset=latin-ext" rel="stylesheet">
+    <link href="./css/styles.css?ver=1.0" rel="stylesheet">
+</head>
+<body class="login register js-login">
+    <main>
+        <article class="login-content">
+            <header class="login-header">
+                <h1 class="login-title">Zarejestruj się</h1>
+            </header>
+            <form class="login-form" method="post" action="register.html">
+                <label class="login-label login-valid" for="login-user">
+                    <span class="login-label-title">Login:</span>
+                    <i class="login-icon">&#xf2c0;</i>
+                    <input id="login-user" class="login-input login-user js-login-user" name="login_password" type="text" value="user">
+                </label>
+                <label class="login-label login-invalid" for="login-email">
+                    <span class="login-label-title">E-mail:</span>
+                    <i class="login-icon">&#xe801;</i>
+                    <input id="login-email" class="login-input login-email js-login-email" name="login_email" type="email" value="email@example.com">
+                </label>
+                <label class="login-label" for="login-password">
+                    <span class="login-label-title">Hasło:</span>
+                    <i class="login-icon">&#xe800;</i>
+                    <input id="login-password" class="login-input login-password js-login-password" name="login_password" type="password" value="" autofocus>
+                </label>
+                <label class="login-label" for="login-password-repeat">
+                    <span class="login-label-title">Powtórz hasło:</span>
+                    <i class="login-icon">&#xe800;</i>
+                    <input id="login-password-repeat" class="login-input login-password-repeat js-login-password-repeat" name="login_password_repeat" type="password" value="">
+                </label>
+                <!--<p class="alert alert-danger">Błędnie wypełniony formularz.</p>-->
+                <button class="login-button js-login-button" type="button">Zarejestruj się</button>
+            </form>
+      </article>
+    </main>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="js/functions.js?ver=1.0"></script>
+</body>
+</html>
