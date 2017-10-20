@@ -1,0 +1,446 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "This is description of users API",
+    "version": "0.1",
+    "title": "Users"
+  },
+  "basePath": "/",
+  "tags": [
+  ],
+  "schemes": [
+    "http"
+  ],
+  "paths": {
+    "/user/{login}/{token}": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Get basic information about user",
+        "description": "This endpoint will return basic information about user.",
+        "operationId": "getUser",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "login",
+            "in": "path",
+            "description": "User login",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "description": "Token of user performing operation (or system user token)",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/BasicUserData"
+            }
+          },
+          "403": {
+            "description": "Your not allowed to get user data or your token expired"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Create user",
+        "description": "Create new user in database",
+        "operationId": "createNewUser",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "login",
+            "in": "path",
+            "description": "User login",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "description": "Token of user performing operation (system user token)",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "user_data",
+            "in": "body",
+            "description": "User data",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/NewUserData"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Invalid token or token expired"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Update user data",
+        "description": "Update user data with new values",
+        "operationId": "updateUser",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "login",
+            "in": "path",
+            "description": "User login",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "description": "Token of user performing operation (or system user token)",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "user_data",
+            "in": "body",
+            "description": "User data",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateUserData"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Invalid token or token expired"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Delete user",
+        "description": "Delete user",
+        "operationId": "deleteUser",
+        "parameters": [
+          {
+            "name": "login",
+            "in": "path",
+            "description": "User login",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "description": "Token of user performing operation (only system or administrator user token allowed)",
+            "required": true,
+            "type": "string"
+          },
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "403": {
+            "description": "Invalid token or token expired"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/login/{login}": {
+      "post": {
+        "tags": [
+          "login"
+        ],
+        "summary": "Login user using given credentials",
+        "description": "Returns token with expiration date. Token expiration time will be automatically extended any operation with that token will be performed (you can use GET user requets to extend token time)",
+        "operationId": "login",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "login",
+            "in": "path",
+            "description": "User login",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "password",
+            "in": "body",
+            "description": "User password",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/LoginData"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/TokenData"
+            }
+          },
+          "403": {
+            "description": "Login failed - login name or password invalid"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/logout/{token}": {
+      "get": {
+        "tags": [
+          "login"
+        ],
+        "summary": "Logout user with given token",
+        "description": "Logout user",
+        "operationId": "logout",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "description": "User token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "403": {
+            "description": "Logout failed - token is already invalid"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/change_password/{login}/{token}": {
+      "post": {
+        "tags": [
+          "administration"
+        ],
+        "summary": "Change user password",
+        "description": "Changes user password. Old password is not required if administrator or system user token in used.",
+        "operationId": "changePassword",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "login",
+            "in": "path",
+            "description": "User login",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "description": "User or system token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "password_data",
+            "in": "body",
+            "description": "New password data",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PasswordChangeData"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "403": {
+            "description": "Invalid token or token expired"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "BasicUserData": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["normal", "administrator", "system"]
+        },
+        "active": {
+          "type": "boolean"
+        },
+        "login": {
+          "type": "string"
+        },
+        "first_name": {
+          "type": "string"
+        },
+        "last_name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "last_login": {
+          "type": "string",
+          "description": "Timestamp in YYYY-MM-DD HH:MM:SS format"
+        },
+        "last_active": {
+          "type": "string",
+          "description": "Timestamp in YYYY-MM-DD HH:MM:SS format"
+        },
+        "token_expiration_time": {
+          "type": "integer",
+          "description": "Number of seconds till token expires"
+        }
+      }
+    },
+    "NewUserData": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["normal", "administrator", "system"]
+        },
+        "active": {
+          "type": "boolean"
+        },
+        "login": {
+          "type": "string"
+        },
+        "first_name": {
+          "type": "string"
+        },
+        "last_name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "UpdateUserData": {
+      "type": "object",
+      "properties": {
+        "active": {
+          "type": "boolean"
+        },
+        "login": {
+          "type": "string"
+        },
+        "first_name": {
+          "type": "string"
+        },
+        "last_name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        }
+      }
+    },
+    "LoginData": {
+      "type": "object",
+      "properties": {
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "TokenData": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string"
+        },
+        "expiration_time": {
+          "type": "integer",
+          "description": "Number of seconds till token expires"
+        }
+      }
+    },
+    "PasswordChangeData": {
+      "type": "object",
+      "properties": {
+        "old_password": {
+          "type": "string"
+        },
+        "new_password": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
