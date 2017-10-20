@@ -170,6 +170,26 @@ paths:
           description: Login failed - login name or password invalid
         '500':
           description: Internal server error
+  '/logout/{token}':
+    get:
+      tags:
+        - login
+      summary: Logout user with given token
+      description: Logout user
+      operationId: logout
+      parameters:
+        - name: token
+          in: path
+          description: User token
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successful operation
+        '403':
+          description: Logout failed - token is already invalid
+        '500':
+          description: Internal server error
   '/change_password/{login}/{token}':
     post:
       tags:
