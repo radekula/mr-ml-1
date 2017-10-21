@@ -43,3 +43,11 @@ docker run -d -p 8081:8080 --link {database_service_name}:users-database-mong --
 ```
 
 Service is now available on linux host on port 8081.
+
+## Administration
+
+On first run service will create one user with login: admin and password: admin123. It's highly recomended to change password for this user using change_password endpoint.
+
+## Usage
+
+Frontend application can use admin user or any user with type: admin
