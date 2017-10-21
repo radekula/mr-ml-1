@@ -23,12 +23,8 @@ Service is writen in go langugage and can be run inside docker container.
 
 Go into docker directory.
 
-* create 'go' directory and inside src directory: `mkdir -p go/src`
-* get your current path: `pwd`
-* set GOPATH to {current path}/go: `export GOPATH={current path}/go`
-* execute: `go get gopkg.in/mgo.v2`
-* build executable: `CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o documents-database ../src/main.go`
-* build docker image: `docker build -t documents-database .`
+* run `./build` script to build app
+* run `./build_container` to build app and container 
 
 ## How to run
 
@@ -43,7 +39,7 @@ where {host_path} is a local path to a directory where database files will be st
 __Next run users service:__
 
 ```
-docker run -d -p 8081:8080 --link {database_service_name}:users-mongo --name users users
+docker run -d -p 8081:8080 --link {database_service_name}:users-database-mong --name users users
 ```
 
 Service is now available on linux host on port 8081.

@@ -39,7 +39,7 @@ paths:
           description: User not found
         '500':
           description: Internal server error
-    put:
+    post:
       tags:
         - user
       summary: Create user
@@ -71,9 +71,11 @@ paths:
           description: Bad request
         '403':
           description: Invalid token or token expired
+        '409':
+          description: User with given login exists
         '500':
           description: Internal server error
-    post:
+    put:
       tags:
         - user
       summary: Update user data
@@ -253,9 +255,9 @@ definitions:
       last_active:
         type: string
         description: 'Timestamp in YYYY-MM-DD HH:MM:SS format'
-      token_expiration_time:
-        type: integer
-        description: Number of seconds till token expires
+      expiration_time:
+        type: string
+        description: 'Timestamp in YYYY-MM-DD HH:MM:SS format'
   NewUserData:
     type: object
     properties:
@@ -280,10 +282,14 @@ definitions:
   UpdateUserData:
     type: object
     properties:
+      type:
+        type: string
+        enum:
+          - normal
+          - administrator
+          - system
       active:
         type: boolean
-      login:
-        type: string
       first_name:
         type: string
       last_name:
@@ -301,8 +307,8 @@ definitions:
       token:
         type: string
       expiration_time:
-        type: integer
-        description: Number of seconds till token expires
+        type: string
+        description: 'Timestamp in YYYY-MM-DD HH:MM:SS format'
   PasswordChangeData:
     type: object
     properties:

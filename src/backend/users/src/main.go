@@ -9,7 +9,6 @@ import (
 
 
 func main() {
-    
     app_init.Init()
     
     http.HandleFunc("/", controller.About)
