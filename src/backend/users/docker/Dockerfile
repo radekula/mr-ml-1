@@ -2,7 +2,7 @@ FROM scratch
 
 ADD users /
 
-EXPOSE 8081
+EXPOSE 8080
 ENTRYPOINT ["/users"]
 
 

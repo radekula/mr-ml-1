@@ -2,20 +2,20 @@ package controller
 
 
 import (
-    "fmt"
-    "strings"
+//    "fmt"
+//    "strings"
     "encoding/json"
     "net/http"
-    "regexp"
-    "gopkg.in/mgo.v2"
-    "gopkg.in/mgo.v2/bson"
-    "users/model"
+//    "regexp"
+//    "gopkg.in/mgo.v2"
+//    "gopkg.in/mgo.v2/bson"
+    "../model"
 )
 
 
 
-func about(w http.ResponseWriter, r *http.Request) {
-    test := SimpleMessage{200, "About!"}
+func About(w http.ResponseWriter, r *http.Request) {
+    test := model.AboutData{"About!"}
 
     message, err := json.Marshal(test)
 
@@ -28,7 +28,7 @@ func about(w http.ResponseWriter, r *http.Request) {
 
 
 
-func user(w http.ResponseWriter, r *http.Request) {
+func User(w http.ResponseWriter, r *http.Request) {
 /*    re, err := regexp.CompilePOSIX("documents/[^/]*$")
 
     if err != nil {
@@ -72,7 +72,7 @@ func user(w http.ResponseWriter, r *http.Request) {
 
 
 
-func login(w http.ResponseWriter, r *http.Request) {
+func Login(w http.ResponseWriter, r *http.Request) {
 /*    re, err := regexp.CompilePOSIX("documents/[^/]*$")
 
     if err != nil {
@@ -115,7 +115,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 }
 
 
-func logout(w http.ResponseWriter, r *http.Request) {
+func Logout(w http.ResponseWriter, r *http.Request) {
 /*    re, err := regexp.CompilePOSIX("documents/[^/]*$")
 
     if err != nil {
@@ -159,7 +159,7 @@ func logout(w http.ResponseWriter, r *http.Request) {
 
 
 
-func change_password(w http.ResponseWriter, r *http.Request) {
+func ChangePassword(w http.ResponseWriter, r *http.Request) {
 /*    re, err := regexp.CompilePOSIX("documents/[^/]*$")
 
     if err != nil {

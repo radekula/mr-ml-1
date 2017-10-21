@@ -3,17 +3,21 @@ package main
 import (
     "fmt"
     "net/http"
-    "users/controller"
+    "./app_init"
+    "./controller"
 )
 
 
 func main() {
-    http.HandleFunc("/", about)
-    http.HandleFunc("/user/", user)
-    http.HandleFunc("/login/", login)
-    http.HandleFunc("/logout/", logout)
-    http.HandleFunc("/change_password/", change_password)
     
+    app_init.Init()
+    
+    http.HandleFunc("/", controller.About)
+    http.HandleFunc("/user/", controller.User)
+    http.HandleFunc("/login/", controller.Login)
+    http.HandleFunc("/logout/", controller.Logout)
+    http.HandleFunc("/change_password/", controller.ChangePassword)
+
     fmt.Println("Service started.")
     http.ListenAndServe(":8080", nil)
 }
