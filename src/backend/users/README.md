@@ -39,7 +39,7 @@ where {host_path} is a local path to a directory where database files will be st
 __Next run users service:__
 
 ```
-docker run -d -p 8081:8080 --link {database_service_name}:users-database-mong --name users users
+docker run -d -p 8081:8080 --link {database_service_name}:users-database-mongo --name users users
 ```
 
 Service is now available on linux host on port 8081.
