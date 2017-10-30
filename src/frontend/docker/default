@@ -1,0 +1,45 @@
+server {
+        listen 80;
+
+        root /usr/share/nginx/html;
+
+        server_name _;
+
+        try_files $uri /index.php?$query_string;
+
+        location ^~ /config {
+            deny all;
+        }
+
+        location ^~ /www {
+            deny all;
+        }
+
+        location ^~ /www/js {
+            allow all;
+        }
+
+        location ^~ /www/fonts {
+            allow all;
+        }
+
+        location ^~ /www/img {
+            allow all;
+        }
+
+        location ^~ /www/css {
+            allow all;
+        }
+
+        location ~ \.php$ {
+                fastcgi_connect_timeout 3s;
+                fastcgi_read_timeout 10s;
+                include fastcgi_params;
+                fastcgi_pass unix:/run/php/php7.0-fpm.sock;
+                fastcgi_param SCRIPT_FILENAME /usr/share/nginx/html/index.php;
+
+                add_header 'Access-Control-Allow-Origin' '*';
+                add_header 'Access-Control-Allow-Headers' 'Content-type';
+                add_header 'Access-Control-Allow-Methods' 'PUT,OPTIONS,DELETE,GET,POST';
+        }
+}
