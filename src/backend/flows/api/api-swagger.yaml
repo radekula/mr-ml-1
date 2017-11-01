@@ -1,0 +1,81 @@
+swagger: '2.0'
+info:
+  description: This is description of flows API
+  version: '0.1'
+  title: Flows
+basePath: /
+tags: []
+schemes:
+  - http
+paths:
+  '/flow/':
+    post:
+      summary: Create new flow.
+      description: Create flow of given type.
+      operationId: createFlow
+      parameters:
+        - in: header
+          name: flowType
+          type: integer
+          description: Id of flow type.
+          required: true
+      responses:
+        '200':
+          description: Successful operation
+        '500':
+          description: Internal server error
+  '/flow/{flowId}':
+    get:
+      summary: Get flow by ID.
+      description: Only one flow will be returned as a result.
+      operationId: getFlow
+      produces:
+        - application/json
+      parameters:
+        - name: flowId
+          in: path
+          description: ID of flow to return.
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            $ref: '#/definitions/Flow'
+        '404':
+          description: Flow not found
+        '500':
+          description: Internal server error
+definitions:
+  FlowType:
+    type: object
+    properties:
+      name:
+        type: string
+      description:
+        type: string
+      firststep:
+        type: integer
+  StepType:
+    type: object
+    properties:
+      name:
+        type: string
+      description:
+        type: string
+      responsible:
+        type: integer
+      nextstep:
+        type: integer
+  Flow:
+    type: object
+    properties:
+      flowtype:
+        type: integer
+      document:
+        type: integer
+  Step:
+    type: object
+    properties:
+      steptype:
+        type: integer
