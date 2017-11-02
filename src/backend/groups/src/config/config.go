@@ -1,19 +1,20 @@
 package config
 
 import (
-    "fmt"
+    "io/ioutil"
+    "encoding/json"
     "../model"
 )
 
 
-func GetConfig() {    
+func GetConfig() (model.Config) {
+    var conf model.Config
+
     raw, err := ioutil.ReadFile("/config.json")
     if err != nil {
-        fmt.Println(err.Error())
-        os.Exit(1)
+        return conf
     }
 
-    var conf model.Config
     json.Unmarshal(raw, &conf)
     
     return conf

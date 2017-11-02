@@ -14,9 +14,9 @@ func main() {
     http.HandleFunc("/", controller.About)
     http.HandleFunc("/groups/", controller.Groups)
     http.HandleFunc("/group/", controller.Group)
-    http.HandleFunc("/members/", controller.Members)
-    http.HandleFunc("/user/", controller.User)
+/*    http.HandleFunc("/members/", controller.Members)
+    http.HandleFunc("/user/", controller.User)*/
 
     fmt.Println("Service started.")
-    http.ListenAndServe(":" + config.Service.Port, nil)
+    http.ListenAndServe(":" + string(config.Service.Port), nil)
 }

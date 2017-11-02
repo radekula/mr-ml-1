@@ -83,7 +83,7 @@
             }
           },
           "403": {
-            "description": "Your not allowed to get user data or your token expired"
+            "description": "Your not allowed to get group data or your token expired"
           },
           "404": {
             "description": "Group not found"
@@ -139,7 +139,7 @@
             "description": "Invalid token or token expired"
           },
           "409": {
-            "description": "Group with given id exists"
+            "description": "Group with given name exists"
           },
           "500": {
             "description": "Internal server error"

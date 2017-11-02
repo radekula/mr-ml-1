@@ -11,16 +11,97 @@ import (
     "gopkg.in/mgo.v2/bson"
     "../model"
     "../config"
-    "../libs"
+    "../remote"
 )
 
 
-func getGroups(c *mgo.Collection) ([]model.DBGroupData, int) {
+func getGroups(collection *mgo.Collection) ([]model.DBGroupData, int) {
     var groups []model.DBGroupData
 
     collection.Find(bson.M{}).All(&groups)
 
     return groups, 0
+}
+
+func getGroup(c *mgo.Collection, name string) (model.GroupDataFull, int) {
+    var ret_data model.GroupDataFull
+
+    var search_data model.DBGroupData
+
+    err := c.Find(bson.M{"name": name}).One(&search_data)
+    if err != nil {
+        return ret_data, -1
+    }
+
+    ret_data.Name        = search_data.Name
+    ret_data.Active      = search_data.Active
+    ret_data.CreateDate  = search_data.CreateDate
+    ret_data.Creator     = search_data.Creator
+    ret_data.Description = search_data.Description
+
+    return ret_data, 0
+}
+
+
+func createGroup(c *mgo.Collection, name string, data model.GroupData) (int) {
+    _, err := getGroup(c, name)
+    if err == 0 {
+        return 1
+    }
+    
+    var add_data model.DBGroupData
+    
+    add_data.Name        = name
+    add_data.Active      = data.Active
+    add_data.CreateDate  = data.CreateDate
+    add_data.Creator     = data.Creator
+    add_data.Description = data.Description
+
+    c.Insert(&add_data)
+
+    return 0
+}
+
+
+func updateGroup(c *mgo.Collection, name string, data model.GroupData) (int) {
+    org_data, err := getGroup(c, name)
+    
+    if err != 0 {
+        return 1
+    }
+
+    if org_data.Active != data.Active    {org_data.Active = data.Active}
+    if len(data.CreateDate) > 1          {org_data.CreateDate = data.CreateDate}
+    if len(data.Creator) > 1             {org_data.Creator = data.Creator}
+    if len(data.Description) > 1         {org_data.Description = data.Description}
+
+    data_change := bson.M{"active"        : org_data.Active, 
+                          "create_date"   : org_data.CreateDate,
+                          "creator"       : org_data.Creator,
+                          "description"   : org_data.Description}
+
+    change := mgo.Change{
+        Update:  bson.M{"$set": data_change},
+        ReturnNew: false,
+    }
+
+    c.Find(bson.M{"name": name}).Apply(change, &org_data)
+
+    return 0
+}
+
+
+
+func deleteGroup(c *mgo.Collection, name string) (int) {
+    _, err := getGroup(c, name)
+    
+    if err != 0 {
+        return 1
+    }
+
+    c.Remove(bson.M{"name": name})
+
+    return 0
 }
 
 
@@ -53,20 +134,20 @@ func Groups(w http.ResponseWriter, r *http.Request) {
         w.WriteHeader(http.StatusBadRequest)
         return
     }
-
+    
+    request := strings.Split(r.URL.Path, "/")
+    token := request[2]
+    
+    _, ret := remote.VerifyToken(token)
+    if ret != 200 {
+        w.WriteHeader(http.StatusForbidden)
+        return
+    }
+            
     config := config.GetConfig()
 
     switch r.Method {
         case "GET":
-            request := strings.Split(r.URL.Path, "/")
-            token := request[2]
-
-            userData, ret := VerifyToken(token)
-            if ret != 200 {
-                w.WriteHeader(http.StatusForbidden)
-                return
-            }
-
             session, err := mgo.Dial(config.Service.Database)
 
             if err != nil {
@@ -103,6 +184,150 @@ func Groups(w http.ResponseWriter, r *http.Request) {
 
 
 
+func Group(w http.ResponseWriter, r *http.Request) {
+    re, err := regexp.CompilePOSIX("group/[^/]*/[^/]*$")
+
+    if err != nil {
+        w.WriteHeader(http.StatusInternalServerError)
+        return
+    }
+
+    valid_request := re.FindString(r.URL.Path[1:])
+
+    if valid_request == "" {
+        w.WriteHeader(http.StatusBadRequest)
+        return
+    }
+
+    request := strings.Split(r.URL.Path, "/")
+    name  := request[2]
+    token := request[3]
+
+    _, ret := remote.VerifyToken(token)
+    if ret != 200 {
+        w.WriteHeader(http.StatusForbidden)
+        return
+    }
+
+    config := config.GetConfig()
+
+    switch r.Method {
+        case "GET":
+            session, err := mgo.Dial(config.Service.Database)
+
+            if err != nil {
+                w.WriteHeader(http.StatusInternalServerError)
+                return
+            }
+            defer session.Close()
+
+            collection := session.DB("groupsDatabase").C("groups")
+            group, ret := getGroup(collection, name)
+
+            if ret != 0 {
+                switch ret {
+                    case -1:
+                        w.WriteHeader(http.StatusNotFound)
+                    default:
+                        w.WriteHeader(http.StatusInternalServerError)
+                }
+                return
+            }
+
+            json_message, err_json := json.Marshal(group)
+            if err_json != nil {
+                w.WriteHeader(http.StatusInternalServerError)
+                return
+            }
+            w.Write(json_message)
+        case "POST":
+            var data model.GroupData
+            
+            err := json.NewDecoder(r.Body).Decode(&data)
+            if err != nil {
+                w.WriteHeader(http.StatusInternalServerError)
+            }
+            
+            session, err := mgo.Dial(config.Service.Database)
+
+            if err != nil {
+                w.WriteHeader(http.StatusInternalServerError)
+                return
+            }
+            defer session.Close()
+
+            collection := session.DB("groupsDatabase").C("groups")
+            ret := createGroup(collection, name, data)
+
+            if ret != 0 {
+                switch ret {
+                    case 1:
+                        w.WriteHeader(http.StatusConflict)
+                    default:
+                        w.WriteHeader(http.StatusInternalServerError)
+                }
+                return
+            }
+
+            w.WriteHeader(http.StatusOK)
+        case "PUT":
+            var data model.GroupData
+            
+            err := json.NewDecoder(r.Body).Decode(&data)
+            if err != nil {
+                w.WriteHeader(http.StatusInternalServerError)
+            }
+            
+            session, err := mgo.Dial(config.Service.Database)
+
+            if err != nil {
+                w.WriteHeader(http.StatusInternalServerError)
+                return
+            }
+            defer session.Close()
+
+            collection := session.DB("groupsDatabase").C("groups")
+            ret := updateGroup(collection, name, data)
+
+            if ret != 0 {
+                switch ret {
+                    case 1:
+                        w.WriteHeader(http.StatusNotFound)
+                    default:
+                        w.WriteHeader(http.StatusInternalServerError)
+                }
+                return
+            }
+
+            w.WriteHeader(http.StatusOK)
+        case "DELETE":
+            session, err := mgo.Dial(config.Service.Database)
+
+            if err != nil {
+                w.WriteHeader(http.StatusInternalServerError)
+                return
+            }
+            defer session.Close()
+
+            collection := session.DB("groupsDatabase").C("groups")
+            ret := deleteGroup(collection, name)
+
+            if ret != 0 {
+                switch ret {
+                    case 1:
+                        w.WriteHeader(http.StatusNotFound)
+                    default:
+                        w.WriteHeader(http.StatusInternalServerError)
+                }
+                return
+            }
+
+            w.WriteHeader(http.StatusOK)
+        default:
+            w.WriteHeader(http.StatusBadRequest)
+            return
+    }
+}
 
 
 
@@ -153,40 +378,6 @@ func getUserByToken(c *mgo.Collection, token string) (model.DBUserData, int) {
 
 
 
-func getUserData(c *mgo.Collection, login string, token string) (model.BasicUserData, int) {
-    var ret_user model.BasicUserData
-
-    user, err := getUserByToken(c, token)
-
-    if err != 0 {
-        return ret_user, -1
-    }
-
-    search_user, ret := getUserByLogin(c, login)
-
-    if user.Type != "admin" {
-        if ret != 0 || search_user.Token != token {
-            return ret_user, -1
-        }
-    }
-    
-    if ret != 0 {
-        return ret_user, -2
-    }
-
-    ret_user.Type = search_user.Type
-    ret_user.Active = search_user.Active
-    ret_user.Login = search_user.Login
-    ret_user.FirstName = search_user.FirstName
-    ret_user.LastName = search_user.LastName
-    ret_user.Email = search_user.Email
-    ret_user.LastLogin = search_user.LastLogin
-    ret_user.LastActive = search_user.LastActive
-    ret_user.TokenExpirationTime = search_user.ExpirationTime
-       
-    return ret_user, 0
-}
-
 
 func createUser(c *mgo.Collection, token string, user_data model.NewUserData) (int) {
     user, err := getUserByToken(c, token)
@@ -221,513 +412,4 @@ func createUser(c *mgo.Collection, token string, user_data model.NewUserData) (i
 }
 
 
-func updateUser(c *mgo.Collection, login string, token string, user_data model.UpdateUserData) (int) {
-    user, err := getUserByToken(c, token)
-
-    if err != 0 {
-        return -1
-    }
-
-    org_user, err := getUserByLogin(c, login)
-
-    if user.Type != "admin" {
-        if org_user.Token != token {
-            return -1
-        }
-    }
-    
-    if err != 0 {
-        return 1
-    }
-
-    if len(user_data.Type) > 1      {org_user.Type = user_data.Type}
-    if user_data.Active             {org_user.Active = user_data.Active}
-    if len(user_data.FirstName) > 1 {org_user.FirstName = user_data.FirstName}
-    if len(user_data.LastName) > 1  {org_user.LastName = user_data.LastName}
-    if len(user_data.Email) > 1     {org_user.Email = user_data.Email}
-
-    data_change := bson.M{"type"         : org_user.Type, 
-                          "active"       : org_user.Active,
-                          "firstname"    : org_user.FirstName,
-                          "lastname"     : org_user.LastName,
-                          "email"        : org_user.Email}
-
-    change := mgo.Change{
-        Update:  bson.M{"$set": data_change},
-        ReturnNew: false,
-    }
-
-    c.Find(bson.M{"login": login}).Apply(change, &org_user)
-
-    return 0
-}
-
-
-
-func deleteUser(c *mgo.Collection, login string, token string) (int) {
-    user, err := getUserByToken(c, token)
-
-    if err != 0 {
-        return -1
-    }
-
-    org_user, err := getUserByLogin(c, login)
-
-    if user.Type != "admin" {
-        if org_user.Token != token {
-            return -1
-        }
-    }
-    
-    if err != 0 {
-        return 1
-    }
-
-    c.Remove(bson.M{"login": login})
-
-    return 0
-}
-
-
-func loginUser(c *mgo.Collection, login string, passwd_data model.LoginData) (model.TokenData, int) {
-    var token model.TokenData
-    
-    exists := checkUserExists(c, login)
-    
-    if !exists {
-        return token, -1
-    }
-
-    user, err := getUserByLogin(c, login)
-
-    if err != 0 {
-        return token, -2
-    }
-
-    valid := libs.ComparePasswd(passwd_data.Password, user.Password)
-    if !valid {
-        return token, 1
-    }
-
-    curr_time := libs.CurrentTime()
-
-    expired := false
-    
-    if len(user.ExpirationTime) > 1 {
-        expired = libs.CompareDates(curr_time, user.ExpirationTime)
-    }
-
-    if expired || len(user.Token) < 1 {
-        token.Token = libs.NewToken()
-    } else {
-        token.Token = user.Token
-    }
-
-    token.ExpirationTime = libs.CalculateExpirationTime(3600)
-
-    data_change := bson.M{"token"          : token.Token, 
-                          "expirationtime" : token.ExpirationTime,
-                          "lastlogin"      : curr_time,
-                          "lastactive"     : curr_time}
-
-    change := mgo.Change{
-        Update:  bson.M{"$set": data_change},
-        ReturnNew: false,
-    }
-
-    c.Find(bson.M{"login": login}).Apply(change, &user)
-
-    return token, 0
-}
-
-
-
-func logoutUser(c *mgo.Collection, token string) (int) {    
-    user, exists := getUserByToken(c, token)
-    
-    if exists != 0 {
-        return -1
-    }
-
-    curr_time := libs.CurrentTime()
-
-    data_change := bson.M{"token"          : "", 
-                          "expirationtime" : "",
-                          "lastactive"     : curr_time}
-
-    change := mgo.Change{
-        Update:  bson.M{"$set": data_change},
-        ReturnNew: false,
-    }
-
-    c.Find(bson.M{"login": user.Login}).Apply(change, &user)
-
-    return 0
-}
-
-
-
-func changeUserPasswd(c *mgo.Collection, login string, token string, passwd_data model.PasswordChangeData) (int) {
-    user, err := getUserByToken(c, token)
-
-    if err != 0 {
-        return -1
-    }
-
-    if user.Type != "admin" {
-        if user.Token != token {
-            return -1
-        }
-
-        if libs.ComparePasswd(passwd_data.OldPassword, user.Password) {
-            return -1
-        }
-    } else {
-        if user.Token != token {
-            exists := checkUserExists(c, login)
-        
-            if !exists {
-                return -2
-            }
-        }
-    }
-
-    dest_user, ret := getUserByLogin(c, login)
-    if ret != 0 {
-        return -2
-    }
-
-    data_change := bson.M{"password": libs.HashPasswd(passwd_data.NewPassword)}
-
-    change := mgo.Change{
-        Update:  bson.M{"$set": data_change},
-        ReturnNew: false,
-    }
-
-    c.Find(bson.M{"login": dest_user.Login}).Apply(change, &dest_user)
-    return 0
-}
-
-
-
-
-
-
-
-func User(w http.ResponseWriter, r *http.Request) {
-    re, err := regexp.CompilePOSIX("user/[^/]*/[^/]*$")
-
-    if err != nil {
-        w.WriteHeader(http.StatusInternalServerError)
-        return
-    }
-
-    valid_request := re.FindString(r.URL.Path[1:])
-
-    if valid_request == "" {
-        w.WriteHeader(http.StatusBadRequest)
-        return
-    }
-
-    switch r.Method {
-        case "GET":
-            request := strings.Split(r.URL.Path, "/")
-            login := request[2]
-            token := request[3]
-
-            session, err := mgo.Dial("users-database-mongo")
-
-            if err != nil {
-                w.WriteHeader(http.StatusInternalServerError)
-                return
-            }
-            defer session.Close()
-
-            collection := session.DB("usersDatabase").C("users")
-            user, ret := getUserData(collection, login, token)
-
-            if ret != 0 {
-                switch ret {
-                    case -1:
-                        w.WriteHeader(http.StatusForbidden)
-                    case -2:
-                        w.WriteHeader(http.StatusNotFound)
-                    default:
-                        w.WriteHeader(http.StatusInternalServerError)
-                }
-                return
-            }
-
-            json_message, err_json := json.Marshal(user)
-            if err_json != nil {
-                w.WriteHeader(http.StatusInternalServerError)
-                return
-            }
-            w.Write(json_message)
-        case "POST":
-            request := strings.Split(r.URL.Path, "/")
-            token := request[3]
-
-            var user_data model.NewUserData
-            
-            err := json.NewDecoder(r.Body).Decode(&user_data)
-            if err != nil {
-                w.WriteHeader(http.StatusInternalServerError)
-            }
-            
-            session, err := mgo.Dial("users-database-mongo")
-
-            if err != nil {
-                w.WriteHeader(http.StatusInternalServerError)
-                return
-            }
-            defer session.Close()
-
-            collection := session.DB("usersDatabase").C("users")
-            ret := createUser(collection, token, user_data)
-
-            if ret != 0 {
-                switch ret {
-                    case -1:
-                        w.WriteHeader(http.StatusForbidden)
-                    case 1:
-                        w.WriteHeader(http.StatusConflict)
-                    default:
-                        w.WriteHeader(http.StatusInternalServerError)
-                }
-                return
-            }
-
-            w.WriteHeader(http.StatusOK)
-        case "PUT":
-            request := strings.Split(r.URL.Path, "/")
-            login := request[2]
-            token := request[3]
-
-            var user_data model.UpdateUserData
-            
-            err := json.NewDecoder(r.Body).Decode(&user_data)
-            if err != nil {
-                w.WriteHeader(http.StatusInternalServerError)
-            }
-            
-            session, err := mgo.Dial("users-database-mongo")
-
-            if err != nil {
-                w.WriteHeader(http.StatusInternalServerError)
-                return
-            }
-            defer session.Close()
-
-            collection := session.DB("usersDatabase").C("users")
-            ret := updateUser(collection, login, token, user_data)
-
-            if ret != 0 {
-                switch ret {
-                    case -1:
-                        w.WriteHeader(http.StatusForbidden)
-                    case 1:
-                        w.WriteHeader(http.StatusNotFound)
-                    default:
-                        w.WriteHeader(http.StatusInternalServerError)
-                }
-                return
-            }
-
-            w.WriteHeader(http.StatusOK)
-        case "DELETE":
-            request := strings.Split(r.URL.Path, "/")
-            login := request[2]
-            token := request[3]
-            
-            session, err := mgo.Dial("users-database-mongo")
-
-            if err != nil {
-                w.WriteHeader(http.StatusInternalServerError)
-                return
-            }
-            defer session.Close()
-
-            collection := session.DB("usersDatabase").C("users")
-            ret := deleteUser(collection, login, token)
-
-            if ret != 0 {
-                switch ret {
-                    case -1:
-                        w.WriteHeader(http.StatusForbidden)
-                    case 1:
-                        w.WriteHeader(http.StatusNotFound)
-                    default:
-                        w.WriteHeader(http.StatusInternalServerError)
-                }
-                return
-            }
-
-            w.WriteHeader(http.StatusOK)
-        default:
-            w.WriteHeader(http.StatusBadRequest)
-            return
-    }
-}
-
-
-
-func Login(w http.ResponseWriter, r *http.Request) {
-    re, err := regexp.CompilePOSIX("login/[^/]*$")
-
-    if err != nil {
-        w.WriteHeader(http.StatusInternalServerError)
-        return
-    }
-
-    valid_request := re.FindString(r.URL.Path[1:])
-
-    if valid_request == "" {
-        w.WriteHeader(http.StatusBadRequest)
-        return
-    }
-
-    switch r.Method {
-        case "POST":
-            request := strings.Split(r.URL.Path, "/")
-            login := request[2]
-
-            var passwd_data model.LoginData
-
-            err := json.NewDecoder(r.Body).Decode(&passwd_data)
-            if err != nil {
-                w.WriteHeader(http.StatusInternalServerError)
-            }
-
-            session, err := mgo.Dial("users-database-mongo")
-
-            if err != nil {
-                w.WriteHeader(http.StatusInternalServerError)
-                return
-            }
-            defer session.Close()
-
-            collection := session.DB("usersDatabase").C("users")
-            token_data, ret := loginUser(collection, login, passwd_data)
-            
-            if ret != 0 {
-                w.WriteHeader(http.StatusForbidden)
-                return
-            }
-
-            json_message, err_json := json.Marshal(token_data)
-            if err_json != nil {
-                w.WriteHeader(http.StatusInternalServerError)
-                return
-            }
-            w.Write(json_message)
-        default:
-            w.WriteHeader(http.StatusBadRequest)
-            return
-    }
-}
-
-
-func Logout(w http.ResponseWriter, r *http.Request) {
-    re, err := regexp.CompilePOSIX("logout/[^/]*$")
-
-    if err != nil {
-        w.WriteHeader(http.StatusInternalServerError)
-        return
-    }
-
-    valid_request := re.FindString(r.URL.Path[1:])
-
-    if valid_request == "" {
-        w.WriteHeader(http.StatusBadRequest)
-        return
-    }
-
-    switch r.Method {
-        case "GET":
-            request := strings.Split(r.URL.Path, "/")
-            token := request[2]
-
-            session, err := mgo.Dial("users-database-mongo")
-
-            if err != nil {
-                w.WriteHeader(http.StatusInternalServerError)
-                return
-            }
-            defer session.Close()
-
-            collection := session.DB("usersDatabase").C("users")
-            ret := logoutUser(collection, token)
-            
-            if ret != 0 {
-                w.WriteHeader(http.StatusForbidden)
-                return
-            }
-
-            w.WriteHeader(http.StatusOK)
-        default:
-            w.WriteHeader(http.StatusBadRequest)
-            return
-    }
-}
-
-
-
-func ChangePassword(w http.ResponseWriter, r *http.Request) {
-    re, err := regexp.CompilePOSIX("change_password/[^/]*/[^/]*$")
-
-    if err != nil {
-        w.WriteHeader(http.StatusInternalServerError)
-        return
-    }
-
-    valid_request := re.FindString(r.URL.Path[1:])
-
-    if valid_request == "" {
-        w.WriteHeader(http.StatusBadRequest)
-        return
-    }
-
-    switch r.Method {
-        case "POST":
-            request := strings.Split(r.URL.Path, "/")
-            login := request[2]
-            token := request[3]
-
-            var passwd_data model.PasswordChangeData
-
-            err := json.NewDecoder(r.Body).Decode(&passwd_data)
-            if err != nil {
-                w.WriteHeader(http.StatusInternalServerError)
-            }
-
-            session, err := mgo.Dial("users-database-mongo")
-
-            if err != nil {
-                w.WriteHeader(http.StatusInternalServerError)
-                return
-            }
-            defer session.Close()
-
-            collection := session.DB("usersDatabase").C("users")
-            ret := changeUserPasswd(collection, login, token, passwd_data)
-            
-            if ret != 0 {
-                switch ret {
-                    case -1:
-                        w.WriteHeader(http.StatusForbidden)
-                    case -2:
-                        w.WriteHeader(http.StatusNotFound)
-                    default:
-                        w.WriteHeader(http.StatusInternalServerError)
-                }
-                return
-            }
-
-            w.WriteHeader(http.StatusOK)    
-        default:
-            w.WriteHeader(http.StatusBadRequest)
-            return
-    }
-}
 */

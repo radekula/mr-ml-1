@@ -7,5 +7,4 @@ export GOPATH=$DIR/go/
 
 go get gopkg.in/mgo.v2
 go get golang.org/x/crypto/bcrypt
-go get gopkg.in/ini.v1
 CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o groups ../src
