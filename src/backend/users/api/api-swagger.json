@@ -328,10 +328,53 @@
           }
         }
       }
+    },
+    "/verify/{token}": {
+      "post": {
+        "tags": [
+          "verify"
+        ],
+        "summary": "Verify user token",
+        "description": "Verifies user token",
+        "operationId": "verifyToken",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "description": "Token to verify",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/VerifyData"
+            }
+          },
+          "403": {
+            "description": "Invalid token or token expired"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
     }
   },
   "definitions": {
-    "BasicUserData": {
+    "VerifyData": {
+      "type": "object",
+      "properties": {
+        "login": {
+          "type": "string"
+        }
+      }
+    },    "BasicUserData": {
       "type": "object",
       "properties": {
         "type": {

@@ -648,3 +648,63 @@ func ChangePassword(w http.ResponseWriter, r *http.Request) {
             return
     }
 }
+
+
+
+func Verify(w http.ResponseWriter, r *http.Request) {
+    re, err := regexp.CompilePOSIX("verify/[^/]*$")
+
+    if err != nil {
+        w.WriteHeader(http.StatusInternalServerError)
+        return
+    }
+
+    valid_request := re.FindString(r.URL.Path[1:])
+
+    if valid_request == "" {
+        w.WriteHeader(http.StatusBadRequest)
+        return
+    }
+
+    switch r.Method {
+        case "GET":
+            request := strings.Split(r.URL.Path, "/")
+            token := request[2]
+
+            session, err := mgo.Dial("users-database-mongo")
+
+            if err != nil {
+                w.WriteHeader(http.StatusInternalServerError)
+                return
+            }
+            defer session.Close()
+
+            collection := session.DB("usersDatabase").C("users")
+            user_data, ret := getUserByToken(collection, token)
+
+            if ret != 0 {
+                switch ret {
+                    case 1:
+                        w.WriteHeader(http.StatusForbidden)
+                    default:
+                        w.WriteHeader(http.StatusInternalServerError)
+                }
+                return
+            }
+            
+            var verify_data model.VerifyData
+            verify_data.Login = user_data.Login
+            
+            json_message, err_json := json.Marshal(verify_data)
+            if err_json != nil {
+                w.WriteHeader(http.StatusInternalServerError)
+                return
+            }
+            w.Write(json_message)
+
+            w.WriteHeader(http.StatusOK)    
+        default:
+            w.WriteHeader(http.StatusBadRequest)
+            return
+    }
+}
