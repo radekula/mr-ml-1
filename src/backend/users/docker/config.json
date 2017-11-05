@@ -3,7 +3,7 @@
         "port": 8080
     },
     "database": {
-        "host": "mongo",
+        "host": "users-database-mongo",
         "name": "usersDatabase",
         "collection": "users"
     }

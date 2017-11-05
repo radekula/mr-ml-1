@@ -2,7 +2,6 @@ package controller
 
 
 import (
-//    "fmt"
     "strings"
     "encoding/json"
     "net/http"
@@ -11,6 +10,7 @@ import (
     "gopkg.in/mgo.v2/bson"
     "../model"
     "../libs"
+    "../db"
 )
 
 
@@ -353,16 +353,7 @@ func User(w http.ResponseWriter, r *http.Request) {
             login := request[2]
             token := request[3]
 
-            session, err := mgo.Dial("users-database-mongo")
-
-            if err != nil {
-                w.WriteHeader(http.StatusInternalServerError)
-                return
-            }
-            defer session.Close()
-
-            collection := session.DB("usersDatabase").C("users")
-            user, ret := getUserData(collection, login, token)
+            user, ret := getUserData(db.GetCollection(), login, token)
 
             if ret != 0 {
                 switch ret {
@@ -392,17 +383,8 @@ func User(w http.ResponseWriter, r *http.Request) {
             if err != nil {
                 w.WriteHeader(http.StatusInternalServerError)
             }
-            
-            session, err := mgo.Dial("users-database-mongo")
 
-            if err != nil {
-                w.WriteHeader(http.StatusInternalServerError)
-                return
-            }
-            defer session.Close()
-
-            collection := session.DB("usersDatabase").C("users")
-            ret := createUser(collection, token, user_data)
+            ret := createUser(db.GetCollection(), token, user_data)
 
             if ret != 0 {
                 switch ret {
@@ -428,17 +410,8 @@ func User(w http.ResponseWriter, r *http.Request) {
             if err != nil {
                 w.WriteHeader(http.StatusInternalServerError)
             }
-            
-            session, err := mgo.Dial("users-database-mongo")
 
-            if err != nil {
-                w.WriteHeader(http.StatusInternalServerError)
-                return
-            }
-            defer session.Close()
-
-            collection := session.DB("usersDatabase").C("users")
-            ret := updateUser(collection, login, token, user_data)
+            ret := updateUser(db.GetCollection(), login, token, user_data)
 
             if ret != 0 {
                 switch ret {
@@ -457,17 +430,8 @@ func User(w http.ResponseWriter, r *http.Request) {
             request := strings.Split(r.URL.Path, "/")
             login := request[2]
             token := request[3]
-            
-            session, err := mgo.Dial("users-database-mongo")
 
-            if err != nil {
-                w.WriteHeader(http.StatusInternalServerError)
-                return
-            }
-            defer session.Close()
-
-            collection := session.DB("usersDatabase").C("users")
-            ret := deleteUser(collection, login, token)
+            ret := deleteUser(db.GetCollection(), login, token)
 
             if ret != 0 {
                 switch ret {
@@ -517,16 +481,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
                 w.WriteHeader(http.StatusInternalServerError)
             }
 
-            session, err := mgo.Dial("users-database-mongo")
-
-            if err != nil {
-                w.WriteHeader(http.StatusInternalServerError)
-                return
-            }
-            defer session.Close()
-
-            collection := session.DB("usersDatabase").C("users")
-            token_data, ret := loginUser(collection, login, passwd_data)
+            token_data, ret := loginUser(db.GetCollection(), login, passwd_data)
             
             if ret != 0 {
                 w.WriteHeader(http.StatusForbidden)
@@ -566,16 +521,7 @@ func Logout(w http.ResponseWriter, r *http.Request) {
             request := strings.Split(r.URL.Path, "/")
             token := request[2]
 
-            session, err := mgo.Dial("users-database-mongo")
-
-            if err != nil {
-                w.WriteHeader(http.StatusInternalServerError)
-                return
-            }
-            defer session.Close()
-
-            collection := session.DB("usersDatabase").C("users")
-            ret := logoutUser(collection, token)
+            ret := logoutUser(db.GetCollection(), token)
             
             if ret != 0 {
                 w.WriteHeader(http.StatusForbidden)
@@ -619,16 +565,7 @@ func ChangePassword(w http.ResponseWriter, r *http.Request) {
                 w.WriteHeader(http.StatusInternalServerError)
             }
 
-            session, err := mgo.Dial("users-database-mongo")
-
-            if err != nil {
-                w.WriteHeader(http.StatusInternalServerError)
-                return
-            }
-            defer session.Close()
-
-            collection := session.DB("usersDatabase").C("users")
-            ret := changeUserPasswd(collection, login, token, passwd_data)
+            ret := changeUserPasswd(db.GetCollection(), login, token, passwd_data)
             
             if ret != 0 {
                 switch ret {
@@ -671,16 +608,7 @@ func Verify(w http.ResponseWriter, r *http.Request) {
             request := strings.Split(r.URL.Path, "/")
             token := request[2]
 
-            session, err := mgo.Dial("users-database-mongo")
-
-            if err != nil {
-                w.WriteHeader(http.StatusInternalServerError)
-                return
-            }
-            defer session.Close()
-
-            collection := session.DB("usersDatabase").C("users")
-            user_data, ret := getUserByToken(collection, token)
+            user_data, ret := getUserByToken(db.GetCollection(), token)
 
             if ret != 0 {
                 switch ret {
