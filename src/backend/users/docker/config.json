@@ -1,0 +1,10 @@
+{
+    "service": {
+        "port": 8080
+    },
+    "database": {
+        "host": "mongo",
+        "name": "usersDatabase",
+        "collection": "users"
+    }
+}
