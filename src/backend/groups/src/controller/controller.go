@@ -2,7 +2,6 @@ package controller
 
 
 import (
-//    "fmt"
     "strings"
     "encoding/json"
     "net/http"
@@ -10,15 +9,28 @@ import (
     "gopkg.in/mgo.v2"
     "gopkg.in/mgo.v2/bson"
     "../model"
-    "../config"
     "../remote"
+    "../db"
 )
 
 
-func getGroups(collection *mgo.Collection) ([]model.DBGroupData, int) {
-    var groups []model.DBGroupData
+func getGroups(collection *mgo.Collection) ([]model.GroupDataFull, int) {
+    var search_data []model.GroupDataFull
+    var groups []model.GroupDataFull
 
-    collection.Find(bson.M{}).All(&groups)
+    collection.Find(bson.M{}).All(&search_data)
+
+    for _, g := range search_data {
+        var group model.GroupDataFull
+        
+        group.Name = g.Name
+        group.Active = g.Active
+        group.CreateDate = g.CreateDate
+        group.Creator = g.Creator
+        group.Description = g.Description
+        
+        groups = append(groups, group)
+    }
 
     return groups, 0
 }
@@ -27,6 +39,11 @@ func getGroup(c *mgo.Collection, name string) (model.GroupDataFull, int) {
     var ret_data model.GroupDataFull
 
     var search_data model.DBGroupData
+
+    count, _ := c.Find(bson.M{"name": name}).Count()
+    if count != 1 {
+        return ret_data, -1
+    }
 
     err := c.Find(bson.M{"name": name}).One(&search_data)
     if err != nil {
@@ -105,6 +122,152 @@ func deleteGroup(c *mgo.Collection, name string) (int) {
 }
 
 
+func getMembers(c *mgo.Collection, name string) ([]string, int) {
+    var search_data model.DBGroupData
+    var members []string
+
+    count, _ := c.Find(bson.M{"name": name}).Count()
+    if count != 1 {
+        return members, -1
+    }
+
+    err := c.Find(bson.M{"name": name}).One(&search_data)
+    if err != nil {
+        return members, -1
+    }
+    
+    for _, member := range search_data.Members {
+        members = append(members, member.Name)
+    }
+    
+    return members, 0 
+}
+
+
+
+func addMembers(c *mgo.Collection, name string, new_members []string) (int) {
+    var search_data model.DBGroupData
+
+    count, _ := c.Find(bson.M{"name": name}).Count()
+    if count != 1 {
+        return -1
+    }
+
+    err := c.Find(bson.M{"name": name}).One(&search_data)
+    if err != nil {
+        return -1
+    }
+
+    membersMap := make(map[string]bool)
+
+    for _, member := range search_data.Members {
+        membersMap[member.Name] = true
+    }
+
+    for _, new_member := range new_members {
+        membersMap[new_member] = true
+    }
+
+    var mod_members []model.DBMemberData
+
+    for member_name, _ := range membersMap {
+        var m model.DBMemberData
+        m.Name = member_name
+        mod_members = append(mod_members, m)
+    }
+
+    data_change := bson.M{"members": mod_members}
+
+    change := mgo.Change{
+        Update:  bson.M{"$set": data_change},
+        ReturnNew: false,
+    }
+
+    c.Find(bson.M{"name": name}).Apply(change, &search_data)
+
+    return 0 
+}
+
+
+
+func removeMembers(c *mgo.Collection, name string, del_members []string) (int) {
+    var search_data model.DBGroupData
+
+    count, _ := c.Find(bson.M{"name": name}).Count()
+    if count != 1 {
+        return -1
+    }
+
+    err := c.Find(bson.M{"name": name}).One(&search_data)
+    if err != nil {
+        return -1
+    }
+
+    membersMap := make(map[string]bool)
+
+    for _, member := range search_data.Members {
+        membersMap[member.Name] = true
+    }
+
+    for _, del_member := range del_members {
+        membersMap[del_member] = false
+    }
+
+    var mod_members []model.DBMemberData
+
+    for member_name, stay := range membersMap {
+        if stay == true {
+            var m model.DBMemberData
+            m.Name = member_name
+            mod_members = append(mod_members, m)
+        }
+    }
+
+    data_change := bson.M{"members": mod_members}
+
+    change := mgo.Change{
+        Update:  bson.M{"$set": data_change},
+        ReturnNew: false,
+    }
+
+    c.Find(bson.M{"name": name}).Apply(change, &search_data)
+
+    return 0 
+}
+
+
+
+func getUserGroups(c *mgo.Collection, user string) ([]model.GroupDataFull, int) {
+    var groups []model.GroupDataFull
+    var search_data []model.DBGroupData
+
+    count, _ := c.Find(bson.M{"members.name": user}).Count()
+    if count == 0 {
+        return groups, -1
+    }
+
+    err := c.Find(bson.M{"members.name": user}).All(&search_data)
+    if err != nil {
+        return groups, -1
+    }
+
+    for _, group := range search_data {
+        var g model.GroupDataFull
+
+        g.Name        = group.Name
+        g.Active      = group.Active
+        g.CreateDate  = group.CreateDate
+        g.Creator     = group.Creator
+        g.Description = group.Description
+        
+        groups = append(groups, g)
+    }
+    
+    return groups, 0
+}
+
+
+
 
 func About(w http.ResponseWriter, r *http.Request) {
     test := model.AboutData{"About!"}
@@ -143,26 +306,16 @@ func Groups(w http.ResponseWriter, r *http.Request) {
         w.WriteHeader(http.StatusForbidden)
         return
     }
-            
-    config := config.GetConfig()
 
     switch r.Method {
         case "GET":
-            session, err := mgo.Dial(config.Service.Database)
-
-            if err != nil {
-                w.WriteHeader(http.StatusInternalServerError)
-                return
-            }
-            defer session.Close()
-
-            collection := session.DB("groupsDatabase").C("groups")
-            groups, ret := getGroups(collection)
+            groups, ret := getGroups(db.GetCollection())
 
             if ret != 0 {
                 switch ret {
                     default:
                         w.WriteHeader(http.StatusInternalServerError)
+                        break
                 }
                 return
             }
@@ -173,7 +326,7 @@ func Groups(w http.ResponseWriter, r *http.Request) {
                 return
             }
             w.Write(json_message)
-
+            break
         default:
             w.WriteHeader(http.StatusBadRequest)
             return
@@ -209,27 +362,18 @@ func Group(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    config := config.GetConfig()
-
     switch r.Method {
         case "GET":
-            session, err := mgo.Dial(config.Service.Database)
-
-            if err != nil {
-                w.WriteHeader(http.StatusInternalServerError)
-                return
-            }
-            defer session.Close()
-
-            collection := session.DB("groupsDatabase").C("groups")
-            group, ret := getGroup(collection, name)
+            group, ret := getGroup(db.GetCollection(), name)
 
             if ret != 0 {
                 switch ret {
                     case -1:
                         w.WriteHeader(http.StatusNotFound)
+                        break
                     default:
                         w.WriteHeader(http.StatusInternalServerError)
+                        break
                 }
                 return
             }
@@ -240,93 +384,79 @@ func Group(w http.ResponseWriter, r *http.Request) {
                 return
             }
             w.Write(json_message)
+            break
         case "POST":
             var data model.GroupData
             
             err := json.NewDecoder(r.Body).Decode(&data)
             if err != nil {
-                w.WriteHeader(http.StatusInternalServerError)
-            }
-            
-            session, err := mgo.Dial(config.Service.Database)
-
-            if err != nil {
-                w.WriteHeader(http.StatusInternalServerError)
+                w.WriteHeader(http.StatusBadRequest)
                 return
             }
-            defer session.Close()
 
-            collection := session.DB("groupsDatabase").C("groups")
-            ret := createGroup(collection, name, data)
+            ret := createGroup(db.GetCollection(), name, data)
 
             if ret != 0 {
                 switch ret {
                     case 1:
                         w.WriteHeader(http.StatusConflict)
+                        break
                     default:
                         w.WriteHeader(http.StatusInternalServerError)
+                        break
                 }
                 return
             }
 
             w.WriteHeader(http.StatusOK)
+            break
         case "PUT":
             var data model.GroupData
             
             err := json.NewDecoder(r.Body).Decode(&data)
             if err != nil {
-                w.WriteHeader(http.StatusInternalServerError)
-            }
-            
-            session, err := mgo.Dial(config.Service.Database)
-
-            if err != nil {
-                w.WriteHeader(http.StatusInternalServerError)
+                w.WriteHeader(http.StatusBadRequest)
                 return
             }
-            defer session.Close()
 
-            collection := session.DB("groupsDatabase").C("groups")
-            ret := updateGroup(collection, name, data)
+            ret := updateGroup(db.GetCollection(), name, data)
 
             if ret != 0 {
                 switch ret {
                     case 1:
                         w.WriteHeader(http.StatusNotFound)
+                        break
                     default:
                         w.WriteHeader(http.StatusInternalServerError)
+                        break
                 }
                 return
             }
 
             w.WriteHeader(http.StatusOK)
+            break
         case "DELETE":
-            session, err := mgo.Dial(config.Service.Database)
-
-            if err != nil {
-                w.WriteHeader(http.StatusInternalServerError)
-                return
-            }
-            defer session.Close()
-
-            collection := session.DB("groupsDatabase").C("groups")
-            ret := deleteGroup(collection, name)
+            ret := deleteGroup(db.GetCollection(), name)
 
             if ret != 0 {
                 switch ret {
                     case 1:
                         w.WriteHeader(http.StatusNotFound)
+                        break
                     default:
                         w.WriteHeader(http.StatusInternalServerError)
+                        break
                 }
                 return
             }
 
             w.WriteHeader(http.StatusOK)
+            break
         default:
             w.WriteHeader(http.StatusBadRequest)
-            return
+            break
     }
+    return
 }
 
 
@@ -335,81 +465,161 @@ func Group(w http.ResponseWriter, r *http.Request) {
 
 
 
+func Members(w http.ResponseWriter, r *http.Request) {
+    re, err := regexp.CompilePOSIX("members/[^/]*/[^/]*/[^/]*$")
 
-
-
-
-
-
-
-
-
-
-
-/*
-func getUserByLogin(c *mgo.Collection, login string) (model.DBUserData, int) {
-    var user model.DBUserData
-    
-    err := c.Find(bson.M{"login": login}).One(&user)
     if err != nil {
-        return user, 1
+        w.WriteHeader(http.StatusInternalServerError)
+        return
     }
 
-    return user, 0
+    valid_request := re.FindString(r.URL.Path[1:])
+
+    if valid_request == "" {
+        w.WriteHeader(http.StatusBadRequest)
+        return
+    }
+
+    request := strings.Split(r.URL.Path, "/")
+    action  := request[2]
+    name    := request[3]
+    token   := request[4]
+
+    _, ret := remote.VerifyToken(token)
+    if ret != 200 {
+        w.WriteHeader(http.StatusForbidden)
+        return
+    }
+
+    switch r.Method {
+        case "GET":
+            if action != "get" {
+                w.WriteHeader(http.StatusBadRequest)
+                return
+            }
+            
+            members, ret := getMembers(db.GetCollection(), name)
+
+            if ret != 0 {
+                switch ret {
+                    case -1:
+                        w.WriteHeader(http.StatusNotFound)
+                        break
+                    default:
+                        w.WriteHeader(http.StatusInternalServerError)
+                        break
+                }
+                return
+            }
+
+            json_message, err_json := json.Marshal(members)
+            if err_json != nil {
+                w.WriteHeader(http.StatusInternalServerError)
+                return
+            }
+            w.Write(json_message)
+            break
+        case "POST":
+            var data []string
+            
+            err := json.NewDecoder(r.Body).Decode(&data)
+            if err != nil {
+                w.WriteHeader(http.StatusBadRequest)
+                return
+            }
+
+            var ret int
+            
+            switch action {
+                case "add":
+                    ret = addMembers(db.GetCollection(), name, data)
+                    break
+                case "remove":
+                    ret = removeMembers(db.GetCollection(), name, data)
+                    break
+                default:
+                    w.WriteHeader(http.StatusBadRequest)
+                    return
+            }
+
+            if ret != 0 {
+                switch ret {
+                    case -1:
+                        w.WriteHeader(http.StatusNotFound)
+                        break
+                    default:
+                        w.WriteHeader(http.StatusInternalServerError)
+                        break
+                }
+                return
+            }
+
+            w.WriteHeader(http.StatusOK)
+            break
+        default:
+            w.WriteHeader(http.StatusBadRequest)
+            break
+    }
+    return
 }
 
 
-func getUserByToken(c *mgo.Collection, token string) (model.DBUserData, int) {
-    var user model.DBUserData
-    
-    err := c.Find(bson.M{"token": token}).One(&user)
+
+
+
+
+func User(w http.ResponseWriter, r *http.Request) {
+    re, err := regexp.CompilePOSIX("user/[^/]*/groups/[^/]*$")
+
     if err != nil {
-        return user, 1
+        w.WriteHeader(http.StatusInternalServerError)
+        return
     }
 
-    current_time := libs.CurrentTime()
-    
-    if len(user.ExpirationTime) < 1 || libs.CompareDates(current_time, user.ExpirationTime) {
-        return user, 1
+    valid_request := re.FindString(r.URL.Path[1:])
+
+    if valid_request == "" {
+        w.WriteHeader(http.StatusBadRequest)
+        return
     }
 
-    return user, 0
+    request := strings.Split(r.URL.Path, "/")
+    user    := request[2]
+    token   := request[4]
+
+    _, ret := remote.VerifyToken(token)
+    if ret != 200 {
+        w.WriteHeader(http.StatusForbidden)
+        return
+    }
+
+    switch r.Method {
+        case "GET":
+            groups, ret := getUserGroups(db.GetCollection(), user)
+
+            if ret != 0 {
+                switch ret {
+                    case -1:
+                        w.WriteHeader(http.StatusNotFound)
+                        break
+                    default:
+                        w.WriteHeader(http.StatusInternalServerError)
+                        break
+                }
+                return
+            }
+
+            json_message, err_json := json.Marshal(groups)
+            if err_json != nil {
+                w.WriteHeader(http.StatusInternalServerError)
+                return
+            }
+            w.Write(json_message)
+            break
+        default:
+            w.WriteHeader(http.StatusBadRequest)
+            break
+    }
+    return
 }
 
-
-
-
-func createUser(c *mgo.Collection, token string, user_data model.NewUserData) (int) {
-    user, err := getUserByToken(c, token)
-
-    if err != 0 {
-        return -1
-    }
-
-    if user.Type != "admin" {
-        return -1
-    }
-
-    _, err = getUserByLogin(c, user_data.Login)
-    
-    if err == 0 {
-        return 1
-    }
-
-    var new_user model.DBUserData
-
-    new_user.Type = user_data.Type
-    new_user.Active = user_data.Active
-    new_user.Login = user_data.Login
-    new_user.FirstName = user_data.FirstName
-    new_user.LastName = user_data.LastName
-    new_user.Email = user_data.Email
-    new_user.Password = libs.HashPasswd(user_data.Password)
-
-    c.Insert(&new_user)
-    
-    return 0;
-}
-
-
-*/

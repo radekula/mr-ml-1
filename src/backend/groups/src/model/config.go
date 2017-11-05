@@ -2,7 +2,12 @@ package model
 
 type ConfigService struct {
     Port int                     `json:"port"`
-    Database string              `json:"database"`
+}
+
+type ConfigDatabase struct {
+    Host string                  `json:"host"`
+    Name string                  `json:"name"`
+    Collection string            `json:"collection"`
 }
 
 type ConfigRemotes struct {
@@ -11,5 +16,6 @@ type ConfigRemotes struct {
 
 type Config struct {
     Service ConfigService        `json:"service"`
+    Database ConfigDatabase      `json:"database"`
     Remotes ConfigRemotes        `json:"remotes"`
 }

@@ -1,0 +1,13 @@
+{
+    "service": {
+        "port": 8080
+    },
+    "database": {
+        "host": "groups-database-mongo",
+        "name": "groupsDatabase",
+        "collection": "groups"
+    },
+    "remotes": {
+        "users": "http://users:8080"
+    }
+}

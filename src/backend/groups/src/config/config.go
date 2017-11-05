@@ -4,18 +4,23 @@ import (
     "io/ioutil"
     "encoding/json"
     "../model"
+    "sync"
 )
 
+var instance *model.Config
+var once sync.Once
 
-func GetConfig() (model.Config) {
-    var conf model.Config
+func GetConfig() *model.Config {
+    once.Do(func() {
+        instance = &model.Config{}
+        
+        raw, err := ioutil.ReadFile("/config.json")
+        if err != nil {
+            panic(err)
+        }
 
-    raw, err := ioutil.ReadFile("/config.json")
-    if err != nil {
-        return conf
-    }
+        json.Unmarshal(raw, instance)
+    })
 
-    json.Unmarshal(raw, &conf)
-    
-    return conf
+    return instance
 }

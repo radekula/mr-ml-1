@@ -32,7 +32,12 @@ func checkUserExists(c *mgo.Collection, login string) (bool) {
 
 func getUserByLogin(c *mgo.Collection, login string) (model.DBUserData, int) {
     var user model.DBUserData
-    
+
+    exists := checkUserExists(c, login)
+    if exists != true {
+        return user, -1
+    }
+
     err := c.Find(bson.M{"login": login}).One(&user)
     if err != nil {
         return user, 1
@@ -44,10 +49,15 @@ func getUserByLogin(c *mgo.Collection, login string) (model.DBUserData, int) {
 
 func getUserByToken(c *mgo.Collection, token string) (model.DBUserData, int) {
     var user model.DBUserData
-    
+
     err := c.Find(bson.M{"token": token}).One(&user)
     if err != nil {
         return user, 1
+    }
+
+    exists := checkUserExists(c, user.Login)
+    if len(user.Login) < 1 || exists != true {
+        return user, -1
     }
 
     current_time := libs.CurrentTime()
