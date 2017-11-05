@@ -2,25 +2,19 @@ package app_init
 
 import (
     "fmt"
-    "gopkg.in/mgo.v2"
     "gopkg.in/mgo.v2/bson"
     "../model"
     "../libs"
+    "../db"
 )
 
 
 func Init() {
     fmt.Println("Database initialization")
 
-    session, err := mgo.Dial("users-database-mongo")
-    if err != nil {
-        panic(err)
-    }
-    defer session.Close()
-
     var user model.DBUserData
 
-    collection := session.DB("usersDatabase").C("users")
+    collection := db.GetCollection()
     count, err := collection.Find(bson.M{"login": "admin"}).Count()
 
     if err != nil {
