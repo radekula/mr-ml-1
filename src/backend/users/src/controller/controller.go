@@ -369,10 +369,13 @@ func User(w http.ResponseWriter, r *http.Request) {
                 switch ret {
                     case -1:
                         w.WriteHeader(http.StatusForbidden)
+                        break
                     case -2:
                         w.WriteHeader(http.StatusNotFound)
+                        break
                     default:
                         w.WriteHeader(http.StatusInternalServerError)
+                        break
                 }
                 return
             }
@@ -383,6 +386,7 @@ func User(w http.ResponseWriter, r *http.Request) {
                 return
             }
             w.Write(json_message)
+            break
         case "POST":
             request := strings.Split(r.URL.Path, "/")
             token := request[3]
@@ -392,6 +396,7 @@ func User(w http.ResponseWriter, r *http.Request) {
             err := json.NewDecoder(r.Body).Decode(&user_data)
             if err != nil {
                 w.WriteHeader(http.StatusInternalServerError)
+                return
             }
 
             ret := createUser(db.GetCollection(), token, user_data)
@@ -400,15 +405,19 @@ func User(w http.ResponseWriter, r *http.Request) {
                 switch ret {
                     case -1:
                         w.WriteHeader(http.StatusForbidden)
+                        break
                     case 1:
                         w.WriteHeader(http.StatusConflict)
+                        break
                     default:
                         w.WriteHeader(http.StatusInternalServerError)
+                        break
                 }
                 return
             }
 
             w.WriteHeader(http.StatusOK)
+            break
         case "PUT":
             request := strings.Split(r.URL.Path, "/")
             login := request[2]
@@ -419,6 +428,7 @@ func User(w http.ResponseWriter, r *http.Request) {
             err := json.NewDecoder(r.Body).Decode(&user_data)
             if err != nil {
                 w.WriteHeader(http.StatusInternalServerError)
+                return
             }
 
             ret := updateUser(db.GetCollection(), login, token, user_data)
@@ -427,15 +437,19 @@ func User(w http.ResponseWriter, r *http.Request) {
                 switch ret {
                     case -1:
                         w.WriteHeader(http.StatusForbidden)
+                        break
                     case 1:
                         w.WriteHeader(http.StatusNotFound)
+                        break
                     default:
                         w.WriteHeader(http.StatusInternalServerError)
+                        break
                 }
                 return
             }
 
             w.WriteHeader(http.StatusOK)
+            break
         case "DELETE":
             request := strings.Split(r.URL.Path, "/")
             login := request[2]
@@ -447,15 +461,19 @@ func User(w http.ResponseWriter, r *http.Request) {
                 switch ret {
                     case -1:
                         w.WriteHeader(http.StatusForbidden)
+                        break
                     case 1:
                         w.WriteHeader(http.StatusNotFound)
+                        break
                     default:
                         w.WriteHeader(http.StatusInternalServerError)
+                        break
                 }
                 return
             }
 
             w.WriteHeader(http.StatusOK)
+            break
         default:
             w.WriteHeader(http.StatusBadRequest)
             return
@@ -489,6 +507,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
             err := json.NewDecoder(r.Body).Decode(&passwd_data)
             if err != nil {
                 w.WriteHeader(http.StatusInternalServerError)
+                return
             }
 
             token_data, ret := loginUser(db.GetCollection(), login, passwd_data)
@@ -504,6 +523,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
                 return
             }
             w.Write(json_message)
+            break
         default:
             w.WriteHeader(http.StatusBadRequest)
             return
@@ -539,6 +559,7 @@ func Logout(w http.ResponseWriter, r *http.Request) {
             }
 
             w.WriteHeader(http.StatusOK)
+            break
         default:
             w.WriteHeader(http.StatusBadRequest)
             return
@@ -573,6 +594,7 @@ func ChangePassword(w http.ResponseWriter, r *http.Request) {
             err := json.NewDecoder(r.Body).Decode(&passwd_data)
             if err != nil {
                 w.WriteHeader(http.StatusInternalServerError)
+                return
             }
 
             ret := changeUserPasswd(db.GetCollection(), login, token, passwd_data)
@@ -581,15 +603,19 @@ func ChangePassword(w http.ResponseWriter, r *http.Request) {
                 switch ret {
                     case -1:
                         w.WriteHeader(http.StatusForbidden)
+                        break
                     case -2:
                         w.WriteHeader(http.StatusNotFound)
+                        break
                     default:
                         w.WriteHeader(http.StatusInternalServerError)
+                        break
                 }
                 return
             }
 
-            w.WriteHeader(http.StatusOK)    
+            w.WriteHeader(http.StatusOK)  
+            break  
         default:
             w.WriteHeader(http.StatusBadRequest)
             return
@@ -624,8 +650,10 @@ func Verify(w http.ResponseWriter, r *http.Request) {
                 switch ret {
                     case 1:
                         w.WriteHeader(http.StatusForbidden)
+                        break
                     default:
                         w.WriteHeader(http.StatusInternalServerError)
+                        break
                 }
                 return
             }
@@ -640,7 +668,8 @@ func Verify(w http.ResponseWriter, r *http.Request) {
             }
             w.Write(json_message)
 
-            w.WriteHeader(http.StatusOK)    
+            w.WriteHeader(http.StatusOK)
+            break
         default:
             w.WriteHeader(http.StatusBadRequest)
             return
