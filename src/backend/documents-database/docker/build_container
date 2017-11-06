@@ -1,0 +1,4 @@
+#!/bin/bash
+
+./build
+docker build -t documents -t documents:latest .

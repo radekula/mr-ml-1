@@ -1,8 +1,9 @@
 FROM scratch
 
-ADD documents-database /
+ADD documents /
+ADD config.json /
 
 EXPOSE 8080
-ENTRYPOINT ["/documents-database"]
+ENTRYPOINT ["/documents"]
 
 
