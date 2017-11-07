@@ -152,14 +152,40 @@ app.directive( "datepicker", function() {
 */
 app.controller( "ActionsController", function( $scope, $http, $location ) {
 	$scope.documentOver = function( $event ) {
-		documentId = $event.currentTarget.getAttribute( "data-id" );
-		document.getElementById( "thumbnail_" + documentId ).className = "thumbnail-show";
+		$scope.loadPage = true;
+		var documentId = $event.currentTarget.getAttribute( "data-id" );
+		var thumbnail = document.getElementById( "thumbnail_" + documentId );
+		
+		if( thumbnail.src != '' ) {
+			$scope.loadPage = false;
+			thumbnail.className = "thumbnail-show";
+		}
+		
+		else {
+			$http.get( // Get document
+				"/document/" + documentId
+			).then(
+				function( response ) { // Success
+					if( response.status == 200 ) {
+						if( response.data.thumbnail != '' ) {
+							thumbnail.src = response.data.thumbnail;
+							thumbnail.className = "thumbnail-show";
+						}
+					}
+					
+					$scope.loadPage = false;
+				}
+			);
+		}
 	}
 	
 	$scope.documentLeave = function( $event ) {
 		thumbnailCurrent = document.getElementsByClassName( "thumbnail-show" );
-		if( thumbnailCurrent.length > 0 ) {
-			document.getElementsByClassName( "thumbnail-show" )[0].className = "";
+		thumbnailCurrentLength = thumbnailCurrent.length;
+		if( thumbnailCurrentLength > 0 ) {
+			for( i = 0; i < thumbnailCurrentLength; i++ ) {
+				document.getElementsByClassName( "thumbnail-show" )[i].className = "thumbnail";
+			}
 		}
 	}
 	
@@ -685,7 +711,7 @@ app.controller( "UploadController", function( $scope, $http, $location, $interva
 							_document.id = documentId;
 							
 							$http.post(
-								"/document/" + documentId,
+								"/document/" + documentId
 								JSON.stringify( _document )
 							).then(
 								function( response ) { // Success
