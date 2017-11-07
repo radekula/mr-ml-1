@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pl">
+	<head>
+		<meta charset="UTF-8">
+		<title>Zaloguj się - Document Management System</title>
+		<link href="https://fonts.googleapis.com/css?family=Roboto:100,300" rel="stylesheet">
+		<link href="./www/css/styles.css?ver=1.0" rel="stylesheet">
+	</head>
+	<body class="body page-auth">
+		<main class="auth-login">
+			<article class="auth-content">
+				<header class="auth-header">
+					<h1 class="auth-title">Zaloguj się</h1>
+				</header><!-- .auth-header -->
+				<form class="auth-form" method="post" action="{{login_url}}">
+					<label for="auth-user" class="auth-label">
+						<span class="auth-label-title">Login:</span>
+						<input id="auth-user" class="input" name="login" type="text" autofocus>
+						<i class="icon auth-icon">&#xf2c0;</i>
+					</label><!-- .auth-user -->
+					<label for="auth-password" class="auth-label">
+						<span class="auth-label-title">Hasło:</span>
+						<input id="auth-password" class="input auth-password" name="password" type="password">
+						<i class="icon auth-icon">&#xe805;</i>
+					</label><!-- .auth-user -->
+					<p class="alert {{alert.class}}">{{alert.content}}</p>
+					<button class="button" type="submit">Zaloguj się</button>
+					<input name="send" type="hidden" value="1">
+					<nav class="auth-nav">
+						<a class="auth-nav-link" href="{{register_url}}">Zarejestruj się</a>
+					</nav><!-- .auth-nav -->
+				</form><!-- .auth-form -->
+		  </article><!-- .auth-content -->
+		</main><!-- .auth-login -->
+	</body>
+</html>
