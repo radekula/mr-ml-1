@@ -1,0 +1,83 @@
+<div class="page-documents" ng-controller="DocumentsController">
+	<header class="header" ng-include="'/www/angular/header.html'"></header>
+    <main class="main">
+		<button class="menu-toggle" type="button" ng-click="menuToggle()" ng-class="{'toggled-on' : toggle}">
+			<span></span>
+		</button><!-- .menu-toggle -->
+		<nav class="menu" ng-controller="menu" ng-include="'/www/angular/menu.html'"></nav>
+        <article class="article">
+            <div class="breadcrumb">
+                <header class="breadcrumb-header">
+					<h1 class="breadcrumb-title">Lista dokumentów</h1>
+				</header><!-- .breadcrumb-header -->
+				<span class="breadcrumb-item">
+					<a class="breadcrumb-link" href="/#!/">Home</a>
+				</span><!-- .breadcrumb-item -->
+				<span class="breadcrumb-item breadcrumb-current">Lista dokumentów</span>
+            </div><!-- .breadcrumb -->
+            <div class="content" ng-controller="ActionsController">
+                <form class="documents-form">
+                    <input class="input documents-input documents-phrase" name="phrase" type="text" placeholder="Fraza" ng-model="phrase">
+                    <label class="documents-form-label">
+						<i class="icon">&#xe806;</i>
+						<input class="input documents-input documents-datepicker js-documents-datepicker" name="date" type="text" placeholder="Data" ng-model="date" datepicker>
+					</label><!-- .documents-form-label -->
+					<button class="button" type="submit" ng-click="filter($event)">Szukaj</button>
+					<div class="load" ng-show="loadPage"></div>
+                </form><!-- .documents-form -->
+                <table class="documents-table">
+                    <thead>
+                        <tr>
+                            <th>Numer</th>
+                            <th>Nazwa</th>
+                            <th>Data dodania</th>
+                            <th>Autor</th>
+                            <th>Akcje</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+						<tr ng-repeat="document in documents">
+							<td>{{document.id}}</td>
+							<td>{{document.title}}</td>
+							<td>{{document.create_date}}</td>
+							<td class="documents-owner">
+								<span ng-repeat="owner in document.owner">{{owner}}</span>
+							</td><!-- .documents-owner -->
+							<td class="documents-menu">
+								<nav class="documents-actions">
+									<a id="js-download-{{document.id}}" class="download-{{document.id}}"></a>
+									<a class="documents-actions-link" ng-click="downloadDocument($event)" data-id="{{document.id}}">
+										<i class="icon icon-download">&#xe800;</i>
+									</a><!-- .documents-actions-link -->
+									<a class="documents-actions-link" ng-click="redirectToDocument($event)" ng-mouseover="documentOver($event)" ng-mouseleave="documentLeave($event)" data-id="{{document.id}}">
+										<i class="icon">&#xf0f6;</i>
+									</a><!-- .documents-actions-link -->
+									<img id="thumbnail_{{document.id}}" class="thumbnail" src="/www/angular/img/thumbnail.jpg" alt="">
+									<a class="documents-actions-link" ng-click="deleteDocument($event)" data-id="{{document.id}}">
+										<i class="icon">&#xe802;</i>
+									</a><!-- .documents-actions-link -->
+								</nav><!-- .documents-actions -->
+							</td>
+						</tr>
+						<tr ng-repeat="item in notice">
+							<td colspan="5">{{item.content}}</td>
+						</tr>
+					</tbody>
+                </table><!-- .documents-table -->
+				<nav class="documents-pagination">
+					<ul class="documents-pagination-list">
+						<li class="documents-pagination-prev">
+							<a href="{{loc}}{{prev}}" class="button" ng-show="showPrev" ng-click="prevPage()">Poprzednia</a>
+						</li><!-- .documents-pagination-prev -->
+						<li class="documents-pagination-links" ng-repeat="page in pages">
+							<a href="{{loc}}{{page}}" ng-class="paginationClass(page)" ng-click="setPage(page)">{{page}}</a>
+						</li><!-- .documents-pagination-links -->
+						<li class="documents-pagination-next">
+							<a href="{{loc}}{{next}}" class="button" ng-show="showNext" ng-click="nextPage()">Następna</a>
+						</li><!-- .documents-pagination-next -->
+					</ul><!-- .documents-pagination-list -->
+				</nav><!-- .documents-pagination -->
+            </div><!-- .content -->
+        </article><!-- .article -->
+    </main><!-- .main -->
+</div><!-- .page-documents -->
