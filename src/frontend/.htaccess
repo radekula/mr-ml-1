@@ -1,0 +1,7 @@
+RewriteEngine On
+RewriteRule ^$ index.php?action=app [L]
+RewriteRule ^login$ index.php?action=login [L]
+RewriteRule ^logout$ index.php?action=logout [L]
+RewriteRule ^register$ index.php?action=register [L]
+RewriteRule ^404$ index.php?action=404 [L]
+ErrorDocument 404 /functions/error.php
