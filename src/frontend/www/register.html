@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pl">
+	<head>
+		<meta charset="UTF-8">
+		<title>Zarejestruj się - Document Management System</title>
+		<link href="https://fonts.googleapis.com/css?family=Roboto:100,300" rel="stylesheet">
+		<link href="./www/css/styles.css?ver=1.0" rel="stylesheet">
+	</head>
+	<body class="body page-auth">
+		<main class="auth-register">
+			<article class="auth-content">
+				<header class="auth-header">
+					<h1 class="auth-title">Zarejestruj się</h1>
+				</header><!-- .auth-header -->
+				<form class="auth-form" method="post" action="{{register_url}}">
+					<label for="login" class="auth-label">
+						<span class="auth-label-title">Login:</span>
+						<input id="login" class="input {{class_login}}" name="login" type="text" value="{{login}}" autofocus>
+						<i class="icon auth-icon">&#xf2c0;</i>
+						<p class="notice">{{notice_login}}</p>
+					</label><!-- .auth-label -->
+					<label for="first-name" class="auth-label">
+						<span class="auth-label-title">Imię:</span>
+						<input id="first-name" class="input {{class_first_name}}" name="first_name" type="text" value="{{first_name}}">
+						<i class="icon auth-icon">&#xf2c0;</i>
+						<p class="notice">{{notice_first_name}}</p>
+					</label><!-- .auth-label -->
+					<label for="last-name" class="auth-label">
+						<span class="auth-label-title">Nazwisko:</span>
+						<input id="last-name" class="input {{class_last_name}}" name="last_name" type="text" value="{{last_name}}">
+						<i class="icon auth-icon">&#xf2c0;</i>
+						<p class="notice">{{notice_last_name}}</p>
+					</label><!-- .auth-label -->
+					<label for="email" class="auth-label">
+						<span class="auth-label-title">E-mail:</span>
+						<input id="email" class="input {{class_email}}" name="email" type="text" value="{{email}}">
+						<i class="icon auth-icon">&#xe804;</i>
+						<p class="notice">{{notice_email}}</p>
+					</label><!-- .auth-label -->
+					<label for="password" class="auth-label">
+						<span class="auth-label-title">Hasło:</span>
+						<input id="password" class="input {{class_password}}" name="password" type="password" value="{{password}}">
+						<i class="icon auth-icon">&#xe805;</i>
+						<p class="notice">{{notice_password}}</p>
+					</label><!-- .auth-label -->
+					<p class="alert {{alert.class}}">{{alert.content}}</p>
+					<button class="button" type="submit">Zarejestruj się</button>
+					<nav class="auth-nav">
+						<a class="auth-nav-link" href="{{login_url}}">Zaloguj się</a>
+					</nav><!-- .auth-nav -->
+				</form><!-- .auth-form -->
+			</article><!-- .auth-content -->
+		</main><!-- .auth-register -->
+	</body>
+</html>
