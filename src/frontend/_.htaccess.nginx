@@ -1,7 +1,0 @@
-location = /documents {
-  rewrite ^(.*)$ /documents.html break;
-}
-
-location = /add {
-  rewrite ^(.*)$ /add.html break;
-}
