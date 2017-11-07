@@ -1,0 +1,75 @@
+<div class="page-documents" ng-controller="DocumentController">
+	<header class="header" ng-include="'/www/angular/header.html'"></header>
+    <main class="main">
+		<button class="menu-toggle" type="button" ng-click="menuToggle()" ng-class="{'toggled-on' : toggle}">
+			<span></span>
+		</button><!-- .menu-toggle -->
+		<nav class="menu" ng-controller="menu" ng-include="'/www/angular/menu.html'"></nav>
+        <article class="article">
+            <div class="breadcrumb">
+                <header class="breadcrumb-header">
+					<h1 class="breadcrumb-title">{{file_name}}</h1>
+				</header><!-- .breadcrumb-header -->
+				<span class="breadcrumb-item">
+					<a class="breadcrumb-link" href="/#!/">Home</a>
+				</span><!-- .breadcrumb-item -->
+				<span class="breadcrumb-item">
+					<a class="breadcrumb-link" href="/#!documents">Lista dokumentów</a>
+				</span><!-- .breadcrumb-item -->
+				<span class="breadcrumb-item breadcrumb-current">Dokument</span>
+            </div><!-- .breadcrumb -->
+            <div class="content">
+ 				<form id="upload-form" class="upload-form" name="uploadForm" ng-model="uploadForm" ng-controller="UploadController">
+					<label class="upload-label upload-label-file" for="file">
+						<p id="file-name" class="upload-label-title upload-label-required">Upuść plik tutaj <br>lub</p>
+						<input id="file" class="upload-input-file" type="file" ng-model="file" onchange="openFile(event)">
+						<input type="hidden" name="file_base64" id="file_base64">
+						<input type="hidden" name="file_name_base64" id="file_name_base64">
+						<p class="button">Wybierz plik</p>
+					</label><!-- .upload-label -->
+					<label class="upload-label" for="thumbnail">
+						<span class="upload-label-title">Miniaturka:</span>
+						<input id="thumbnail" class="upload-input-thumbnail" name="thumbnail" type="file" ng-model="thumbnail">
+						<input type="hidden" name="thumbnail_base64" id="thumbnail_base64">
+					</label><!-- .upload-label -->
+					<div id="thumbnail_container" class="thumbnail_container" style="width: 100%; padding: 0 0 0 130px; margin: -15px 0 25px;">
+						<img id="thumbnail_img" src="" alt="">
+					</div><!-- .upload-label -->
+					<label class="upload-label" for="title">
+						<span class="upload-label-title upload-label-required">Tytuł:</span>
+						<input id="title" class="input upload-input" type="text" ng-model="title" required>
+					</label><!-- .upload-label -->
+					<label class="upload-label" for="date">
+						<span class="upload-label-title">Data dodania:</span>
+						<input id="date" class="input upload-input" type="text" ng-model="create_date" disabled>
+					</label><!-- .upload-label -->
+					<label class="upload-label" for="owner">
+						<span class="upload-label-title upload-label-required">Właściciel:</span>
+						<input id="owner" class="input upload-input" type="text" ng-model="owner" required>
+					</label><!-- .upload-label -->
+					<label class="upload-label" for="description">
+						<span class="upload-label-title">Opis:</span>
+						<textarea id="description" class="input upload-input upload-textarea" type="text" ng-model="description"></textarea>
+					</label><!-- .upload-label -->
+					<p class="alert {{item.class}}" ng-repeat="item in notice">{{item.content}}</p>
+					<div class="container-button">
+						<button class="button" type="submit" ng-click="saveDocument($event)">Zapisz</button>
+						<div class="load" ng-show="loadPage"></div>
+					</div><!-- .container-button -->
+                </form><!-- .form-add -->
+				<div class="upload-document">
+					<nav id="documents-actions" class="documents-actions" ng-controller="ActionsController">
+						<a id="js-download" class="download"></a>
+						<a class="documents-actions-link" ng-click="downloadDocument($event)" data-id="{{id}}">
+							<i class="icon icon-download">&#xe800;</i>
+						</a><!-- .documents-actions-link -->
+						<a class="documents-actions-link" ng-click="deleteDocument($event)" data-id="{{id}}">
+							<i class="icon icon-delete">&#xe802;</i>
+						</a><!-- .documents-actions-link -->
+					</nav><!-- .documents-actions -->
+					<object id="document" class="documents-object" data="{{data}}">
+				</div><!-- .upload-document -->
+            </div><!-- .content -->
+        </article><!-- .article -->
+    </main><!-- .main -->
+</div><!-- .page-documents -->
