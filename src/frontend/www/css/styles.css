@@ -1,3 +1,5 @@
+
+
 @charset "UTF-8";
 
 /*
@@ -967,6 +969,11 @@ ul {
     display: none;
 }
 
+[class^="download-"] {
+	width: 150px;
+	height: auto;
+}
+
 .documents-actions .icon {
     font-size: 24px;
 }
@@ -1184,6 +1191,11 @@ ul {
 .page-document .upload-document {
     width: 48%;
     height: 815px;
+}
+
+#thumbnail_img {
+	width: 150px;
+	height: auto;
 }
 
 .page-document .documents-actions {
