@@ -20,7 +20,7 @@
     "http"
   ],
   "paths": {
-    "/document/{documentId}": {
+    "/document/{documentId}/{token}": {
       "get": {
         "tags": [
           "document"
@@ -38,6 +38,13 @@
             "description": "ID of document to return",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "description": "Token of a user making a request",
+            "required": true,
+            "type": "string"
           }
         ],
         "responses": {
@@ -47,6 +54,9 @@
               "$ref": "#/definitions/Document"
             }
           },
+          "403": {
+            "description": "Invalid token or token expired"
+          },
           "404": {
             "description": "Document not found"
           },
@@ -55,7 +65,7 @@
           }
         }
       },
-      "put": {
+      "post": {
         "tags": [
           "document"
         ],
@@ -69,7 +79,14 @@
           {
             "name": "documentId",
             "in": "path",
-            "description": "ID of document",
+            "description": "ID of a document (id string 'generate' is given new random id will be generated)",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "description": "Token of a user making a request",
             "required": true,
             "type": "string"
           },
@@ -85,17 +102,26 @@
         ],
         "responses": {
           "200": {
-            "description": "Successful operation"
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/DocumentId"
+            }
           },
           "400": {
             "description": "Bad request"
+          },
+          "403": {
+            "description": "Invalid token or token expired"
+          },
+          "409": {
+            "description": "Document with given ID already exists"
           },
           "500": {
             "description": "Internal server error"
           }
         }
       },
-      "post": {
+      "put": {
         "tags": [
           "document"
         ],
@@ -110,6 +136,13 @@
             "name": "documentId",
             "in": "path",
             "description": "ID of document",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "description": "Token of a user making a request",
             "required": true,
             "type": "string"
           },
@@ -129,6 +162,9 @@
           },
           "400": {
             "description": "Bad request"
+          },
+          "403": {
+            "description": "Invalid token or token expired"
           },
           "404": {
             "description": "Document not found"
@@ -152,11 +188,21 @@
             "description": "ID of document",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "description": "Token of a user making a request",
+            "required": true,
+            "type": "string"
           }
         ],
         "responses": {
           "200": {
             "description": "Successful operation"
+          },
+          "403": {
+            "description": "Invalid token or token expired"
           },
           "404": {
             "description": "Document not found"
@@ -167,7 +213,7 @@
         }
       }
     },
-    "/documents": {
+    "/documents/{token}": {
       "get": {
         "tags": [
           "document"
@@ -178,6 +224,15 @@
         "produces": [
           "application/json"
         ],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "description": "Token of a user making a request",
+            "required": true,
+            "type": "string"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful operation",
@@ -187,6 +242,9 @@
                 "$ref": "#/definitions/DocumentNoData"
               }
             }
+          },
+          "403": {
+            "description": "Invalid token or token expired"
           },
           "404": {
             "description": "Documents not found"
@@ -276,11 +334,23 @@
             "type": "string"
           }
         },
+        "thumbnail": {
+          "type": "string",
+          "description": "Thumbnail encoded in base64"
+        },
         "metadata": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/DocumentMetadata"
           }
+        }
+      }
+    },
+    "DocumentId": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
         }
       }
     }
