@@ -12,6 +12,7 @@ import (
     "../model"
     "../remote"
     "../db"
+//    "fmt"
 )
 
 
@@ -92,6 +93,7 @@ func writeDocument(c *mgo.Collection, document model.Document) (model.DocumentId
     
     if add_data.Id == "generate" {
         add_data.Id = uuid.NewV4().String()
+        doc_id.Id = add_data.Id
     }
 
     c.Insert(&add_data)
@@ -265,7 +267,7 @@ func Document(w http.ResponseWriter, r *http.Request) {
 
 
 func Documents(w http.ResponseWriter, r *http.Request) {
-    re, err := regexp.CompilePOSIX("documents/[^/]+/$")
+    re, err := regexp.CompilePOSIX("documents/[^/]+$")
 
     if err != nil {
         w.WriteHeader(http.StatusInternalServerError)
