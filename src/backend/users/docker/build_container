@@ -1,4 +1,4 @@
 #!/bin/bash
 
 ./build
-docker build -t users -t users:latest .
+docker build -t users -t users:latest -t localhost:5000/users:latest .
