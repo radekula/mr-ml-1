@@ -1,4 +1,4 @@
 #!/bin/bash
 
 ./build
-docker build -t groups -t groups:latest .
+docker build -t groups -t groups:latest -t localhost:5000/groups:latest .
