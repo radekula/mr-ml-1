@@ -1,9 +1,9 @@
 {
   "swagger": "2.0",
   "info": {
-    "description": "This is description of documents-database API",
-    "version": "0.1",
-    "title": "Documents-database"
+    "description": "This is description of documents API",
+    "version": "0.2",
+    "title": "documents"
   },
   "basePath": "/",
   "tags": [
@@ -219,7 +219,7 @@
           "document"
         ],
         "summary": "Get all documents",
-        "description": "Returns list of all documents in database",
+        "description": "Returns list of documents in database",
         "operationId": "getDocuments",
         "produces": [
           "application/json"
@@ -231,15 +231,45 @@
             "description": "Token of a user making a request",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Offset results by given number",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Limit number of results by given number",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Search documents with given string (in name)",
+            "required": false,
+            "type": "string"
           }
         ],
         "responses": {
           "200": {
             "description": "Successful operation",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/DocumentNoData"
+              "type": "object",
+              "properties": {
+                "total": {
+                  "type": "integer",
+                  "description": "Total number of results (before limit and offset)"
+                },
+                "result": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/DocumentNoData"
+                  }
+                }
               }
             }
           },

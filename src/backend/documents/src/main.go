@@ -2,10 +2,10 @@ package main
 
 import (
     "fmt"
+    "strconv"
     "net/http"
     "./config"
     "./controller"
-    "strconv"
 )
 
 func main() {

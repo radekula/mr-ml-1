@@ -3,6 +3,7 @@ package controller
 
 import (
     "strings"
+    "strconv"
     "encoding/json"
     "net/http"
     "regexp"
@@ -17,11 +18,54 @@ import (
 
 
 
-func getDocuments(c *mgo.Collection) ([]model.DocumentLite, int) {
+func getDocuments(c *mgo.Collection, params map[string][]string) ([]model.DocumentLite, int) {
     var search_data []model.DBDocument
     var documents []model.DocumentLite
 
-    c.Find(bson.M{}).All(&search_data)
+    select_fields := bson.M{
+            "id":1, 
+            "title":1, 
+            "file_name":1, 
+            "create_date":1, 
+            "description":1,
+            "owner":1,
+            "metadata":1,
+            "thumbnail":1}
+    
+    find_by := bson.M{}
+    sort_by := "file_name"
+    limit := -1
+    offset := 0
+    
+    if value, ok := params["limit"]; ok {
+        m_limit, err := strconv.Atoi(value[0])
+        if (err != nil ) {
+            return documents, -1
+        }
+        limit = m_limit
+    }
+
+    if value, ok := params["offset"]; ok {
+        m_offset, err := strconv.Atoi(value[0])
+        if (err != nil ) {
+            return documents, -1
+        }
+        offset = m_offset
+    }
+
+    if value, ok := params["search"]; ok {
+        find_by = bson.M{"$or":[]bson.M{
+                bson.M{"title":bson.RegEx{".*" + value[0] + ".*", ""}},
+                bson.M{"file_name":bson.RegEx{".*" + value[0] + ".*", ""}}}}
+    }
+    
+    total, _ := c.Find(find_by).Count()
+    
+    if limit < 0 {
+        limit = total
+    }
+
+    c.Find(find_by).Select(select_fields).Sort(sort_by).Skip(offset).Limit(limit).All(&search_data)
 
     for _, d := range search_data {
         var doc model.DocumentLite
@@ -37,7 +81,7 @@ func getDocuments(c *mgo.Collection) ([]model.DocumentLite, int) {
         documents = append(documents, doc)
     }
     
-    return documents, 0
+    return documents, total
 }
 
 
@@ -292,14 +336,22 @@ func Documents(w http.ResponseWriter, r *http.Request) {
 
     switch r.Method {
         case "GET":
-            documents, err := getDocuments(db.GetCollection())
+            documents, total := getDocuments(db.GetCollection(), r.URL.Query())
 
-            if err != 0 {
+            if total < 0 {
                 w.WriteHeader(http.StatusInternalServerError)
                 return
             }
 
-            json_message, err_json := json.Marshal(documents)
+            return_data := struct {
+                Total   int                  `json:"total"`
+                Result  []model.DocumentLite `json:"result"`
+            } {
+                total,
+                documents,
+            }
+
+            json_message, err_json := json.Marshal(return_data)
             if err_json != nil {
                 w.WriteHeader(http.StatusInternalServerError)
                 return
