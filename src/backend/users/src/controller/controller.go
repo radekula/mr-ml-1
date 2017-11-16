@@ -390,7 +390,7 @@ func changeUserPasswd(c *mgo.Collection, login string, token string, passwd_data
 
 
 func About(w http.ResponseWriter, r *http.Request) {
-    test := model.AboutData{"About!"}
+    test := model.AboutData{"Version: 0.3"}
 
     message, err := json.Marshal(test)
 

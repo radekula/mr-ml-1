@@ -302,7 +302,7 @@ func getUserGroups(c *mgo.Collection, user string) ([]model.GroupDataFull, int) 
 
 
 func About(w http.ResponseWriter, r *http.Request) {
-    test := model.AboutData{"About!"}
+    test := model.AboutData{"Version: 0.3"}
 
     message, err := json.Marshal(test)
 
