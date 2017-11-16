@@ -1,0 +1,24 @@
+mongo-test:
+    image: mongo
+    volumes:
+        - "/var/db-test:/data/db"
+users-test:
+    image: localhost:5000/users:latest
+    links:
+        - "mongo-test:users-database-mongo"
+    ports:
+        - "9081:8080"
+documents-test:
+    image: localhost:5000/documents:latest
+    links:
+        - "mongo-test:documents-database-mongo"
+        - "users-test:users"
+    ports:
+        - "9080:8080"
+groups-test:
+    image: localhost:5000/groups:latest
+    links:
+        - "mongo-test:groups-database-mongo"
+        - "users-test:users"
+    ports:
+        - "9082:8080"
