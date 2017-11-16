@@ -3,7 +3,7 @@
   "info": {
     "description": "This is description of users API",
     "version": "0.1",
-    "title": "Users"
+    "title": "users"
   },
   "basePath": "/",
   "tags": [
@@ -12,6 +12,75 @@
     "http"
   ],
   "paths": {
+    "/users/{token}": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Get list of users",
+        "description": "Get list of users",
+        "operationId": "users",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "description": "Token of user performing operation (or system user token)",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Offset results by given number",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Limit number of results by given number",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Search users with given string (in login, first_name, last_name or email)",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "total": {
+                  "type": "integer",
+                  "description": "Total number of results (before limit and offset)"
+                },
+                "result": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/BasicUserData"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "403": {
+            "description": "Invalid token or token expired"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
     "/user/{login}/{token}": {
       "get": {
         "tags": [

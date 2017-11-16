@@ -3,6 +3,7 @@ package controller
 
 import (
     "strings"
+    "strconv"
     "encoding/json"
     "net/http"
     "regexp"
@@ -69,6 +70,66 @@ func getUserByToken(c *mgo.Collection, token string) (model.DBUserData, int) {
     return user, 0
 }
 
+
+func getUsers(c *mgo.Collection, params map[string][]string, token string) ([]model.BasicUserData, int) {
+    var search_data []model.DBUserData
+    var users []model.BasicUserData
+
+    find_by := bson.M{}
+    sort_by := "lastname, firstname, login"
+    limit := -1
+    offset := 0
+    
+    if value, ok := params["limit"]; ok {
+        m_limit, err := strconv.Atoi(value[0])
+        if (err != nil ) {
+            return users, -1
+        }
+        limit = m_limit
+    }
+
+    if value, ok := params["offset"]; ok {
+        m_offset, err := strconv.Atoi(value[0])
+        if (err != nil ) {
+            return users, -1
+        }
+        offset = m_offset
+    }
+
+    if value, ok := params["search"]; ok {
+        find_by = bson.M{"$or":[]bson.M{
+                bson.M{"login":bson.RegEx{".*" + value[0] + ".*", ""}},
+                bson.M{"firstname":bson.RegEx{".*" + value[0] + ".*", ""}},
+                bson.M{"lastname":bson.RegEx{".*" + value[0] + ".*", ""}},
+                bson.M{"email":bson.RegEx{".*" + value[0] + ".*", ""}}}}
+    }
+    
+    total, _ := c.Find(find_by).Count()
+    
+    if limit < 0 {
+        limit = total
+    }
+
+    c.Find(find_by).Sort(sort_by).Skip(offset).Limit(limit).All(&search_data)
+
+    for _, u := range search_data {
+        var user model.BasicUserData
+
+        user.Type                = u.Type
+        user.Active              = u.Active
+        user.Login               = u.Login
+        user.FirstName           = u.FirstName
+        user.LastName            = u.LastName
+        user.Email               = u.Email
+        user.LastLogin           = u.LastLogin
+        user.LastActive          = u.LastActive
+        user.TokenExpirationTime = u.ExpirationTime
+
+        users = append(users, user)
+    }
+
+    return users, total
+}
 
 
 func getUserData(c *mgo.Collection, login string, token string) (model.BasicUserData, int) {
@@ -340,6 +401,72 @@ func About(w http.ResponseWriter, r *http.Request) {
     w.Write(message)
 }
 
+
+func Users(w http.ResponseWriter, r *http.Request) {
+    re, err := regexp.CompilePOSIX("users/[^/]*$")
+
+    if err != nil {
+        w.WriteHeader(http.StatusInternalServerError)
+        return
+    }
+
+    valid_request := re.FindString(r.URL.Path[1:])
+
+    if valid_request == "" {
+        w.WriteHeader(http.StatusBadRequest)
+        return
+    }
+    
+    request := strings.Split(r.URL.Path, "/")
+    token := request[2]
+    
+    _, ret := getUserByToken(db.GetCollection(), token)
+
+    if ret != 0 {
+        switch ret {
+            case 1:
+                w.WriteHeader(http.StatusForbidden)
+                break
+            default:
+                w.WriteHeader(http.StatusInternalServerError)
+                break
+        }
+        return
+    }
+
+    switch r.Method {
+        case "GET":
+            users, total := getUsers(db.GetCollection(), r.URL.Query(), token)
+
+            if total < 0 {
+                switch ret {
+                    default:
+                        w.WriteHeader(http.StatusInternalServerError)
+                        break
+                }
+                return
+            }
+
+            return_data := struct {
+                Total   int                   `json:"total"`
+                Result  []model.BasicUserData `json:"result"`
+            } {
+                total,
+                users,
+            }
+
+            json_message, err_json := json.Marshal(return_data)
+            if err_json != nil {
+                w.WriteHeader(http.StatusInternalServerError)
+                return
+            }
+            w.Write(json_message)
+            break
+        default:
+            w.WriteHeader(http.StatusBadRequest)
+            return
+    }
+}
 
 
 func User(w http.ResponseWriter, r *http.Request) {

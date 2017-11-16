@@ -15,6 +15,7 @@ func main() {
     app_init.Init()
 
     http.HandleFunc("/", controller.About)
+    http.HandleFunc("/users/", controller.Users)
     http.HandleFunc("/user/", controller.User)
     http.HandleFunc("/login/", controller.Login)
     http.HandleFunc("/logout/", controller.Logout)
