@@ -3,6 +3,7 @@ package controller
 
 import (
     "strings"
+    "strconv"
     "encoding/json"
     "net/http"
     "regexp"
@@ -14,11 +15,42 @@ import (
 )
 
 
-func getGroups(collection *mgo.Collection) ([]model.GroupDataFull, int) {
+func getGroups(c *mgo.Collection, params map[string][]string) ([]model.GroupDataFull, int) {
     var search_data []model.GroupDataFull
     var groups []model.GroupDataFull
 
-    collection.Find(bson.M{}).All(&search_data)
+    find_by := bson.M{}
+    sort_by := "name"
+    limit := -1
+    offset := 0
+    
+    if value, ok := params["limit"]; ok {
+        m_limit, err := strconv.Atoi(value[0])
+        if (err != nil ) {
+            return groups, -1
+        }
+        limit = m_limit
+    }
+
+    if value, ok := params["offset"]; ok {
+        m_offset, err := strconv.Atoi(value[0])
+        if (err != nil ) {
+            return groups, -1
+        }
+        offset = m_offset
+    }
+
+    if value, ok := params["search"]; ok {
+        find_by = bson.M{"name":bson.RegEx{".*" + value[0] + ".*", ""}}
+    }
+    
+    total, _ := c.Find(find_by).Count()
+    
+    if limit < 0 {
+        limit = total
+    }
+
+    c.Find(find_by).Sort(sort_by).Skip(offset).Limit(limit).All(&search_data)
 
     for _, g := range search_data {
         var group model.GroupDataFull
@@ -32,7 +64,7 @@ func getGroups(collection *mgo.Collection) ([]model.GroupDataFull, int) {
         groups = append(groups, group)
     }
 
-    return groups, 0
+    return groups, total
 }
 
 func getGroup(c *mgo.Collection, name string) (model.GroupDataFull, int) {
@@ -309,9 +341,9 @@ func Groups(w http.ResponseWriter, r *http.Request) {
 
     switch r.Method {
         case "GET":
-            groups, ret := getGroups(db.GetCollection())
+            groups, total := getGroups(db.GetCollection(), r.URL.Query())
 
-            if ret != 0 {
+            if total < 0 {
                 switch ret {
                     default:
                         w.WriteHeader(http.StatusInternalServerError)
@@ -320,7 +352,15 @@ func Groups(w http.ResponseWriter, r *http.Request) {
                 return
             }
 
-            json_message, err_json := json.Marshal(groups)
+            return_data := struct {
+                Total   int                   `json:"total"`
+                Result  []model.GroupDataFull `json:"result"`
+            } {
+                total,
+                groups,
+            }
+
+            json_message, err_json := json.Marshal(return_data)
             if err_json != nil {
                 w.WriteHeader(http.StatusInternalServerError)
                 return

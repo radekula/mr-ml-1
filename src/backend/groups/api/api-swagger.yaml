@@ -2,7 +2,7 @@ swagger: '2.0'
 info:
   description: This is description of groups API
   version: '0.1'
-  title: Groups
+  title: groups
 basePath: /
 tags: []
 schemes:
@@ -21,11 +21,34 @@ paths:
           description: Token of user performing operation (or system user token)
           required: true
           type: string
+        - name: offset
+          in: query
+          description: Offset results by given number
+          required: false
+          type: integer
+        - name: limit
+          in: query
+          description: Limit number of results by given number
+          required: false
+          type: integer
+        - name: search
+          in: query
+          description: Search groups with given string (in name)
+          required: false
+          type: string
       responses:
         '200':
           description: Successful operation
           schema:
-            $ref: '#/definitions/GroupDataFull'
+            type: object
+            properties:
+              total:
+                type: integer
+                description: Total number of results (before limit and offset)
+              result:
+                type: array
+                items:
+                  $ref: '#/definitions/GroupDataFull'
         '400':
           description: Invalid request
         '403':
