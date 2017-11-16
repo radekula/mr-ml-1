@@ -23,9 +23,5 @@ docker-compose down
 
 Updating containers:
 ```
-docker-compose up --force-recreate -d
-```
-or
-```
 docker-compose down && docker-compose pull && docker-compose up -d
 ```
