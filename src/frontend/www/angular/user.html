@@ -44,6 +44,12 @@
 					<span class="upload-label-title upload-label-required">E-mail:</span>
 					<input id="email" class="input upload-input" type="text" ng-model="email" required>
 				</label><!-- .upload-label -->
+				<label class="upload-label">
+					<span class="upload-label-title">Grupy:</span>
+					<ul class="user-groups">
+						<li class="user-groups-item" ng-repeat="group in groups">{{group.name}}</li>
+					</ul>
+				</label>
 				<p class="alert {{item.class}}" ng-repeat="item in notice">{{item.content}}</p>
 				<div class="container-button">
 					<button class="button" type="submit" ng-click="saveUser($event)">Zapisz</button>
