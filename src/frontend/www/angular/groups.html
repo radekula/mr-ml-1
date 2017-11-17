@@ -1,0 +1,86 @@
+<div class="page-documents" ng-controller="GroupsController">
+	<header class="header" ng-include="'/www/angular/header.html'"></header>
+    <main class="main">
+		<button class="menu-toggle" type="button" ng-click="menuToggle()" ng-class="{'toggled-on' : toggle}">
+			<span></span>
+		</button><!-- .menu-toggle -->
+		<nav class="menu" ng-controller="menu" ng-include="'/www/angular/menu.html'"></nav>
+        <article class="article">
+            <div class="breadcrumb">
+                <header class="breadcrumb-header">
+					<h1 class="breadcrumb-title">Grupy użytkowników</h1>
+				</header><!-- .breadcrumb-header -->
+				<span class="breadcrumb-item">
+					<a class="breadcrumb-link" href="/#!/">Home</a>
+				</span><!-- .breadcrumb-item -->
+				<span class="breadcrumb-item breadcrumb-current">Grupy użytkowników</span>
+            </div><!-- .breadcrumb -->
+            <div class="content">
+                <table class="groups-table">
+                    <thead>
+                        <tr>
+                            <th>Numer</th>
+                            <th>Nazwa</th>
+                            <th>Opis</th>
+                            <th>Twórca</th>
+                            <th>Data utworzenia</th>
+                            <th>Akcje</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+						<tr>
+							<td>
+								<div class="load" ng-show="loadPage"></div>
+							</td>
+							<td>
+								<input id="js-groups-name" class="input groups-input" type="text" placeholder="Nazwa grupy" value="">
+							</td>
+							<td>
+								<input id="js-groups-description" class="input groups-input" type="text" placeholder="Opis dokumentu" value="">
+							</td>
+							<td>{{login}}</td>
+							<td>{{date}}</td>
+							<td class="documents-menu">
+								<nav class="documents-actions">
+									<a class="groups-actions-link" ng-click="addGroup($event)">
+										<i class="icon">&#xe809;</i>
+									</a><!-- .groups-actions-link -->
+								</nav><!-- .documents-actions -->
+							</td>
+						</tr>
+						<tr ng-repeat="group in groups">
+							<td>{{$index+1}}</td>
+							<td>
+								<input id="js-groups-name-{{$index+1}}" class="input groups-input" type="text" value="{{group.name}}" readonly>
+							</td>
+							<td>
+								<input id="js-groups-description-{{$index+1}}" class="input groups-input" type="text" value="{{group.description}}" readonly>
+							</td>
+							<td>{{group.creator}}</td>
+							<td>{{group.create_date}}</td>
+							<td class="documents-menu">
+								<nav class="documents-actions">
+									<a style="display: none;" class="groups-actions-link js-groups-save-{{$index+1}}" ng-click="saveGroup($event)" data-id="{{$index+1}}" data-name="{{group.name}}">
+										<i class="icon">&#xe809;</i>
+									</a><!-- .groups-actions-link -->
+									<a class="groups-actions-link js-groups-edit-{{$index+1}} js-groups-edit-{{$index+1}}" ng-click="editGroup($event)" data-id="{{$index+1}}" data-name="{{group.name}}">
+										<i class="icon">&#xe80c;</i>
+									</a><!-- .groups-actions-link -->
+									<a class="groups-actions-link" ng-click="showGroup($event)" data-name="{{group.name}}">
+										<i class="icon">&#xe80b;</i>
+									</a><!-- .groups-actions-link -->
+									<a class="groups-actions-link" ng-click="deleteGroup($event)" data-id="{{$index+1}}" data-name="{{group.name}}">
+										<i class="icon">&#xe802;</i>
+									</a><!-- .groups-actions-link -->
+								</nav><!-- .documents-actions -->
+							</td>
+						</tr>
+						<tr ng-repeat="item in notice">
+							<td colspan="5">{{item.content}}</td>
+						</tr>
+					</tbody>
+                </table><!-- .documents-table -->
+            </div><!-- .content -->
+        </article><!-- .article -->
+    </main><!-- .main -->
+</div><!-- .page-documents -->
