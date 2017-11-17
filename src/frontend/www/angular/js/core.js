@@ -45,16 +45,16 @@ app.config(function($routeProvider, $locationProvider) {
         templateUrl: "/www/angular/user.html",
         controller: "UserController"
     });
-	$routeProvider.when( "/groups", {
-		title: "Grupy użytkowników",
-		templateUrl: "/www/angular/groups.html",
-		controller: "GroupsController"
-	} );
-	$routeProvider.when( "/members/:group", {
-		title: "Grupa użytkowników",
-		templateUrl: "/www/angular/members.html",
-		controller: "MembersController"
-	} );
+    $routeProvider.when("/groups", {
+        title: "Grupy użytkowników",
+        templateUrl: "/www/angular/groups.html",
+        controller: "GroupsController"
+    });
+    $routeProvider.when("/members/:group", {
+        title: "Grupa użytkowników",
+        templateUrl: "/www/angular/members.html",
+        controller: "MembersController"
+    });
     $routeProvider.otherwise({
         title: "Podana strona nie istnieje",
         templateUrl: "/www/angular/404.html",
@@ -100,32 +100,28 @@ app.controller("ngDMSBody", ["$scope", "$cookies", "$location", function($scope,
 
     // Set classess of css
     $scope.$on("$routeChangeSuccess", function(event, data) {
-		switch( $location.path() ) {
-			case "/add":
-				$scope.body = "page page-add";
-			break;
-			case "/user":
-				$scope.body = "page page-user";
-			break;
-			case "/groups":
-				$scope.body = "page page-groups";
-			break;
-			default:
-				$scope.body = "page-404";
-			break;
-		}
+        switch ($location.path()) {
+            case "/add":
+                $scope.body = "page page-add";
+                break;
+            case "/user":
+                $scope.body = "page page-user";
+                break;
+            case "/groups":
+                $scope.body = "page page-groups";
+                break;
+            default:
+                $scope.body = "page-404";
+                break;
+        }
 
-		if( $location.path().search( "/documents" ) != -1 ) {
-			$scope.body = "page page-documents";
-		}
-		
-		else if( $location.path().search( "/document" ) != -1 ) {
-			$scope.body = "page page-document";
-		}
-		
-		else if( $location.path().search( "/members" ) != -1 ) {
-			$scope.body = "page page-members";
-		}
+        if ($location.path().search("/documents") != -1) {
+            $scope.body = "page page-documents";
+        } else if ($location.path().search("/document") != -1) {
+            $scope.body = "page page-document";
+        } else if ($location.path().search("/members") != -1) {
+            $scope.body = "page page-members";
+        }
     });
 }]);
 
@@ -742,9 +738,9 @@ app.controller("UploadController", function($scope, $http, $location, $interval)
  */
 app.controller("UserController", function($scope, $http, $routeParams) {
     $scope.notice = [];
-	$scope.groups = [];
-    $scope.login = $cookies.get( "login" );
-	$scope.token = $cookies.get( "token" );
+    $scope.groups = [];
+    $scope.login = $cookies.get("login");
+    $scope.token = $cookies.get("token");
     $scope.type = "";
     $scope.active = "";
     $scope.last_login = "";
@@ -791,16 +787,16 @@ app.controller("UserController", function($scope, $http, $routeParams) {
             }
         }
     );
-	
-	// Get information about of the groups
-	$http.get(
-		"/user/" + $scope.login + "/groups/" + $scope.token
-	).then(
-		function( response ) { // Success
-			// $scope.groups = response.data;
-			$scope.groups = response.data.result;
-		}
-	);
+
+    // Get information about of the groups
+    $http.get(
+        "/user/" + $scope.login + "/groups/" + $scope.token
+    ).then(
+        function(response) { // Success
+            // $scope.groups = response.data;
+            $scope.groups = response.data.result;
+        }
+    );
 
     $scope.saveUser = function($event) {
         $event.preventDefault();
@@ -870,387 +866,343 @@ app.controller("UserController", function($scope, $http, $routeParams) {
 });
 
 /*
-** Groups Controller
-*/
-app.controller( "GroupsController", function( $route, $scope, $http, $routeParams, $cookies, $location ) {
-	$scope.groups = [];
-	$scope.login = $cookies.get( "login" );
-	$scope.token = $cookies.get( "token" );
-	$scope.loadPage = true;
-	var groupsName = null;
-	var groupsDescription = null;
-	
-	// Set date
-	nowDate = new Date();
-	day = nowDate.getDate();
-	day = day < 10 ? "0" + day : day;
-	month = nowDate.getMonth() + 1;
-	month = month < 10 ? "0" + month : month;
-	year = nowDate.getFullYear();
-	$scope.date = day + "-" + month + "-" + year;
-	
-	// Get all group
-	$http.get(
-		"/group/" + $scope.token
-	).then(
-		function( response ) { // Success
-			if( response.status == 200 ) {
-				$scope.groups = response.data.result;
-			}
-			
-			$scope.loadPage = false;
-		},
-		function( response ) { // Error
-			if( response.status == 400 ) {
-				alert( "Błędne żądanie." );
-			}
-			
-			else if( response.status == 403 ) {
-				alert( "Nieprawidłowy lub wygasły token." );
-			}
-			
-			else if( response.status == 500 ) {
-				alert( "Błąd wewnętrzny serwera." );
-			}
-			
-			$scope.loadPage = false;
-		}
-	);
-	
-	// Click edit group
-	$scope.editGroup = function( $event ) {
-		$event.preventDefault();
-		$event.currentTarget.style.display = "none";
-		
-		dataID = $event.currentTarget.getAttribute( "data-id" );
-		
-		groupsName = document.getElementById( "js-groups-name-" + dataID );
-		groupsName.readOnly = false;
-		
-		groupsDescription = document.getElementById( "js-groups-description-" + dataID );
-		groupsDescription.readOnly = false;
-		
-		document.getElementsByClassName( "js-groups-save-" + dataID )[0].style.display = "block";
-	}
-	
-	// Update group
-	$scope.saveGroup = function( $event ) {
-		$event.preventDefault();
-		$scope.loadPage = true;
-		$event.currentTarget.style.display = "none";
-		
-		name = groupsName.value;
-		description = groupsDescription.value;
-		group_data = {
-			"active": true,
-			"create_date": $scope.date,
-			"creator": $scope.login,
-			"description": description ? description : ""
-		}
-		
-		if( name != "" ) {
-			$http.put(
-				"/group/" + $scope.group + "/" + $scope.token,
-				JSON.stringify( group_data )
-			).then(
-				function( response ) { // Success
-					if( response.status == 200 ) {
-						groupsName.readOnly = true;
-						groupsDescription.readOnly = true;
-						document.getElementsByClassName( "js-groups-edit-" + dataID )[0].style.display = "block";
-						alert( "Grupa została zaktualizowana." );
-					}
-					
-					$scope.loadPage = false;
-				},
-				function( response ) { // Error
-					if( response.status == 400 ) {
-						alert( "Błędne żądanie." );
-					}
-					
-					else if( response.status == 403 ) {
-						alert( "Nieprawidłowy lub wygasły token." );
-					}
-					
-					else if( response.status == 404 ) {
-						alert( "Nie znaleziono grupy." );
-					}
-					
-					else if( response.status == 500 ) {
-						alert( "Błąd wewnętrzny serwera." );
-					}
-					
-					$scope.loadPage = false;
-				}
-			);
-		}
-	}
-	
-	// Delete group
-	$scope.deleteGroup = function( $event ) {
-		$event.preventDefault();
-		$scope.loadPage = true;
-		dataID = $event.currentTarget.getAttribute( "data-id" );
-		groupsName = document.getElementById( "js-groups-name-" + dataID ).value;
-		
-		if( confirm( "Czy na pewno usunąć wskazaną pozycję?" ) ) {
-			$http.delete(
-				"/group/" + $scope.group + "/" + $scope.token
-			).then(
-				function( response ) { // Success
-					if( response.status == 200 ) {
-						if( dataID - 1 == 0 ) {
-							left = [];
-							right = $scope.groups.splice( dataID, $scope.groups.length );
-						}
-						
-						else {
-							left =  $scope.groups.splice( 0, dataID-1 );
-							right = $scope.groups.splice( dataID-1, $scope.groups.length );
-						}
-						
-						$scope.groups = left.concat( right );
-						alert( "Grupa została usunięta." );
-					}
-					
-					$scope.loadPage = false;
-				},
-				function( response ) { // Error
-					if( response.status == 403 ) {
-						alert( "Nieprawidłowy lub wygasły token." );
-					}
-					
-					else if( response.status == 404 ) {
-						alert( "Nie znaleziono grupy." );
-					}
-					
-					else if( response.status == 500 ) {
-						alert( "Błąd wewnętrzny serwera." );
-					}
-					
-					$scope.loadPage = false;
-				}
-			);
-		}
-	}
-	
-	// Create group
-	$scope.addGroup = function( $event ) {
-		$event.preventDefault();
-		$scope.loadPage = true;
-		name = document.getElementById( "js-groups-name" ).value;
-		description = document.getElementById( "js-groups-description" ).value;
-		group_data = {
-			"active": true,
-			"create_date": $scope.date,
-			"creator": $scope.login,
-			"description": description ? description : ""
-		}
-		
-		if( name != "" ) {
-			$http.post(
-				// "/group/" + $scope.group + "/" $scope.token,
-				"/ajax/group.php",
-				JSON.stringify( group_data )
-			).then(
-				function( response ) { // Success
-					if( response.status == 200 ) {
-						group_data.name = name;
-						$scope.groups.push( group_data );
-						
-						document.getElementById( "js-groups-name" ).value = "";
-						document.getElementById( "js-groups-description" ).value = "";
-						alert( "Grupa została dodana." );
-					}
-					
-					$scope.loadPage = false;
-				},
-				function( response ) { // Error
-					if( response.status == 400 ) {
-						alert( "Błędne żądanie." );
-					}
-					
-					else if( response.status == 403 ) {
-						alert( "Nieprawidłowy lub wygasły token." );
-					}
-					
-					else if( response.status == 409 ) {
-						alert( "Istnieje grupa o podanej nazwie." );
-					}
-					
-					else if( response.status == 500 ) {
-						alert( "Błąd wewnętrzny serwera." );
-					}
-					
-					$scope.loadPage = false;
-				}
-			);
-		}
-		
-		else {
-			alert( "Nieprawidłowa nazwa grupy." );
-			$scope.loadPage = false;
-		}
-	}
-	
-	// Redirect to users list
-	$scope.showGroup = function( $event ) {
-		$event.preventDefault();
-		name = $event.currentTarget.getAttribute( "data-name" );
-		$location.path( "/members/" + name );
-	}
-} );
+ ** Groups Controller
+ */
+app.controller("GroupsController", function($route, $scope, $http, $routeParams, $cookies, $location) {
+    $scope.groups = [];
+    $scope.login = $cookies.get("login");
+    $scope.token = $cookies.get("token");
+    $scope.loadPage = true;
+    var groupsName = null;
+    var groupsDescription = null;
+
+    // Set date
+    nowDate = new Date();
+    day = nowDate.getDate();
+    day = day < 10 ? "0" + day : day;
+    month = nowDate.getMonth() + 1;
+    month = month < 10 ? "0" + month : month;
+    year = nowDate.getFullYear();
+    $scope.date = day + "-" + month + "-" + year;
+
+    // Get all group
+    $http.get(
+        "/group/" + $scope.token
+    ).then(
+        function(response) { // Success
+            if (response.status == 200) {
+                $scope.groups = response.data.result;
+            }
+
+            $scope.loadPage = false;
+        },
+        function(response) { // Error
+            if (response.status == 400) {
+                alert("Błędne żądanie.");
+            } else if (response.status == 403) {
+                alert("Nieprawidłowy lub wygasły token.");
+            } else if (response.status == 500) {
+                alert("Błąd wewnętrzny serwera.");
+            }
+
+            $scope.loadPage = false;
+        }
+    );
+
+    // Click edit group
+    $scope.editGroup = function($event) {
+        $event.preventDefault();
+        $event.currentTarget.style.display = "none";
+
+        dataID = $event.currentTarget.getAttribute("data-id");
+
+        groupsName = document.getElementById("js-groups-name-" + dataID);
+        groupsName.readOnly = false;
+
+        groupsDescription = document.getElementById("js-groups-description-" + dataID);
+        groupsDescription.readOnly = false;
+
+        document.getElementsByClassName("js-groups-save-" + dataID)[0].style.display = "block";
+    }
+
+    // Update group
+    $scope.saveGroup = function($event) {
+        $event.preventDefault();
+        $scope.loadPage = true;
+        $event.currentTarget.style.display = "none";
+
+        name = groupsName.value;
+        description = groupsDescription.value;
+        group_data = {
+            "active": true,
+            "create_date": $scope.date,
+            "creator": $scope.login,
+            "description": description ? description : ""
+        }
+
+        if (name != "") {
+            $http.put(
+                "/group/" + $scope.group + "/" + $scope.token,
+                JSON.stringify(group_data)
+            ).then(
+                function(response) { // Success
+                    if (response.status == 200) {
+                        groupsName.readOnly = true;
+                        groupsDescription.readOnly = true;
+                        document.getElementsByClassName("js-groups-edit-" + dataID)[0].style.display = "block";
+                        alert("Grupa została zaktualizowana.");
+                    }
+
+                    $scope.loadPage = false;
+                },
+                function(response) { // Error
+                    if (response.status == 400) {
+                        alert("Błędne żądanie.");
+                    } else if (response.status == 403) {
+                        alert("Nieprawidłowy lub wygasły token.");
+                    } else if (response.status == 404) {
+                        alert("Nie znaleziono grupy.");
+                    } else if (response.status == 500) {
+                        alert("Błąd wewnętrzny serwera.");
+                    }
+
+                    $scope.loadPage = false;
+                }
+            );
+        }
+    }
+
+    // Delete group
+    $scope.deleteGroup = function($event) {
+        $event.preventDefault();
+        $scope.loadPage = true;
+        dataID = $event.currentTarget.getAttribute("data-id");
+        groupsName = document.getElementById("js-groups-name-" + dataID).value;
+
+        if (confirm("Czy na pewno usunąć wskazaną pozycję?")) {
+            $http.delete(
+                "/group/" + $scope.group + "/" + $scope.token
+            ).then(
+                function(response) { // Success
+                    if (response.status == 200) {
+                        if (dataID - 1 == 0) {
+                            left = [];
+                            right = $scope.groups.splice(dataID, $scope.groups.length);
+                        } else {
+                            left = $scope.groups.splice(0, dataID - 1);
+                            right = $scope.groups.splice(dataID - 1, $scope.groups.length);
+                        }
+
+                        $scope.groups = left.concat(right);
+                        alert("Grupa została usunięta.");
+                    }
+
+                    $scope.loadPage = false;
+                },
+                function(response) { // Error
+                    if (response.status == 403) {
+                        alert("Nieprawidłowy lub wygasły token.");
+                    } else if (response.status == 404) {
+                        alert("Nie znaleziono grupy.");
+                    } else if (response.status == 500) {
+                        alert("Błąd wewnętrzny serwera.");
+                    }
+
+                    $scope.loadPage = false;
+                }
+            );
+        }
+    }
+
+    // Create group
+    $scope.addGroup = function($event) {
+        $event.preventDefault();
+        $scope.loadPage = true;
+        name = document.getElementById("js-groups-name").value;
+        description = document.getElementById("js-groups-description").value;
+        group_data = {
+            "active": true,
+            "create_date": $scope.date,
+            "creator": $scope.login,
+            "description": description ? description : ""
+        }
+
+        if (name != "") {
+            $http.post(
+                // "/group/" + $scope.group + "/" $scope.token,
+                "/ajax/group.php",
+                JSON.stringify(group_data)
+            ).then(
+                function(response) { // Success
+                    if (response.status == 200) {
+                        group_data.name = name;
+                        $scope.groups.push(group_data);
+
+                        document.getElementById("js-groups-name").value = "";
+                        document.getElementById("js-groups-description").value = "";
+                        alert("Grupa została dodana.");
+                    }
+
+                    $scope.loadPage = false;
+                },
+                function(response) { // Error
+                    if (response.status == 400) {
+                        alert("Błędne żądanie.");
+                    } else if (response.status == 403) {
+                        alert("Nieprawidłowy lub wygasły token.");
+                    } else if (response.status == 409) {
+                        alert("Istnieje grupa o podanej nazwie.");
+                    } else if (response.status == 500) {
+                        alert("Błąd wewnętrzny serwera.");
+                    }
+
+                    $scope.loadPage = false;
+                }
+            );
+        } else {
+            alert("Nieprawidłowa nazwa grupy.");
+            $scope.loadPage = false;
+        }
+    }
+
+    // Redirect to users list
+    $scope.showGroup = function($event) {
+        $event.preventDefault();
+        name = $event.currentTarget.getAttribute("data-name");
+        $location.path("/members/" + name);
+    }
+});
 
 /*
-** MembersController
-*/
-app.controller( "MembersController", function( $route, $scope, $http, $routeParams, $cookies, $location ) {
-	if( isNaN( $routeParams.group ) &&
-		$routeParams.group != undefined
-	) {
-		$scope.group = $routeParams.group;
-	}
-	
-	$scope.users = [];
-	$scope.loadPage = true;
-	$scope.token = $cookies.get( "token" );
-	
-	// Get all users
-	$http.get(
-		"/members/get/" + $scope.group + "/" + $scope.token
-	).then(
-		function( response ) { // Success
-			if( response.status == 200 ) {
-				$scope.users = response.data;
-			}
-			
-			$scope.loadPage = false;
-		},
-		function( response ) { // Error
-			if( response.status == 403 ) {
-				alert( "Nieprawidłowy lub wygasły token." );
-			}
-			
-			if( response.status == 404 ) {
-				alert( "Grupa nieznaleziona." );
-			}
-			
-			else if( response.status == 500 ) {
-				alert( "Błąd wewnętrzny serwera." );
-			}
-			
-			$scope.loadPage = false;
-		}
-	);
-	
-	// Add user to group
-	$scope.addUser = function( $event ) {
-		$event.preventDefault();
-		$scope.loadPage = true;
-		login = document.getElementById( "js-members-login" ).value;
-		users = [login]
-		
-		if( name != "" ) {
-			$http.post(
-				"/members/add/" + $scope.group + "/" + $scope.token,
-				JSON.stringify( users )
-			).then(
-				function( response ) { // Success
-					if( response.status == 200 ) {
-						count_users = users.length;
-						for( i = 0; i < count_users; i++ ) {
-							$scope.users.push( users[i] );
-						}
-						
-						if( count_users > 1 ) {
-							alert( "Użytkownicy zostali dodani do grupy." );
-						}
-						
-						else {
-							alert( "Użytkownik został dodany do grupy." );
-						}
-						
-						document.getElementById( "js-members-login" ).value = "";
-					}
-					
-					$scope.loadPage = false;
-				},
-				function( response ) { // Error
-					if( response.status == 400 ) {
-						alert( "Błędne żądanie." );
-					}
-					
-					else if( response.status == 403 ) {
-						alert( "Nieprawidłowy lub wygasły token." );
-					}
-					
-					else if( response.status == 404 ) {
-						alert( "Nie znaleziono grupy." );
-					}
-					
-					else if( response.status == 500 ) {
-						alert( "Błąd wewnętrzny serwera." );
-					}
-					
-					$scope.loadPage = false;
-				}
-			);
-		}
-		
-		else {
-			alert( "Nieprawidłowa nazwa użytkownika." );
-			$scope.loadPage = false;
-		}
-	}
-	
-	// Delete user to group
-	$scope.deleteUser = function( $event ) {
-		$event.preventDefault();
-		$scope.loadPage = true;
-		dataID = $event.currentTarget.getAttribute( "data-id" );
-		
-		if( confirm( "Czy na pewno usunąć użytkownika z grupy?" ) ) {
-			$http.post(
-				"/members/remove/" + $scope.group "/" + $scope.token
-			).then(
-				function( response ) { // Success
-					if( response.status == 200 ) {
-						if( dataID - 1 == 0 ) {
-							left = [];
-							right = $scope.users.splice( dataID, $scope.users.length );
-						}
-						
-						else {
-							left =  $scope.users.splice( 0, dataID-1 );
-							right = $scope.users.splice( dataID-1, $scope.users.length );
-						}
-						
-						$scope.users = left.concat( right );
-						alert( "Użytkownik został usunięty z grupy." );
-					}
-					
-					$scope.loadPage = false;
-				},
-				function( response ) { // Error
-					if( response.status == 400 ) {
-						alert( "Błędne żądanie." );
-					}
-					
-					else if( response.status == 403 ) {
-						alert( "Nieprawidłowy lub wygasły token." );
-					}
-					
-					else if( response.status == 404 ) {
-						alert( "Nie znaleziono grupy." );
-					}
-					
-					else if( response.status == 500 ) {
-						alert( "Błąd wewnętrzny serwera." );
-					}
-					
-					$scope.loadPage = false;
-				}
-			);
-		}
-	}
-} );
+ ** MembersController
+ */
+app.controller("MembersController", function($route, $scope, $http, $routeParams, $cookies, $location) {
+    if (isNaN($routeParams.group) &&
+        $routeParams.group != undefined
+    ) {
+        $scope.group = $routeParams.group;
+    }
+
+    $scope.users = [];
+    $scope.loadPage = true;
+    $scope.token = $cookies.get("token");
+
+    // Get all users
+    $http.get(
+        "/members/get/" + $scope.group + "/" + $scope.token
+    ).then(
+        function(response) { // Success
+            if (response.status == 200) {
+                $scope.users = response.data;
+            }
+
+            $scope.loadPage = false;
+        },
+        function(response) { // Error
+            if (response.status == 403) {
+                alert("Nieprawidłowy lub wygasły token.");
+            }
+
+            if (response.status == 404) {
+                alert("Grupa nieznaleziona.");
+            } else if (response.status == 500) {
+                alert("Błąd wewnętrzny serwera.");
+            }
+
+            $scope.loadPage = false;
+        }
+    );
+
+    // Add user to group
+    $scope.addUser = function($event) {
+        $event.preventDefault();
+        $scope.loadPage = true;
+        login = document.getElementById("js-members-login").value;
+        users = [login]
+
+        if (name != "") {
+            $http.post(
+                "/members/add/" + $scope.group + "/" + $scope.token,
+                JSON.stringify(users)
+            ).then(
+                function(response) { // Success
+                    if (response.status == 200) {
+                        count_users = users.length;
+                        for (i = 0; i < count_users; i++) {
+                            $scope.users.push(users[i]);
+                        }
+
+                        if (count_users > 1) {
+                            alert("Użytkownicy zostali dodani do grupy.");
+                        } else {
+                            alert("Użytkownik został dodany do grupy.");
+                        }
+
+                        document.getElementById("js-members-login").value = "";
+                    }
+
+                    $scope.loadPage = false;
+                },
+                function(response) { // Error
+                    if (response.status == 400) {
+                        alert("Błędne żądanie.");
+                    } else if (response.status == 403) {
+                        alert("Nieprawidłowy lub wygasły token.");
+                    } else if (response.status == 404) {
+                        alert("Nie znaleziono grupy.");
+                    } else if (response.status == 500) {
+                        alert("Błąd wewnętrzny serwera.");
+                    }
+
+                    $scope.loadPage = false;
+                }
+            );
+        } else {
+            alert("Nieprawidłowa nazwa użytkownika.");
+            $scope.loadPage = false;
+        }
+    }
+
+    // Delete user to group
+    $scope.deleteUser = function($event) {
+        $event.preventDefault();
+        $scope.loadPage = true;
+        dataID = $event.currentTarget.getAttribute("data-id");
+
+        if (confirm("Czy na pewno usunąć użytkownika z grupy?")) {
+            $http.post(
+                "/members/remove/" + $scope.group "/" + $scope.token
+            ).then(
+                function(response) { // Success
+                    if (response.status == 200) {
+                        if (dataID - 1 == 0) {
+                            left = [];
+                            right = $scope.users.splice(dataID, $scope.users.length);
+                        } else {
+                            left = $scope.users.splice(0, dataID - 1);
+                            right = $scope.users.splice(dataID - 1, $scope.users.length);
+                        }
+
+                        $scope.users = left.concat(right);
+                        alert("Użytkownik został usunięty z grupy.");
+                    }
+
+                    $scope.loadPage = false;
+                },
+                function(response) { // Error
+                    if (response.status == 400) {
+                        alert("Błędne żądanie.");
+                    } else if (response.status == 403) {
+                        alert("Nieprawidłowy lub wygasły token.");
+                    } else if (response.status == 404) {
+                        alert("Nie znaleziono grupy.");
+                    } else if (response.status == 500) {
+                        alert("Błąd wewnętrzny serwera.");
+                    }
+
+                    $scope.loadPage = false;
+                }
+            );
+        }
+    }
+});
