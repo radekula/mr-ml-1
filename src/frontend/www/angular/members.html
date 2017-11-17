@@ -1,0 +1,62 @@
+<div class="page-documents" ng-controller="MembersController">
+	<header class="header" ng-include="'/www/angular/header.html'"></header>
+    <main class="main">
+		<button class="menu-toggle" type="button" ng-click="menuToggle()" ng-class="{'toggled-on' : toggle}">
+			<span></span>
+		</button><!-- .menu-toggle -->
+		<nav class="menu" ng-controller="menu" ng-include="'/www/angular/menu.html'"></nav>
+        <article class="article">
+            <div class="breadcrumb">
+                <header class="breadcrumb-header">
+					<h1 class="breadcrumb-title">{{group}}</h1>
+				</header><!-- .breadcrumb-header -->
+				<span class="breadcrumb-item">
+					<a class="breadcrumb-link" href="/#!/">Home</a>
+				</span><!-- .breadcrumb-item -->
+				<span class="breadcrumb-item breadcrumb-current">Grupa użytkowników</span>
+            </div><!-- .breadcrumb -->
+            <div class="content">
+                <table class="groups-table members-table">
+                    <thead>
+                        <tr>
+                            <th>Numer</th>
+                            <th>Użytkownik</th>
+                            <th>Akcje</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+						<tr>
+							<td>
+								<div class="load" ng-show="loadPage"></div>
+							</td>
+							<td>
+								<input id="js-members-login" class="input groups-input" type="text" placeholder="Nazwa użytkownika" value="">
+							</td>
+							<td class="documents-menu">
+								<nav class="documents-actions">
+									<a class="groups-actions-link" ng-click="addUser($event)">
+										<i class="icon">&#xe809;</i>
+									</a><!-- .groups-actions-link -->
+								</nav><!-- .documents-actions -->
+							</td>
+						</tr>
+						<tr ng-repeat="(key, value) in users">
+							<td>{{$index+1}}</td>
+							<td>{{value}}</td>
+							<td class="documents-menu">
+								<nav class="documents-actions">
+									<a class="groups-actions-link" ng-click="deleteUser($event)" data-id="{{$index+1}}" data-name="{{value}}">
+										<i class="icon">&#xe802;</i>
+									</a><!-- .groups-actions-link -->
+								</nav><!-- .documents-actions -->
+							</td>
+						</tr>
+						<tr ng-repeat="item in notice">
+							<td colspan="5">{{item.content}}</td>
+						</tr>
+					</tbody>
+                </table><!-- .documents-table -->
+            </div><!-- .content -->
+        </article><!-- .article -->
+    </main><!-- .main -->
+</div><!-- .page-documents -->
