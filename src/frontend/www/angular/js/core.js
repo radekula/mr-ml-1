@@ -682,7 +682,8 @@ app.controller("UploadController", function($scope, $http, $location, $interval)
                             _document.id = documentId;
 
                             $http.post(
-                                "/document/" + documentId JSON.stringify(_document)
+                                "/document/" + documentId,
+                                JSON.stringify(_document)
                             ).then(
                                 function(response) { // Success
                                     if (response.status == 200) {
