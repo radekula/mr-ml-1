@@ -1172,7 +1172,7 @@ app.controller("MembersController", function($route, $scope, $http, $routeParams
 
         if (confirm("Czy na pewno usunąć użytkownika z grupy?")) {
             $http.post(
-                "/members/remove/" + $scope.group "/" + $scope.token
+                "/members/remove/" + $scope.group + "/" + $scope.token
             ).then(
                 function(response) { // Success
                     if (response.status == 200) {
