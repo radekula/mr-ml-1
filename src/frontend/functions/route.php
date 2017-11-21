@@ -1,10 +1,10 @@
 <?php
 
-require "token.php";
-require "login.php";
-require "register.php";
-require "app.php";
-require "404.php";
+require_once "token.php";
+require_once "login.php";
+require_once "register.php";
+require_once "app.php";
+require_once "404.php";
 
 /*
  * Call function depending on request data
@@ -27,6 +27,9 @@ function route($data) {
             break;
         case "404":
             render404($config);
+            break;
+        default:
+            renderApp($data, $config);
             break;
     }
 }
