@@ -24,6 +24,7 @@ function decodeRequestUri($uri) {
 function getRequestData() {
     $data = [];
     $data['action'] = $_GET['action'];
+    var_dump($_GET); die;
     $data['method'] = $_SERVER['REQUEST_METHOD'];
     $data['url'] = decodeRequestUri($_SERVER['REQUEST_URI']);
 

@@ -4,8 +4,7 @@
  * Render page for app
  */
 function getAppGET($data, $config) {
-//    $html = file_get_contents(__DIR__ . "/../www/angular/documents.html");
-    redirectTo($config['login']['url']);
+    $html = file_get_contents(__DIR__ . "/../www/angular/documents.html");
 
     print $html;
 }
