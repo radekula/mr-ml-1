@@ -486,7 +486,9 @@ app.controller("DocumentController", function($scope, $routeParams, $http, $cook
 /*
  ** Upload Controller
  */
-app.controller("UploadController", function($scope, $http, $location, $interval) {
+app.controller("UploadController", function($scope, $http, $cookies, $location, $interval) {
+    $scope.token = $cookies.get("token");
+    
     openFile = function(event) {
         var input = event.target;
         files = input.files;
