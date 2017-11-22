@@ -45,7 +45,7 @@ function loginPOST($data, $config) {
         setcookie('login', $data['body']['login'], time()+60*60*24*365, '/');
         setcookie('token', $tokenData['token'], time()+60*60*24*365, '/');
         
-        redirectTo($config['/']);
+        redirectTo('/');
     }
 }
 

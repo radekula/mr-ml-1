@@ -50,7 +50,7 @@ function route($data) {
  */
     // if user is logged and trying to login or register again we redirect him to main page:
     if($data['action'] == 'login' or $data['action'] == 'register') {
-        redirectTo("/");
+        redirectTo('/');
         return;
     }
 
