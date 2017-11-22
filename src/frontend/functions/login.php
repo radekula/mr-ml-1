@@ -73,7 +73,7 @@ function renderLogout($data, $config) {
             addCookie('alert_danger', $config['logout']['500']);
         }
         
-        echo '<meta http-equiv="REFRESH" content="0;url=' . $config['login']['url'] . '">';
+        echo '<meta http-equiv="REFRESH" content="0;url=' . '/login' . '">';
     } else {
         renderInvalidRequest($data, $config);
     }
