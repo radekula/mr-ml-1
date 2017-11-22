@@ -12,7 +12,7 @@
 				<header class="auth-header">
 					<h1 class="auth-title">Zarejestruj się</h1>
 				</header><!-- .auth-header -->
-				<form class="auth-form" method="post" action="{{register_url}}">
+				<form class="auth-form" method="post" action="/register">
 					<label for="login" class="auth-label">
 						<span class="auth-label-title">Login:</span>
 						<input id="login" class="input {{class_login}}" name="login" type="text" value="{{login}}" autofocus>
@@ -46,7 +46,7 @@
 					<p class="alert {{alert.class}}">{{alert.content}}</p>
 					<button class="button" type="submit">Zarejestruj się</button>
 					<nav class="auth-nav">
-						<a class="auth-nav-link" href="{{login_url}}">Zaloguj się</a>
+						<a class="auth-nav-link" href="/login">Zaloguj się</a>
 					</nav><!-- .auth-nav -->
 				</form><!-- .auth-form -->
 			</article><!-- .auth-content -->

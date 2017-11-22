@@ -3,10 +3,8 @@
 /*
  * Render page for register
  */
-function getRegisterGET($data, $config, $status = '', $notice = array()) {
+function registerGET($data, $config, $status = '', $notice = array()) {
     $html = file_get_contents(__DIR__ . '/../www/register.html');
-    $html = str_replace('{{login_url}}', $config['login']['url'], $html);
-    $html = str_replace('{{register_url}}', $config['register']['url'], $html);
     
     // Setting the value of the attribute "value"
     $dataBody = $data['body'];
@@ -68,7 +66,7 @@ function getRegisterGET($data, $config, $status = '', $notice = array()) {
 /*
  * Register user
  */
-function getRegisterPOST($data, $config) {
+function registerPOST($data, $config) {
     $loginData = $data['body'];
     $regex = $config['register_regex'];
     
@@ -92,30 +90,6 @@ function getRegisterPOST($data, $config) {
     getRegisterGET(array(), $config, $ret['status']);
 }
 
-/*
- * Handle /register requests
- */
-function renderRegister($data, $config) {
-    if( !empty($data['login']) and
-        !empty($data['token'])
-    ) {
-        $tokenValid = validateToken($data['login'], $data['token']);
-        
-        if($tokenValid) {
-            // User is login in
-            redirectTo($config['server']['base_url']);
-        }
-    }
-    
-    switch($data['method']) {
-        case 'GET':
-            getRegisterGET($data, $config);
-            break;
-        case 'POST':
-            getRegisterPOST($data, $config);
-            break;
-    }
-}
 
 /*
  * Returns the token needed for registration

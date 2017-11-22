@@ -1,6 +1,7 @@
 <?php
 
 require_once "route.php";
+require_once "services.php";
 
 /*
  * Get application configuration
@@ -23,10 +24,29 @@ function decodeRequestUri($uri) {
  */
 function getRequestData() {
     $data = [];
-    $data['action'] = $_GET['action'];
-    var_dump($_GET); die;
     $data['method'] = $_SERVER['REQUEST_METHOD'];
     $data['url'] = decodeRequestUri($_SERVER['REQUEST_URI']);
+
+    $uri_parts = parse_url($data['url']);
+    $path_parts = explode('/', $uri_parts['path']);
+
+    // get parts from path
+    foreach($path_parts as $idx => $param) {
+        if($idx == 1) {
+            $data['action'] = !empty($param) ? $param : "desktop";
+        }
+        
+        if($idx > 1) {
+            $data['params'][$idx - 2] = $param;
+        }
+    }
+
+    // fill params with _GET data
+    if(!empty($data['params_get'])) {
+        $data['params_get'] = array_merge($data['params_get'], $_GET);
+    } else {
+        $data['params_get'] = $_GET;
+    };
 
     // get login and token
     if(empty($_COOKIE['token'])) {
@@ -40,7 +60,7 @@ function getRequestData() {
     // get body data (POST, PUT)
     $body = file_get_contents('php://input');
     parse_str($body, $data['body']);
-    
+
     return $data;
 }
 
@@ -78,10 +98,31 @@ function remoteCall($url, $method, $body) {
     return $ret;
 }
 
+/*
+ * Redirect to different url
+ */
 function redirectTo($url) {
     header('HTTP/1.1 301 Moved Permanently');
     header('Location: ' . $url);
-    exit();
+}
+
+function callService($data, $config) {
+    $serviceName = $data['params'][0];
+
+    switch($serviceName) {
+        case "users":
+            return callUsers($data, $config);
+            break;
+        case "documents":
+            return callDocuments($data, $config);
+            break;
+        case "groups":
+            return callGroups($data, $config);
+            break;
+        default:
+            render404($data, $config);
+            break;
+    }
 }
 
 function addCookie($name, $value) {
