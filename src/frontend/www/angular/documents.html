@@ -36,24 +36,24 @@
                         </tr>
                     </thead>
                     <tbody>
-						<tr ng-repeat="document in documents">
-							<td>{{document.id}}</td>
-							<td>{{document.title}}</td>
-							<td>{{document.create_date}}</td>
+						<tr ng-repeat="(key, value) in documents">
+							<td>{{$index+1}}</td>
+							<td>{{value.title}}</td>
+							<td>{{value.create_date}}</td>
 							<td class="documents-owner">
 								<span ng-repeat="owner in document.owner">{{owner}}</span>
 							</td><!-- .documents-owner -->
 							<td class="documents-menu">
 								<nav class="documents-actions">
-									<a id="js-download-{{document.id}}" class="download-{{document.id}}"></a>
-									<a class="documents-actions-link" ng-click="downloadDocument($event)" data-id="{{document.id}}">
+									<a id="js-download-{{value.id}}" class="download-{{value.id}}"></a>
+									<a class="documents-actions-link" ng-click="downloadDocument($event)" data-id="{{value.id}}">
 										<i class="icon icon-download">&#xe800;</i>
 									</a><!-- .documents-actions-link -->
-									<a class="documents-actions-link" ng-click="redirectToDocument($event)" ng-mouseover="documentOver($event)" ng-mouseleave="documentLeave($event)" data-id="{{document.id}}">
+									<a class="documents-actions-link" ng-click="redirectToDocument($event)" ng-mouseover="documentOver($event)" ng-mouseleave="documentLeave($event)" data-id="{{value.id}}">
 										<i class="icon">&#xf0f6;</i>
 									</a><!-- .documents-actions-link -->
-									<img id="thumbnail_{{document.id}}" class="thumbnail" alt="">
-									<a class="documents-actions-link" ng-click="deleteDocument($event)" data-id="{{document.id}}">
+									<img id="thumbnail_{{value.id}}" class="thumbnail" alt="">
+									<a class="documents-actions-link" ng-click="deleteDocument($event)" data-id="{{value.id}}">
 										<i class="icon">&#xe802;</i>
 									</a><!-- .documents-actions-link -->
 								</nav><!-- .documents-actions -->
