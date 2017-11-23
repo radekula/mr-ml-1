@@ -1,6 +1,7 @@
 <?php
 
-require "route.php";
+require_once "route.php";
+require_once "services.php";
 
 /*
  * Get application configuration
@@ -23,9 +24,29 @@ function decodeRequestUri($uri) {
  */
 function getRequestData() {
     $data = [];
-	$data['action'] = $_GET['action'];
-	$data['method'] = $_SERVER['REQUEST_METHOD'];
-	$data['url'] = decodeRequestUri($_SERVER['REQUEST_URI']);
+    $data['method'] = $_SERVER['REQUEST_METHOD'];
+    $data['url'] = decodeRequestUri($_SERVER['REQUEST_URI']);
+
+    $uri_parts = parse_url($data['url']);
+    $path_parts = explode('/', $uri_parts['path']);
+
+    // get parts from path
+    foreach($path_parts as $idx => $param) {
+        if($idx == 1) {
+            $data['action'] = !empty($param) ? $param : "desktop";
+        }
+        
+        if($idx > 1) {
+            $data['params'][$idx - 2] = $param;
+        }
+    }
+
+    // fill params with _GET data
+    if(!empty($data['params_get'])) {
+        $data['params_get'] = array_merge($data['params_get'], $_GET);
+    } else {
+        $data['params_get'] = $_GET;
+    };
 
     // get login and token
     if(empty($_COOKIE['token'])) {
@@ -38,8 +59,8 @@ function getRequestData() {
 
     // get body data (POST, PUT)
     $body = file_get_contents('php://input');
-	parse_str($body, $data['body']);
-	
+    parse_str($body, $data['body']);
+
     return $data;
 }
 
@@ -50,46 +71,67 @@ function remoteCall($url, $method, $body) {
     $ret = [];
     $ret['status'] = null;
     $ret['body'] = null;
-	$options = array();
-	
-	$ch = curl_init( $url );
-	$options = array(
-		CURLOPT_RETURNTRANSFER => true
-	);
-	
-	if($method == 'POST' || $method == 'PUT') {
-		$options = array(
-			CURLOPT_RETURNTRANSFER => true,
-			CURLOPT_HTTPHEADER => array( 'Content-type: application/json' ),
-			CURLOPT_POSTFIELDS => $body,
-			CURLOPT_HEADER => 0
-		);
-	}
-	
-	curl_setopt_array( $ch, $options );
-	$result = curl_exec( $ch );
-	$http_code = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
-	
-	$ret['status'] = $http_code;
-	$ret['body'] = $result != false ? $result : null;
-	
-	curl_close($ch);
+    $options = array();
+    
+    $ch = curl_init( $url );
+    $options = array(
+        CURLOPT_RETURNTRANSFER => true
+    );
+    
+    if($method == 'POST' || $method == 'PUT') {
+        $options = array(
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => array( 'Content-type: application/json' ),
+            CURLOPT_POSTFIELDS => $body,
+            CURLOPT_HEADER => 0
+        );
+    }
+    
+    curl_setopt_array( $ch, $options );
+    $result = curl_exec( $ch );
+    $http_code = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
+    
+    $ret['status'] = $http_code;
+    $ret['body'] = $result != false ? $result : null;
+    
+    curl_close($ch);
     return $ret;
 }
 
+/*
+ * Redirect to different url
+ */
 function redirectTo($url) {
-	header('HTTP/1.1 301 Moved Permanently');
-	header('Location: ' . $url);
-	exit();
+    header('HTTP/1.1 301 Moved Permanently');
+    header('Location: ' . $url);
+}
+
+function callService($data, $config) {
+    $serviceName = $data['params'][0];
+
+    switch($serviceName) {
+        case "users":
+            return callUsers($data, $config);
+            break;
+        case "documents":
+            return callDocuments($data, $config);
+            break;
+        case "groups":
+            return callGroups($data, $config);
+            break;
+        default:
+            render404($data, $config);
+            break;
+    }
 }
 
 function addCookie($name, $value) {
-	setcookie($name, $value, time()+60*60*24*365, '/');
+    setcookie($name, $value, time()+60*60*24*365, '/');
 }
 
 function removeCookie($name) {
-	unset($_COOKIE[$name]);
-	setcookie($name, '', time() - 3600, '/');
+    unset($_COOKIE[$name]);
+    setcookie($name, '', time() - 3600, '/');
 }
 
 function genUUID() {

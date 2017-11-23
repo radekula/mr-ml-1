@@ -7,7 +7,7 @@ app.config(function($routeProvider, $locationProvider) {
     $routeProvider.when("/", {
         resolve: {
             app: function($location) {
-                $location.path("/add");
+                $location.path("/documents");
             }
         }
     });
@@ -174,7 +174,7 @@ app.controller("ActionsController", function($scope, $http, $location) {
             thumbnail.className = "thumbnail-show";
         } else {
             $http.get( // Get document
-                "/document/" + documentId
+                "/service/documents/document/" + documentId
             ).then(
                 function(response) { // Success
                     if (response.status == 200) {
@@ -220,7 +220,7 @@ app.controller("ActionsController", function($scope, $http, $location) {
                 !downloadLink.getAttribute("href")
             ) {
                 $http.get( // Get document
-                    "/document/" + documentId
+                    "/service/documents/document/" + documentId
                 ).then(
                     function(response) { // Success
                         if (response.status == 200) {
@@ -270,7 +270,7 @@ app.controller("ActionsController", function($scope, $http, $location) {
             documentId = $event.currentTarget.getAttribute("data-id");
 
             $http.delete(
-                "/document/" + documentId
+                "/service/documents/document/" + documentId
             ).then(
                 function(response) { // Success
                     if (response.status == 200) {
@@ -395,7 +395,7 @@ app.controller("DocumentsController", function($scope, $routeParams, $http, $tim
         }
 
         $http.get(
-            "/documents"
+            "/service/documents/documents"
         ).then(
             function(response) { // Success
                 if (response.status == 200) {
@@ -443,7 +443,7 @@ app.controller("DocumentController", function($scope, $routeParams, $http, $cook
         documentId = $routeParams.page;
 
         $http.get( // Get document
-            "/document/" + documentId
+            "/service/documents/document/" + documentId
         ).then(
             function(response) { // Success
                 if (response.status == 200) {
@@ -642,7 +642,7 @@ app.controller("UploadController", function($scope, $http, $cookies, $location, 
 
                         if ($location.path() === "/add") {
                             $http.put(
-                                "/document",
+                                "/service/documents/document/generate",
                                 JSON.stringify(_document)
                             ).then(
                                 function(response) { // Success
@@ -684,7 +684,7 @@ app.controller("UploadController", function($scope, $http, $cookies, $location, 
                             _document.id = documentId;
 
                             $http.post(
-                                "/document/" + documentId,
+                                "/service/documents/document/" + documentId,
                                 JSON.stringify(_document)
                             ).then(
                                 function(response) { // Success
@@ -757,7 +757,7 @@ app.controller("UserController", function($scope, $http, $routeParams) {
 
     // Get information about of the user
     $http.get(
-        "/user/" + login + "/" + token
+        "/service/users/user"
     ).then(
         function(response) { // Success
             if (response.status == 200) {
@@ -793,7 +793,7 @@ app.controller("UserController", function($scope, $http, $routeParams) {
 
     // Get information about of the groups
     $http.get(
-        "/user/" + $scope.login + "/groups/" + $scope.token
+        "/service/documents/user/groups"
     ).then(
         function(response) { // Success
             // $scope.groups = response.data;
@@ -819,7 +819,7 @@ app.controller("UserController", function($scope, $http, $routeParams) {
         if ($scope.userForm.$valid) {
             // Update information about of the user
             $http.put(
-                "/user/" + login + "/" + token,
+                "/service/users/user",
                 JSON.stringify(_user)
             ).then(
                 function(response) { // Success
@@ -890,7 +890,7 @@ app.controller("GroupsController", function($route, $scope, $http, $routeParams,
 
     // Get all group
     $http.get(
-        "/group/" + $scope.token
+        "/service/groups/groups"
     ).then(
         function(response) { // Success
             if (response.status == 200) {
@@ -945,7 +945,7 @@ app.controller("GroupsController", function($route, $scope, $http, $routeParams,
 
         if (name != "") {
             $http.put(
-                "/group/" + $scope.group + "/" + $scope.token,
+                "/service/groups/group/" + $scope.group,
                 JSON.stringify(group_data)
             ).then(
                 function(response) { // Success
@@ -984,7 +984,7 @@ app.controller("GroupsController", function($route, $scope, $http, $routeParams,
 
         if (confirm("Czy na pewno usunąć wskazaną pozycję?")) {
             $http.delete(
-                "/group/" + $scope.group + "/" + $scope.token
+                "/service/groups/group/" + $scope.group
             ).then(
                 function(response) { // Success
                     if (response.status == 200) {
@@ -1092,7 +1092,7 @@ app.controller("MembersController", function($route, $scope, $http, $routeParams
 
     // Get all users
     $http.get(
-        "/members/get/" + $scope.group + "/" + $scope.token
+        "/service/groups/members/get/" + $scope.group
     ).then(
         function(response) { // Success
             if (response.status == 200) {
@@ -1125,7 +1125,7 @@ app.controller("MembersController", function($route, $scope, $http, $routeParams
 
         if (name != "") {
             $http.post(
-                "/members/add/" + $scope.group + "/" + $scope.token,
+                "/service/groups/members/add/" + $scope.group,
                 JSON.stringify(users)
             ).then(
                 function(response) { // Success
@@ -1174,7 +1174,7 @@ app.controller("MembersController", function($route, $scope, $http, $routeParams
 
         if (confirm("Czy na pewno usunąć użytkownika z grupy?")) {
             $http.post(
-                "/members/remove/" + $scope.group + "/" + $scope.token
+                "/service/groups/members/remove/" + $scope.group
             ).then(
                 function(response) { // Success
                     if (response.status == 200) {
