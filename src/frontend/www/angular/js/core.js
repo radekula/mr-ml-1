@@ -268,7 +268,7 @@ app.controller("ActionsController", function($scope, $http, $location) {
         if (confirm("Czy na pewno usunąć wskazany zasób?")) {
             $scope.loadPage = true;
             documentId = $event.currentTarget.getAttribute("data-id");
-
+alert(documentId);
             $http.delete(
                 "/service/documents/document/" + documentId
             ).then(
@@ -399,7 +399,7 @@ app.controller("DocumentsController", function($scope, $routeParams, $http, $tim
         ).then(
             function(response) { // Success
                 if (response.status == 200) {
-                    allDocuments = response.data;
+                    allDocuments = response.data.result;
                     filter();
                     numberOfPages = Math.ceil(allDocuments.length / perPage);
 
@@ -441,6 +441,7 @@ app.controller("DocumentsController", function($scope, $routeParams, $http, $tim
 app.controller("DocumentController", function($scope, $routeParams, $http, $cookies, $location) {
     if (!isNaN($routeParams.page)) {
         documentId = $routeParams.page;
+        alert("/service/documents/document/" + documentId);
 
         $http.get( // Get document
             "/service/documents/document/" + documentId
@@ -624,7 +625,7 @@ app.controller("UploadController", function($scope, $http, $cookies, $location, 
                         month = nowDate.getMonth() + 1;
                         month = month < 10 ? "0" + month : month;
                         year = nowDate.getFullYear();
-                        _document.create_date = day + "/" + month + "/" + year;
+                        _document.create_date = year + "-" + month + "-" + day;
 
                         // Set description of a document
                         _document.description = $scope.description ? $scope.description : "";
@@ -641,7 +642,8 @@ app.controller("UploadController", function($scope, $http, $cookies, $location, 
                         }
 
                         if ($location.path() === "/add") {
-                            $http.put(
+                                document.write(JSON.stringify(_document));
+                           $http.post(
                                 "/service/documents/document/generate",
                                 JSON.stringify(_document)
                             ).then(
@@ -683,7 +685,7 @@ app.controller("UploadController", function($scope, $http, $cookies, $location, 
                             var documentId = $scope.id;
                             _document.id = documentId;
 
-                            $http.post(
+                            $http.put(
                                 "/service/documents/document/" + documentId,
                                 JSON.stringify(_document)
                             ).then(

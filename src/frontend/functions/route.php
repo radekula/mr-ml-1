@@ -22,6 +22,12 @@ function route($data) {
         return;
     }
 
+    // check if user is trying to login:
+    if($data['action'] == 'register' and $data['method'] == 'GET') {
+        registerGET($data, $config);
+        return;
+    }
+
     // check if user is trying to register:
     if($data['action'] == 'register' and $data['method'] == 'POST') {
         registerPOST($data, $config);
