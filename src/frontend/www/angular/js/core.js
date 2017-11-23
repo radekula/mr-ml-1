@@ -5,13 +5,8 @@ var app = angular.module("ngDMS", ["ngRoute", "ngCookies"]);
  */
 app.config(function($routeProvider, $locationProvider) {
     $routeProvider.when("/", {
-        title: "Pulpit",
+		title: "Pulpit",
 		templateUrl: "/www/angular/desktop.html"
-        // resolve: {
-            // app: function($location) {
-                // $location.path("/documents");
-            // }
-        // }
     });
     $routeProvider.when("/add", {
         title: "Dodaj dokument",
