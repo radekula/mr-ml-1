@@ -4,7 +4,365 @@
 		<meta charset="UTF-8">
 		<title>Zaloguj się - Document Management System</title>
 		<link href="https://fonts.googleapis.com/css?family=Roboto:100,300" rel="stylesheet">
-		<link href="./www/css/styles.css?ver=1.0" rel="stylesheet">
+		<style>
+			/*
+			**
+			** 1.0 - General
+			**
+			*/
+
+			@font-face {
+				font-family: 'fontello';
+				src: url('www/fonts/fontello.eot?82811514');
+				src: url('www/fonts/fontello.eot?82811514#iefix') format('embedded-opentype'), url('www/fonts/fontello.woff?82811514') format('woff'), url('www/fonts/fontello.ttf?82811514') format('truetype'), url('www/fonts/fontello.svg?82811514#fontello') format('svg');
+				font-weight: normal;
+				font-style: normal;
+			}
+
+			.body {
+				margin: 0;
+				min-width: 61.25em;
+				font: 300 16px/normal Roboto, sans-serif;
+				background-color: #e8ebf1;
+			}
+
+			.page {
+				overflow: hidden;
+			}
+
+			ul {
+				margin: 0;
+				padding: 0;
+				list-style-type: none;
+			}
+
+			*:focus {
+				outline: none;
+			}
+
+			.input {
+				display: block;
+				padding: 0 .9375em;
+				height: 2.8125em;
+				font: 300 16px/normal Roboto, sans-serif;
+				color: #323945;
+				background-color: #fff;
+				border: 0;
+				-webkit-box-sizing: border-box;
+				-moz-box-sizing: border-box;
+				box-sizing: border-box;
+				box-shadow: none;
+			}
+
+			.input::-webkit-input-placeholder {
+				font-weight: 300;
+				font-size: 16px;
+				color: rgba(0, 0, 0, .4);
+			}
+
+			.input::-moz-placeholder {
+				font-weight: 300;
+				font-size: 16px;
+				color: rgba(0, 0, 0, .4);
+			}
+
+			.input:-ms-input-placeholder {
+				font-weight: 300;
+				font-size: 16px;
+				color: rgba(0, 0, 0, .4);
+			}
+
+			.input:-moz-placeholder {
+				font-weight: 300;
+				font-size: 16px;
+				color: rgba(0, 0, 0, .4);
+			}
+
+			.button {
+				padding: 0 2.875em;
+				height: 2.8125em;
+				color: #fafafa;
+				background-color: #323945;
+				font: 300 16px/normal Roboto, sans-serif;
+				border: none;
+				cursor: pointer;
+				-webkit-transition: background-color .3s;
+				-o-transition: background-color .3s;
+				-moz-transition: background-color .3s;
+				transition: background-color .3s;
+			}
+
+			.button:hover {
+				background-color: #3f4651;
+				-webkit-transition: background-color .3s;
+				-o-transition: background-color .3s;
+				-moz-transition: background-color .3s;
+				transition: background-color .3s;
+			}
+
+			.alert {
+				display: table;
+				margin: 0 0 10px;
+				padding: .875em 1.25em;
+				border: 1px solid transparent;
+			}
+
+			.page-auth .alert {
+				width: 100%;
+			}
+
+			.alert:last-of-type {
+				margin: 0 0 2.1875em;
+			}
+
+			.page-add .alert {
+				clear: both;
+				display: table;
+			}
+
+			.alert:empty {
+				display: none;
+			}
+
+			.input.ng-dirty.ng-valid,
+			.input-success,
+			.alert-success {
+				color: #3c763d !important;
+				background-color: #dff0d8 !important;
+				border-color: #d6e9c6 !important;
+				outline: 0 !important;
+				box-shadow: none !important;
+			}
+
+			.input-success+.auth-icon {
+				color: #3c763d !important;
+				background-color: #dff0d8 !important;
+			}
+
+			.input.ng-dirty.ng-invalid,
+			.input-danger,
+			.alert-danger {
+				color: #a94442 !important;
+				background-color: #f2dede !important;
+				border-color: #ebccd1 !important;
+				outline: 0 !important;
+				box-shadow: none !important;
+			}
+
+			.input-danger+.auth-icon {
+				color: #a94442 !important;
+				background-color: #f2dede !important;
+			}
+
+			.notice {
+				margin: 1em 0 0;
+				width: 100%;
+				color: red;
+				font-size: 15px;
+			}
+
+			.container-button {
+				display: flex;
+				align-items: center;
+			}
+
+			.load {
+				display: block;
+				width: 20px;
+				height: 20px;
+				border: 5px solid #e8ebf1;
+				border-top-color: #252a34;
+				-webkit-border-radius: 50%;
+				-moz-border-radius: 50%;
+				border-radius: 50%;
+				-webkit-animation: spin 2s linear infinite;
+				-moz-animation: spin 2s linear infinite;
+				-o-animation: spin 2s linear infinite;
+				animation: spin 2s linear infinite;
+			}
+
+			.container-button .load {
+				margin: 0 0 0 20px;
+			}
+
+			.icon {
+				z-index: 1000;
+				display: block;
+				font-style: normal;
+				font-variant: normal;
+				font-weight: normal;
+				font-family: "fontello";
+				text-align: center;
+				text-decoration: none;
+				text-transform: none;
+				background-color: transparent;
+				speak: none;
+				-webkit-font-smoothing: antialiased;
+				-moz-osx-font-smoothing: grayscale;
+				-webkit-touch-callout: none;
+				-webkit-user-select: none;
+				-khtml-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				user-select: none;
+			}
+
+			.auth-icon {
+				width: 2.8125em;
+				font-size: 30px;
+				line-height: 79px;
+				background-color: #fff;
+			}
+			
+			
+			/*
+			**
+			** Authorization Page
+			**
+			*/
+
+			.page-auth {
+				color: #fff;
+				background-color: #323945;
+			}
+
+			.auth-content,
+			.auth-label-title {
+				width: 100%;
+			}
+
+			.auth-content,
+			.auth-load {
+				display: block;
+			}
+
+			.auth-content,
+			.auth-load {
+				border: solid rgba(255, 255, 255, .1);
+			}
+
+			.auth-content {
+				display: table;
+				margin: 6.25em auto;
+				padding: 3.75em 3.125em 3.125em;
+				max-width: 21.875em;
+				background-color: #252a34;
+				border-width: 1px;
+				-webkit-box-shadow: 0px 15px 100px rgba(0, 0, 0, .3);
+				-moz-box-shadow: 0px 15px 100px rgba(0, 0, 0, .3);
+				box-shadow: 0px 15px 100px rgba(0, 0, 0, .3);
+			}
+
+			.auth-header {
+				margin: 0 0 1.666666666666667em;
+				font-weight: 100;
+				font-size: 30px;
+			}
+
+			.auth-title {
+				margin: 0;
+				font: inherit;
+				text-transform: uppercase;
+			}
+
+			.auth-form {
+				overflow: hidden;
+			}
+
+			.auth-label {
+				position: relative;
+				display: -webkit-box;
+				display: -webkit-flex;
+				display: -moz-box;
+				display: -ms-flexbox;
+				display: flex;
+				-webkit-flex-wrap: wrap;
+				-ms-flex-wrap: wrap;
+				flex-wrap: wrap;
+				margin: 0 0 1.25em;
+			}
+
+			.auth-label:last-of-type {
+				margin: 0 0 2.5em;
+			}
+
+			.auth-label-title {
+				line-height: 2.8;
+			}
+
+			.auth-label-title[for] {
+				cursor: pointer;
+			}
+
+			.page-auth .input,
+			.auth-icon {
+				color: #323945;
+			}
+
+			.page-auth .input {
+				-webkit-box-flex: 2;
+				-webkit-flex: 2;
+				-moz-box-flex: 2;
+				-ms-flex: 2;
+				flex: 2;
+				padding: 0 0 0 1em;
+			}
+
+			.page-auth .input:focus {
+				outline: 0;
+			}
+
+			.auth-icon {
+				z-index: 1000;
+				width: 2.8125em;
+				font: normal normal normal 16px/2.8125 fontello;
+				text-align: center;
+				background-color: #fff;
+				speak: none;
+				-webkit-font-smoothing: antialiased;
+				-moz-osx-font-smoothing: grayscale;
+			}
+
+			.page-auth .button,
+			.auth-load {
+				float: right;
+			}
+
+			.page-auth .button {
+				margin: 0 0 2.5em;
+			}
+
+			.auth-load {
+				margin: .4375em 1.25em 0 0;
+				width: 20px;
+				height: 20px;
+				border-width: 5px;
+				border-top: 5px solid #fff;
+				-webkit-border-radius: 50%;
+				-moz-border-radius: 50%;
+				border-radius: 50%;
+				-webkit-animation: spin 2s linear infinite;
+				-moz-animation: spin 2s linear infinite;
+				-o-animation: spin 2s linear infinite;
+				animation: spin 2s linear infinite;
+			}
+
+			.auth-nav {
+				clear: both;
+			}
+
+			.auth-nav-link {
+				display: block;
+				line-height: 1.5;
+				color: inherit;
+				text-decoration: none;
+			}
+
+			.auth-nav-link:hover,
+			.auth-nav-link:focus {
+				text-decoration: underline;
+			}
+		</style>
 	</head>
 	<body class="body page-auth">
 		<main class="auth-login">
