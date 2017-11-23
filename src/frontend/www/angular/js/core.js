@@ -5,11 +5,13 @@ var app = angular.module("ngDMS", ["ngRoute", "ngCookies"]);
  */
 app.config(function($routeProvider, $locationProvider) {
     $routeProvider.when("/", {
-        resolve: {
-            app: function($location) {
-                $location.path("/documents");
-            }
-        }
+        title: "Pulpit",
+		templateUrl: "/www/angular/desktop.html"
+        // resolve: {
+            // app: function($location) {
+                // $location.path("/documents");
+            // }
+        // }
     });
     $routeProvider.when("/add", {
         title: "Dodaj dokument",
@@ -101,6 +103,9 @@ app.controller("ngDMSBody", ["$scope", "$cookies", "$location", function($scope,
     // Set classess of css
     $scope.$on("$routeChangeSuccess", function(event, data) {
         switch ($location.path()) {
+            case "/":
+                $scope.body = "page page-desktop";
+                break;
             case "/add":
                 $scope.body = "page page-add";
                 break;
@@ -150,7 +155,7 @@ app.directive("datepicker", function() {
                 });
             }
             var options = {
-                dateFormat: "dd-mm-yy",
+                dateFormat: "yy-mm-dd",
                 onSelect: function(dateText) {
                     updateModel(dateText);
                 }
@@ -268,7 +273,7 @@ app.controller("ActionsController", function($scope, $http, $location) {
         if (confirm("Czy na pewno usunąć wskazany zasób?")) {
             $scope.loadPage = true;
             documentId = $event.currentTarget.getAttribute("data-id");
-alert(documentId);
+			
             $http.delete(
                 "/service/documents/document/" + documentId
             ).then(
@@ -740,7 +745,7 @@ app.controller("UploadController", function($scope, $http, $cookies, $location, 
 /*
  ** User controller
  */
-app.controller("UserController", function($scope, $http, $routeParams) {
+app.controller("UserController", function($scope, $cookies, $http, $routeParams) {
     $scope.notice = [];
     $scope.groups = [];
     $scope.login = $cookies.get("login");
@@ -887,7 +892,7 @@ app.controller("GroupsController", function($route, $scope, $http, $routeParams,
     month = nowDate.getMonth() + 1;
     month = month < 10 ? "0" + month : month;
     year = nowDate.getFullYear();
-    $scope.date = day + "-" + month + "-" + year;
+    $scope.date = year + "-" + month + "-" + day;
 
     // Get all group
     $http.get(
