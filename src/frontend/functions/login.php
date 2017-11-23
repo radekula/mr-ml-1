@@ -35,14 +35,15 @@ function loginGET($data, $config, $status = '') {
  * Login user
  */
 function loginPOST($data, $config) {
-    $loginData = $data['body'];
+    $loginData = null;
+    parse_str($data['body'], $loginData);
 
-    $url = $config['service']['users'] . '/login/' . $data['body']['login'];
+    $url = $config['service']['users'] . '/login/' . $loginData['login'];
     $ret = remoteCall($url, 'POST', json_encode($loginData));
 
     if($ret['status'] == 200) {
         $tokenData = json_decode($ret['body'], true);
-        setcookie('login', $data['body']['login'], time()+60*60*24*365, '/');
+        setcookie('login', $loginData['login'], time()+60*60*24*365, '/');
         setcookie('token', $tokenData['token'], time()+60*60*24*365, '/');
         
         redirectTo('/');
