@@ -58,8 +58,7 @@ function getRequestData() {
     }
 
     // get body data (POST, PUT)
-    $body = file_get_contents('php://input');
-    parse_str($body, $data['body']);
+    $data['body'] = file_get_contents('php://input');
 
     return $data;
 }

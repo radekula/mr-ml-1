@@ -642,7 +642,6 @@ app.controller("UploadController", function($scope, $http, $cookies, $location, 
                         }
 
                         if ($location.path() === "/add") {
-                                document.write(JSON.stringify(_document));
                            $http.post(
                                 "/service/documents/document/generate",
                                 JSON.stringify(_document)
