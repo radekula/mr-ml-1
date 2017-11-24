@@ -86,6 +86,12 @@ function remoteCall($url, $method, $body) {
         );
     }
     
+    if($method == 'DELETE') {
+        $options = array(
+            CURLOPT_CUSTOMREQUEST => 'DELETE'
+        );
+    }
+    
     curl_setopt_array( $ch, $options );
     $result = curl_exec( $ch );
     $http_code = curl_getinfo( $ch, CURLINFO_HTTP_CODE );

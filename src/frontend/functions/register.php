@@ -67,27 +67,29 @@ function registerGET($data, $config, $status = '', $notice = array()) {
  * Register user
  */
 function registerPOST($data, $config) {
-    $loginData = $data['body'];
+    $loginData = null;
+    parse_str($data['body'], $loginData);
+
     $regex = $config['register_regex'];
     
     if(is_array($regex)){
         foreach($regex as $key=>$item) {
-            if(!preg_match('#' . $item . '#', $data['body'][$key])){
+            if(!preg_match('#' . $item . '#', $loginData[$key])){
                 $notice[$key] = '{{notice_' . $key . '}}';
             }
         }
     }
     
     if(count($notice) > 0) {
-        getRegisterGET($data, $config, '', $notice);
+        registerGET($data, $config, '', $notice);
         return;
     }
     
     $token = getRegisterToken($data, $config);
-    $url = $config['user']['url'] . '/' . $data['body']['login'] . '/'. $token;
+    $url = $config['service']['users'] . '/user/' . $loginData['login'] . '/'. $token;
     $ret = remoteCall($url, 'POST', json_encode($loginData));
     
-    getRegisterGET(array(), $config, $ret['status']);
+    registerGET(array(), $config, $ret['status']);
 }
 
 
@@ -100,7 +102,7 @@ function getRegisterToken($data, $config) {
         'password' => 'admin123'
     );
     
-    $url = $config['login']['url'] . '/' . $loginData['login'];
+    $url = $config['service']['users'] . '/login/' . $loginData['login'];
     $ret = remoteCall($url, 'POST', json_encode($loginData));
     $token = !empty($ret['body']) ? json_decode( $ret['body'] )->token : null;
     

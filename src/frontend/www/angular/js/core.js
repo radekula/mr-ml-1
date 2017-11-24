@@ -268,7 +268,7 @@ app.controller("ActionsController", function($scope, $http, $location) {
         if (confirm("Czy na pewno usunąć wskazany zasób?")) {
             $scope.loadPage = true;
             documentId = $event.currentTarget.getAttribute("data-id");
-			
+
             $http.delete(
                 "/service/documents/document/" + documentId
             ).then(
@@ -441,7 +441,6 @@ app.controller("DocumentsController", function($scope, $routeParams, $http, $tim
 app.controller("DocumentController", function($scope, $routeParams, $http, $cookies, $location) {
     if (!isNaN($routeParams.page)) {
         documentId = $routeParams.page;
-        alert("/service/documents/document/" + documentId);
 
         $http.get( // Get document
             "/service/documents/document/" + documentId
@@ -1033,8 +1032,7 @@ app.controller("GroupsController", function($route, $scope, $http, $routeParams,
 
         if (name != "") {
             $http.post(
-                // "/group/" + $scope.group + "/" $scope.token,
-                "/ajax/group.php",
+                "/service/groups/group/" + name,
                 JSON.stringify(group_data)
             ).then(
                 function(response) { // Success
@@ -1172,10 +1170,14 @@ app.controller("MembersController", function($route, $scope, $http, $routeParams
         $event.preventDefault();
         $scope.loadPage = true;
         dataID = $event.currentTarget.getAttribute("data-id");
+//TODO correct get user login
+        login = document.getElementById("js-members-login").value;
+        users = [login]
 
         if (confirm("Czy na pewno usunąć użytkownika z grupy?")) {
             $http.post(
-                "/service/groups/members/remove/" + $scope.group
+                "/service/groups/members/remove/" + $scope.group,
+                JSON.stringify(users)
             ).then(
                 function(response) { // Success
                     if (response.status == 200) {
