@@ -5,12 +5,15 @@
  */
 function registerGET($data, $config, $status = '', $notice = array()) {
     $html = file_get_contents(__DIR__ . '/../www/register.html');
-    
+
+    $dataBody = null;
+
     // Setting the value of the attribute "value"
-    $dataBody = $data['body'];
-    if(is_array($dataBody) and
-       count($dataBody) > 0
-    ) {
+    if (array_key_exists('body', $data)) {
+        $dataBody = $data['body'];
+    }
+
+    if(is_array($dataBody) and count($dataBody) > 0) {
         foreach($dataBody as $key=>$item) {
             $html = str_replace('{{' . $key . '}}', $item, $html);
         }
@@ -68,10 +71,11 @@ function registerGET($data, $config, $status = '', $notice = array()) {
  */
 function registerPOST($data, $config) {
     $loginData = null;
+    $notice = [];
     parse_str($data['body'], $loginData);
 
     $regex = $config['register_regex'];
-    
+
     if(is_array($regex)){
         foreach($regex as $key=>$item) {
             if(!preg_match('#' . $item . '#', $loginData[$key])){
