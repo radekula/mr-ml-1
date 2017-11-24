@@ -163,7 +163,7 @@ app.directive("datepicker", function() {
 /*
  ** Actions Controller
  */
-app.controller("ActionsController", function($scope, $http, $location) {
+app.controller("ActionsController", function($scope, $http, $location, $route) {
     $scope.documentOver = function($event) {
         $scope.loadPage = true;
         var documentId = $event.currentTarget.getAttribute("data-id");
@@ -274,7 +274,7 @@ app.controller("ActionsController", function($scope, $http, $location) {
             ).then(
                 function(response) { // Success
                     if (response.status == 200) {
-                        $location.path("/documents");
+                        $route.reload();
                         alert("Dokument został usunięty.");
                     }
 
@@ -439,7 +439,7 @@ app.controller("DocumentsController", function($scope, $routeParams, $http, $tim
  ** Document controller
  */
 app.controller("DocumentController", function($scope, $routeParams, $http, $cookies, $location) {
-    if (!isNaN($routeParams.page)) {
+    if ($routeParams.page) {
         documentId = $routeParams.page;
 
         $http.get( // Get document
@@ -448,7 +448,7 @@ app.controller("DocumentController", function($scope, $routeParams, $http, $cook
             function(response) { // Success
                 if (response.status == 200) {
                     $scope.id = response.data.id;
-                    $scope.file_name = response.data.file_name + ".pdf";
+                    $scope.file_name = response.data.file_name;
                     $scope.title = response.data.title;
                     $scope.create_date = response.data.create_date;
                     $scope.owner = response.data.owner.join(";");
@@ -472,7 +472,8 @@ app.controller("DocumentController", function($scope, $routeParams, $http, $cook
             },
             function(response) { // Error
                 if (response.status == 404) {
-                    alert("Nie znaleziono dokumentu.");
+					alert("Dokument nieznaleziony");
+					// $location.path("/404");
                 } else if (response.status == 500) {
                     alert("Wewnętrzny błąd serwera.");
                 }
@@ -933,7 +934,7 @@ app.controller("GroupsController", function($route, $scope, $http, $routeParams,
         $event.preventDefault();
         $scope.loadPage = true;
         $event.currentTarget.style.display = "none";
-
+		
         name = groupsName.value;
         description = groupsDescription.value;
         group_data = {
@@ -942,10 +943,10 @@ app.controller("GroupsController", function($route, $scope, $http, $routeParams,
             "creator": $scope.login,
             "description": description ? description : ""
         }
-
+		
         if (name != "") {
             $http.put(
-                "/service/groups/group/" + $scope.group,
+                "/service/groups/group/" + name,
                 JSON.stringify(group_data)
             ).then(
                 function(response) { // Success
@@ -981,10 +982,10 @@ app.controller("GroupsController", function($route, $scope, $http, $routeParams,
         $scope.loadPage = true;
         dataID = $event.currentTarget.getAttribute("data-id");
         groupsName = document.getElementById("js-groups-name-" + dataID).value;
-
+		
         if (confirm("Czy na pewno usunąć wskazaną pozycję?")) {
             $http.delete(
-                "/service/groups/group/" + $scope.group
+                "/service/groups/group/" + groupsName
             ).then(
                 function(response) { // Success
                     if (response.status == 200) {
@@ -1170,9 +1171,8 @@ app.controller("MembersController", function($route, $scope, $http, $routeParams
         $event.preventDefault();
         $scope.loadPage = true;
         dataID = $event.currentTarget.getAttribute("data-id");
-//TODO correct get user login
-        login = document.getElementById("js-members-login").value;
-        users = [login]
+        dataLogin = $event.currentTarget.getAttribute("data-name");
+        users = [dataLogin];
 
         if (confirm("Czy na pewno usunąć użytkownika z grupy?")) {
             $http.post(
