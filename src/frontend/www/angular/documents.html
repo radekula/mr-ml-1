@@ -37,7 +37,7 @@
                     </thead>
                     <tbody>
 						<tr ng-repeat="(key, value) in documents">
-							<td>{{$index+1}}</td>
+							<td>{{$index + offset + 1}}</td>
 							<td>{{value.title}}</td>
 							<td>{{value.create_date}}</td>
 							<td class="documents-owner">
@@ -67,13 +67,13 @@
 				<nav class="documents-pagination">
 					<ul class="documents-pagination-list">
 						<li class="documents-pagination-prev">
-							<a href="{{loc}}{{prev}}" class="button" ng-show="showPrev" ng-click="prevPage()">Poprzednia</a>
+							<a href="{{loc}}{{currentPage - 1}}" class="button" ng-show="currentPage > 1">Poprzednia</a>
 						</li><!-- .documents-pagination-prev -->
 						<li class="documents-pagination-links" ng-repeat="page in pages">
-							<a href="{{loc}}{{page}}" ng-class="paginationClass(page)" ng-click="setPage(page)">{{page}}</a>
+							<a href="{{loc}}{{page}}" ng-class="page == currentPage ? 'current' : ''">{{page}}</a>
 						</li><!-- .documents-pagination-links -->
 						<li class="documents-pagination-next">
-							<a href="{{loc}}{{next}}" class="button" ng-show="showNext" ng-click="nextPage()">Następna</a>
+							<a href="{{loc}}{{currentPage + 1}}" class="button" ng-show="currentPage < numberOfPages">Następna</a>
 						</li><!-- .documents-pagination-next -->
 					</ul><!-- .documents-pagination-list -->
 				</nav><!-- .documents-pagination -->
