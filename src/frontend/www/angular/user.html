@@ -16,22 +16,6 @@
 		</div><!-- .breadcrumb -->
 		<div class="content">
 			<form class="upload-form" name="userForm" ng-model="userForm">
-				<label class="upload-label">
-					<span class="upload-label-title">Typ <br>konta:</span>
-					<input class="input upload-input" type="text" ng-model="type" required disabled>
-				</label><!-- .upload-label -->
-				<label class="upload-label">
-					<span class="upload-label-title">Status:</span>
-					<input class="input upload-input" type="text" ng-model="active" required disabled>
-				</label><!-- .upload-label -->
-				<label class="upload-label">
-					<span class="upload-label-title">Ostatnie <br>logowanie:</span>
-					<input class="input upload-input" type="text" ng-model="last_login" required disabled>
-				</label><!-- .upload-label -->
-				<label class="upload-label">
-					<span class="upload-label-title">Ostatnio <br>aktywny:</span>
-					<input class="input upload-input" type="text" ng-model="last_active" required disabled>
-				</label><!-- .upload-label -->
 				<label class="upload-label" for="first-name">
 					<span class="upload-label-title upload-label-required">Imię:</span>
 					<input id="first-name" class="input upload-input" type="text" ng-model="first_name" required>
@@ -42,7 +26,23 @@
 				</label><!-- .upload-label -->
 				<label class="upload-label" for="email">
 					<span class="upload-label-title upload-label-required">E-mail:</span>
-					<input id="email" class="input upload-input" type="text" ng-model="email" required>
+					<input id="email" class="input upload-input" type="text" ng-model="email">
+				</label><!-- .upload-label -->
+				<label class="upload-label">
+					<span class="upload-label-title">Typ <br>konta:</span>
+					<input class="input upload-input" type="text" ng-model="type" required readonly>
+				</label><!-- .upload-label -->
+				<label class="upload-label">
+					<span class="upload-label-title">Status:</span>
+					<input class="input upload-input" type="text" ng-model="active" required readonly>
+				</label><!-- .upload-label -->
+				<label class="upload-label">
+					<span class="upload-label-title">Ostatnie <br>logowanie:</span>
+					<input class="input upload-input" type="text" ng-model="last_login" required readonly>
+				</label><!-- .upload-label -->
+				<label class="upload-label">
+					<span class="upload-label-title">Ostatnio <br>aktywny:</span>
+					<input class="input upload-input" type="text" ng-model="last_active" required readonly>
 				</label><!-- .upload-label -->
 				<label class="upload-label">
 					<span class="upload-label-title">Grupy:</span>
