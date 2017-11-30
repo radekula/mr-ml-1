@@ -131,8 +131,12 @@ app.controller("ngDMSBody", ["$scope", "$cookies", "$location", function($scope,
 app.controller("SearchController", function($scope, $http, $location) {
     $scope.search = function($event) {
         $event.preventDefault();
-        phrase = $scope.search_phrase ? $scope.search_phrase : null;
-        $location.path("/documents/" + encodeURI(phrase) + "/" + encodeURI(null));
+		
+		if( $scope.search_phrase && $scope.search_phrase !== "" ) {
+			$location.path("/documents/" + encodeURI($scope.search_phrase) + "/1");
+		} else {
+			$location.path("/documents");
+		}
     }
 });
 
@@ -311,108 +315,68 @@ app.controller("DocumentsController", function($scope, $routeParams, $http, $tim
             $location.path("/documents");
         }
     } else {
-        allDocuments = [];
-        allDocuments = [];
-        perPage = 5;
-        numberOfPages = 0;
-        currentPage = !isNaN($routeParams.page) ? parseInt($routeParams.page) : 1;
-        $scope.loadPage = true;
-        $scope.notice = [];
-        $scope.documents = [];
-        $scope.prev = 0;
-        $scope.next = 0;
-        $scope.showPrev = false;
-        $scope.showNext = false;
-        $scope.pages = [];
+		$scope.currentPage = !isNaN($routeParams.page) ? parseInt($routeParams.page) : 1;
+		$scope.offset = 5 * ( $scope.currentPage - 1 );
+		$scope.limit = 5;
+		$scope.numberOfPages = 0;
+		$scope.notice = [];
+		$scope.documents = [];
+		$scope.pages = [];
+		$scope.loadPage = true;
         $scope.phrase = $routeParams.phrase && $routeParams.phrase != "null" ? decodeURI($routeParams.phrase) : "";
-        $scope.date = $routeParams.date && $routeParams.date != "null" ? decodeURI($routeParams.date) : "";
-
-        if ($routeParams.phrase !== undefined &&
-            $routeParams.date !== undefined
-        ) {
-            $scope.loc = "/#!documents/" + $routeParams.phrase + "/" + $routeParams.date + "/";
+		
+        if ( $scope.phrase !== "" ) {
+			$scope.loc = "/#!documents/" + $routeParams.phrase + "/";
         } else {
-            $scope.loc = "/#!documents/";
-        }
-
-        function filter() {
-            allDocumentsTmp = [];
-            allDocumentsSize = allDocuments.length;
-            for (i = 0; i < allDocumentsSize; i++) {
-                if (((allDocuments[i].id).search($scope.phrase) !== -1 ||
-                        (allDocuments[i].title).search($scope.phrase) !== -1) &&
-                    (allDocuments[i].create_date).search($scope.date) !== -1
-                ) {
-                    allDocumentsTmp.push(allDocuments[i]);
-                }
-            }
-            allDocuments = allDocumentsTmp;
-        }
-
-        function getPage(documents) {
-            $scope.documents = [];
-            var min = (currentPage - 1) * perPage;
-            var max = min + perPage;
-            max = max < allDocuments.length ? max : allDocuments.length;
-
-            for (i = min; i < max; i++) {
-                $scope.documents.push(allDocuments[i]);
-            }
-        }
-
+			$scope.loc = "/#!documents/";
+		}
+		
+		$scope.filter = function($event) {
+			$event.preventDefault();
+			phrase = document.getElementsByClassName( "documents-phrase" )[0].value;
+			
+			if( phrase !== "" ) {
+				$location.path("/documents/" + phrase + "/1");
+			} else {
+				$location.path("/documents/");
+			}
+		}
+		
         function getPagination() {
-            $scope.showPrev = currentPage > 1 ? true : false;
-            $scope.showNext = currentPage < numberOfPages ? true : false;
             $scope.pages = [];
 
-            if (currentPage - 1 < numberOfPages) {
-                min = currentPage;
-                max = min + 2;
-
-                for (i = min; i < max; i++) {
-                    if (i > numberOfPages) break;
+            if ($scope.currentPage - 1 < $scope.numberOfPages) {
+				i = $scope.currentPage;
+                max = i + 3;
+				diff = max - $scope.numberOfPages;
+				
+				if( diff > 0 ) {
+					i = ( i - diff ) > 1 ? ( i - diff ) : 1;
+				}
+				
+                for (i; i <= max; i++) {
+                    if (i > $scope.numberOfPages) break;
                     $scope.pages.push(i);
                 }
             }
         }
-
-        $scope.paginationClass = function($page) {
-            return $page == currentPage ? "current" : "";
-        }
-
-        $scope.$watch("currentPage", function() {
-            $scope.prev = currentPage - 1;
-            $scope.next = currentPage + 1;
-        });
-
-        $scope.filter = function($event) {
-            $event.preventDefault();
-            phrase = document.getElementsByClassName("documents-phrase")[0].value;
-            phrase = phrase ? phrase : null;
-            date = document.getElementsByClassName("documents-datepicker")[0].value;
-            date = date ? date : null;
-            $location.path("/documents/" + encodeURI(phrase) + "/" + encodeURI(date));
-        }
-
+		
         $http.get(
-            "/service/documents/documents"
+            "/service/documents/documents?limit=" + $scope.limit + "&offset=" + $scope.offset + "&search=" + $scope.phrase
         ).then(
             function(response) { // Success
                 if (response.status == 200) {
-                    allDocuments = response.data.result;
-                    filter();
-                    numberOfPages = Math.ceil(allDocuments.length / perPage);
-
-                    if (currentPage > numberOfPages) {
-                        $scope.notice.push({
-                            "content": "Nie znaleziono dokumentów.",
-                            "class": "alert-danger"
-                        });
-                    } else {
-                        getPage();
-                        getPagination();
-                    }
-
+                    if( response.data.result !== null ) {
+						$scope.documents = response.data.result;
+						$scope.numberOfPages = Math.ceil( response.data.total / $scope.limit );
+						getPagination();
+					} else {
+						$scope.notice.push( {
+							"content": "Nie znaleziono dokumentów.",
+							"class": "alert-danger"
+						} );
+					}
+					
                     $scope.loadPage = false;
                 }
             },
@@ -874,6 +838,7 @@ app.controller("UserController", function($scope, $cookies, $http, $routeParams)
  */
 app.controller("GroupsController", function($route, $scope, $http, $routeParams, $cookies, $location) {
     $scope.groups = [];
+	$scope.notice = [];
     $scope.login = $cookies.get("login");
     $scope.token = $cookies.get("token");
     $scope.loadPage = true;
@@ -895,7 +860,14 @@ app.controller("GroupsController", function($route, $scope, $http, $routeParams,
     ).then(
         function(response) { // Success
             if (response.status == 200) {
-                $scope.groups = response.data.result;
+				if( response.data.result === null ) {
+					$scope.notice.push( {
+						"content": "Brak zdefiniowanych grup.",
+						"class": "alert-danger"
+					} );
+				} else {
+					$scope.groups = response.data.result;
+				}
             }
 
             $scope.loadPage = false;
@@ -999,6 +971,8 @@ app.controller("GroupsController", function($route, $scope, $http, $routeParams,
 
                         $scope.groups = left.concat(right);
                         alert("Grupa została usunięta.");
+						
+						$route.reload();
                     }
 
                     $scope.loadPage = false;
@@ -1030,10 +1004,10 @@ app.controller("GroupsController", function($route, $scope, $http, $routeParams,
             "creator": $scope.login,
             "description": description ? description : ""
         }
-
+		
         if (name != "") {
             $http.post(
-                "/service/groups/group/" + name,
+                "/service/groups/group/" + encodeURIComponent(name),
                 JSON.stringify(group_data)
             ).then(
                 function(response) { // Success
@@ -1044,6 +1018,8 @@ app.controller("GroupsController", function($route, $scope, $http, $routeParams,
                         document.getElementById("js-groups-name").value = "";
                         document.getElementById("js-groups-description").value = "";
                         alert("Grupa została dodana.");
+						
+						$route.reload();
                     }
 
                     $scope.loadPage = false;
@@ -1086,17 +1062,26 @@ app.controller("MembersController", function($route, $scope, $http, $routeParams
         $scope.group = $routeParams.group;
     }
 
+	$scope.notice = [];
     $scope.users = [];
+	$scope.users_prompt = [];
     $scope.loadPage = true;
     $scope.token = $cookies.get("token");
-
+	
     // Get all users
     $http.get(
         "/service/groups/members/get/" + $scope.group
     ).then(
         function(response) { // Success
             if (response.status == 200) {
-                $scope.users = response.data;
+				if( response.data === "null" ) {
+					$scope.notice.push( {
+						"content": "Brak użytkowników przypisanych do grupy.",
+						"class": "alert-danger"
+					} );
+				} else {
+					$scope.users = response.data;
+				}
             }
 
             $scope.loadPage = false;
@@ -1115,15 +1100,15 @@ app.controller("MembersController", function($route, $scope, $http, $routeParams
             $scope.loadPage = false;
         }
     );
-
+	
     // Add user to group
     $scope.addUser = function($event) {
         $event.preventDefault();
         $scope.loadPage = true;
         login = document.getElementById("js-members-login").value;
-        users = [login]
+		users = [login];
 
-        if (name != "") {
+        if (users[0] != "") {
             $http.post(
                 "/service/groups/members/add/" + $scope.group,
                 JSON.stringify(users)
@@ -1131,9 +1116,6 @@ app.controller("MembersController", function($route, $scope, $http, $routeParams
                 function(response) { // Success
                     if (response.status == 200) {
                         count_users = users.length;
-                        for (i = 0; i < count_users; i++) {
-                            $scope.users.push(users[i]);
-                        }
 
                         if (count_users > 1) {
                             alert("Użytkownicy zostali dodani do grupy.");
@@ -1142,6 +1124,8 @@ app.controller("MembersController", function($route, $scope, $http, $routeParams
                         }
 
                         document.getElementById("js-members-login").value = "";
+						
+						$route.reload();
                     }
 
                     $scope.loadPage = false;
@@ -1191,6 +1175,8 @@ app.controller("MembersController", function($route, $scope, $http, $routeParams
 
                         $scope.users = left.concat(right);
                         alert("Użytkownik został usunięty z grupy.");
+						
+						$route.reload();
                     }
 
                     $scope.loadPage = false;
@@ -1211,4 +1197,55 @@ app.controller("MembersController", function($route, $scope, $http, $routeParams
             );
         }
     }
+});
+
+/*
+ ** SearchUserController
+ */
+app.controller("SearchUserController", function($route, $scope, $http, $routeParams, $cookies, $location) {
+	// Search of user
+	$scope.searchUser = function($event) {
+		$event.preventDefault();
+		limit = 4;
+		user = $event.currentTarget.value;
+		
+		if( user.length > 2 ) {
+			$scope.loadPage = true;
+			
+            $http.get(
+                "/service/users/users?limit=" + limit + "&search=" + user
+            ).then(
+                function(response) { // Success
+                    if (response.status == 200) {
+						$scope.users_prompt = response.data.result;
+						document.getElementById("js-users-prompt").style.display = "block";
+                    }
+
+                    $scope.loadPage = false;
+                },
+                function(response) { // Error
+                    if (response.status == 400) {
+                        alert("Błędne żądanie.");
+                    } else if (response.status == 403) {
+                        alert("Nieprawidłowy lub wygasły token.");
+                    } else if (response.status == 500) {
+                        alert("Błąd wewnętrzny serwera.");
+                    }
+
+                    $scope.loadPage = false;
+                }
+            );
+		} else {
+			$scope.users_prompt = [];
+			document.getElementById("js-users-prompt").style.display = "none";
+		}
+	}
+	
+	// Select of user
+	$scope.selectUser = function($event) {
+		$event.preventDefault();
+		user = $event.currentTarget.getAttribute("data-name");
+		document.getElementsByClassName("js-get-login")[0].value = user;
+		document.getElementById("js-users-prompt").style.display = "none";
+	}
 });
