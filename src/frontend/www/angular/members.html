@@ -13,7 +13,10 @@
 				<span class="breadcrumb-item">
 					<a class="breadcrumb-link" href="/#!/">Home</a>
 				</span><!-- .breadcrumb-item -->
-				<span class="breadcrumb-item breadcrumb-current">Grupa użytkowników</span>
+				<span class="breadcrumb-item">
+					<a class="breadcrumb-link" href="/#!/groups">Grupy użytkowników</a>
+				</span><!-- .breadcrumb-item -->
+				<span class="breadcrumb-item breadcrumb-current">{{group}}</span>
             </div><!-- .breadcrumb -->
             <div class="content">
                 <table class="groups-table members-table">
@@ -29,8 +32,13 @@
 							<td>
 								<div class="load" ng-show="loadPage"></div>
 							</td>
-							<td>
-								<input id="js-members-login" class="input groups-input" type="text" placeholder="Nazwa użytkownika" value="">
+							<td ng-controller="SearchUserController">
+								<input id="js-members-login" class="input groups-input js-get-login" type="text" placeholder="Nazwa użytkownika" value="" ng-keyup="searchUser($event)">
+								<ul id="js-users-prompt" class="users-prompt">
+									<li ng-repeat="(key, value) in users_prompt" ng-click="selectUser($event)" data-name="{{value.login}}">
+										<a>{{value.login}}</a>
+									</li>
+								</ul>
 							</td>
 							<td class="documents-menu">
 								<nav class="documents-actions">
@@ -52,7 +60,7 @@
 							</td>
 						</tr>
 						<tr ng-repeat="item in notice">
-							<td colspan="5">{{item.content}}</td>
+							<td colspan="3">{{item.content}}</td>
 						</tr>
 					</tbody>
                 </table><!-- .documents-table -->
