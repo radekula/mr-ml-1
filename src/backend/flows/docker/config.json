@@ -1,0 +1,14 @@
+{
+    "service": {
+        "port": 8080
+    },
+    "database": {
+        "host": "flows-database-mongo",
+        "name": "flowsDatabase",
+        "collection": "flows",
+        "collection_steps": "steps"
+    },
+    "remotes": {
+        "users": "http://godms.pl:8081"
+    }
+}

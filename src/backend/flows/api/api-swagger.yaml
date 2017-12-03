@@ -402,6 +402,9 @@ definitions:
       create_date:
         type: string
         description: 'Timestamp in YYYY-MM-DD HH:MM:SS format'
+      description:
+        type: string
+        description: Flow description
   NewFlowData:
     type: object
     properties:
@@ -417,6 +420,9 @@ definitions:
       create_date:
         type: string
         description: 'Timestamp in YYYY-MM-DD HH:MM:SS format'
+      description:
+        type: string
+        description: Flow description
   FlowId:
     type: object
     properties:
@@ -473,6 +479,9 @@ definitions:
         items:
           type: string
           description: Users logins or groups names
+      description:
+        type: string
+        description: Step description
   NewStepData:
     type: object
     properties:
@@ -514,14 +523,14 @@ definitions:
         items:
           type: string
           description: IDs of previous steps
-      comment:
-        type: string
-        description: Comment to a step
       participants:
         type: array
         items:
           type: string
           description: Users logins or groups names
+      description:
+        type: string
+        description: Step description
   StepId:
     type: object
     properties:

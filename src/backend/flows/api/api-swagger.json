@@ -580,7 +580,11 @@
         },
         "create_date": {
           "type": "string",
-          "description": "Timestamp in YYYY-MM-DD HH:MM:SS format",
+          "description": "Timestamp in YYYY-MM-DD HH:MM:SS format"
+        },
+        "description": {
+          "type": "string",
+          "description": "Flow description"
         }
       }
     },
@@ -602,6 +606,10 @@
         "create_date": {
           "type": "string",
           "description": "Timestamp in YYYY-MM-DD HH:MM:SS format"
+        },
+        "description": {
+          "type": "string",
+          "description": "Flow description"
         }
       }
     },
@@ -641,6 +649,10 @@
             "type": "string",
             "description": "Users logins or groups names"
           }
+        },
+        "description": {
+          "type": "string",
+          "description": "Step description"
         }
       }
     },
@@ -659,16 +671,16 @@
             "description": "IDs of previous steps"
           }
         },
-        "comment": {
-          "type": "string",
-          "description": "Comment to a step"
-        },
         "participants": {
           "type": "array",
           "items": {
             "type": "string",
             "description": "Users logins or groups names"
           }
+        },
+        "description": {
+          "type": "string",
+          "description": "Step description"
         }
       }
     },
