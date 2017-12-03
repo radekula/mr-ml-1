@@ -16,6 +16,11 @@
 				<span class="breadcrumb-item breadcrumb-current">Grupy użytkowników</span>
             </div><!-- .breadcrumb -->
             <div class="content">
+                <form class="documents-form">
+                    <input class="input documents-input documents-phrase" name="search" type="text" placeholder="Nazwa grupy" ng-model="search">
+					<button class="button" type="submit" ng-click="filter($event)">Szukaj</button>
+					<div class="load" ng-show="loadPage"></div>
+                </form><!-- .documents-form -->
                 <table class="groups-table">
                     <thead>
                         <tr>
@@ -29,9 +34,7 @@
                     </thead>
                     <tbody>
 						<tr>
-							<td>
-								<div class="load" ng-show="loadPage"></div>
-							</td>
+							<td></td>
 							<td>
 								<input id="js-groups-name" class="input groups-input" type="text" placeholder="Nazwa grupy" value="">
 							</td>
