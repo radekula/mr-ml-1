@@ -22,3 +22,10 @@ groups-test:
         - "users-test:users"
     ports:
         - "9082:8080"
+flows-test:
+    image: localhost:5000/flows:latest
+    links:
+        - "mongo-test:flows-database-mongo"
+        - "users-test:users"
+    ports:
+        - "9083:8080"
