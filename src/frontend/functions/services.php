@@ -124,3 +124,50 @@ function callGroups($data, $config) {
     $ret = remoteCall($remoteUrl, $method, $data['body']);
     return $ret;
 }
+
+
+
+
+/*
+ * Call flows service
+ */
+function callFlows($data, $config) {
+    $remoteUrl = $config['service']['flows'] . '/' . $data['params'][1];
+    $method = $data['method'];
+
+    if(isset($data['params'][3])) {
+        if($data['params'][3] == "step" or $data['params'][3] == "steps") {
+            $data['params'][1] = $data['params'][3];
+        }
+    }
+    switch($data['params'][1]) {
+        case "flows":
+            $remoteUrl .= '/' . $data['token'];
+            break;
+        case "flow":
+            $remoteUrl .= '/' . $data['params'][2] . '/' . $data['token'];
+            break;
+        case "steps":
+            $remoteUrl .= '/' . $data['params'][2] . '/steps/' . $data['token'];
+            break;
+        case "step":
+            $remoteUrl .= '/' . $data['params'][2] . '/step/' . $data['params'][4] . '/' . $data['token'];
+            break;
+    }
+
+    if(isset($data['params_get'])) {
+        $getParams = [];
+        
+        foreach($data['params_get'] as $key => $value) {
+            $getParams[] = $key . '=' . $value;
+        }
+        $remoteParams = implode('&', $getParams);
+    };
+
+    if(!empty($remoteParams)) {
+        $remoteUrl .= '?' . $remoteParams;
+    }
+
+    $ret = remoteCall($remoteUrl, $method, $data['body']);
+    return $ret;
+}

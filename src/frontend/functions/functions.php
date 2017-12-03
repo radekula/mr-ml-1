@@ -124,6 +124,9 @@ function callService($data, $config) {
         case "groups":
             return callGroups($data, $config);
             break;
+        case "flows":
+            return callFlows($data, $config);
+            break;
         default:
             render404($data, $config);
             break;
