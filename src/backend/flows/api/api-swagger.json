@@ -1,0 +1,696 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "This is description of flows API",
+    "version": "0.1",
+    "title": "flows"
+  },
+  "basePath": "/",
+  "tags": [
+  ],
+  "schemes": [
+    "http"
+  ],
+  "paths": {
+    "/flows/{token}": {
+      "get": {
+        "tags": [
+          "flows"
+        ],
+        "summary": "Get list of flows",
+        "description": "Get list of flows",
+        "operationId": "flows",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "description": "Token of user performing operation (or system user token)",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Offset results by given number",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Limit number of results by given number",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Search flows with given string (in name)",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "total": {
+                  "type": "integer",
+                  "description": "Total number of results (before limit and offset)"
+                },
+                "result": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/FlowData"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "403": {
+            "description": "Invalid token or token expired"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/flow/{id}/{token}": {
+      "get": {
+        "tags": [
+          "flow"
+        ],
+        "summary": "Get basic information about flow",
+        "description": "This endpoint will return basic information about flow.",
+        "operationId": "getUser",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Flow id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "description": "Token of user performing operation (or system user token)",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/FlowData"
+            }
+          },
+          "403": {
+            "description": "Your not allowed to get flow data or your token expired"
+          },
+          "404": {
+            "description": "Flow not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "flow"
+        ],
+        "summary": "Create new flow",
+        "description": "Create new flow in database",
+        "operationId": "createFlow",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Flow ID (set to 'generate' if You want service to generate ID)",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "description": "Token of user performing operation (system user token)",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "flow_data",
+            "in": "body",
+            "description": "Flow data",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/NewFlowData"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/FlowId"
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Invalid token or token expired"
+          },
+          "409": {
+            "description": "Flow with given ID exists"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "flow"
+        ],
+        "summary": "Update flow data",
+        "description": "Update flow data with new values",
+        "operationId": "updateFlow",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Flow ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "description": "Token of user performing operation (or system user token)",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "flow_data",
+            "in": "body",
+            "description": "Flow data",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/NewFlowData"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Invalid token or token expired"
+          },
+          "404": {
+            "description": "Flow not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "flow"
+        ],
+        "summary": "Delete flow",
+        "description": "Delete flow",
+        "operationId": "deleteFlow",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Flow ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "description": "Token of user performing operation (or system user token)",
+            "required": true,
+            "type": "string"
+          },
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "403": {
+            "description": "Invalid token or token expired"
+          },
+          "404": {
+            "description": "Flow not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/flow/{id}/steps/{token}": {
+      "get": {
+        "tags": [
+          "steps"
+        ],
+        "summary": "Get flow steps by flow ID",
+        "description": "Returns flow's steps",
+        "operationId": "steps",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Flow ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "description": "Token of user performing operation (or system user token)",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/StepData"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "403": {
+            "description": "Invalid token or token expired"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/flow/{flow_id}/step/{step_id}/{token}": {
+      "get": {
+        "tags": [
+          "step"
+        ],
+        "summary": "Get step by ID",
+        "description": "Returns flow's steps",
+        "operationId": "stepGet",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "flow_id",
+            "in": "path",
+            "description": "Flow ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "step_id",
+            "in": "path",
+            "description": "Step ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "description": "Token of user performing operation (or system user token)",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/StepData"
+            }
+          },
+          "403": {
+            "description": "Your not allowed to get flow data or your token expired"
+          },
+          "404": {
+            "description": "Step not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "step"
+        ],
+        "summary": "Create new step in flow",
+        "description": "Create new step in flow",
+        "operationId": "createStep",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "flow_id",
+            "in": "path",
+            "description": "Flow ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "step_id",
+            "in": "path",
+            "description": "Step ID (paste 'generate' to generate new ID)",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "description": "Token of user performing operation (or system user token)",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "split",
+            "in": "query",
+            "description": "Split flow with new path starting with this flow if set to 1.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "step_data",
+            "in": "body",
+            "description": "Step data",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/NewStepData"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/StepId"
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Invalid token or token expired"
+          },
+          "409": {
+            "description": "Operation cannot be performed (invalid operation). Step ID already exists or invalid previous steps or change to invalid type."
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "step"
+        ],
+        "summary": "Update step data",
+        "description": "Update step data with new values",
+        "operationId": "updateStep",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "flow_id",
+            "in": "path",
+            "description": "Flow ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "step_id",
+            "in": "path",
+            "description": "Step ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "description": "Token of user performing operation (or system user token). Invalid previous steps or change to invalid type.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "step_data",
+            "in": "body",
+            "description": "Step data",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/NewStepData"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Invalid token or token expired"
+          },
+          "404": {
+            "description": "Step not found"
+          },
+          "409": {
+            "description": "Operation cannot be performed (invalid operation)"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "step"
+        ],
+        "summary": "Delete step",
+        "description": "Delete step",
+        "operationId": "deleteStep",
+        "parameters": [
+          {
+            "name": "flow_id",
+            "in": "path",
+            "description": "Flow ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "step_id",
+            "in": "path",
+            "description": "Step ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "description": "Token of user performing operation (or system user token)",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "403": {
+            "description": "Invalid token or token expired"
+          },
+          "404": {
+            "description": "Flow not found"
+          },
+          "409": {
+            "description": "Operation cannot be performed (invalid operation)"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "FlowData": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Flow ID (null if You create new flow)"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of a flow"
+        },
+        "active": {
+          "type": "boolean",
+          "description": "Flow active or not"
+        },
+        "owner": {
+          "type": "string",
+          "description": "Owner of a flow"
+        },
+        "create_date": {
+          "type": "string",
+          "description": "Timestamp in YYYY-MM-DD HH:MM:SS format"
+        },
+        "description": {
+          "type": "string",
+          "description": "Flow description"
+        }
+      }
+    },
+    "NewFlowData": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of a flow"
+        },
+        "active": {
+          "type": "boolean",
+          "description": "Flow active or not"
+        },
+        "owner": {
+          "type": "string",
+          "description": "Owner of a flow"
+        },
+        "create_date": {
+          "type": "string",
+          "description": "Timestamp in YYYY-MM-DD HH:MM:SS format"
+        },
+        "description": {
+          "type": "string",
+          "description": "Flow description"
+        }
+      }
+    },
+    "FlowId": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "StepData": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["start", "accept_single", "accept_all", "view_single", "view_all", "sign_single", "sign_all", "join_any", "join_all", "archive"],
+          "description": "start - start point for a flow (cannot be removed)\naccept_single - at least one participant must accept document\naccept_all - all participants must accept document\nview_single - at leat one participant must see document\nview_all - all participants must see document\nsign_single - at least participant must sing document\nsign_all - all participants must sing document; join_any - merge document paths if at least previous step is done\njoin_all - merge document paths if all previous steps are done\narchive - last step, there must be at least one and all paths must be ended with this step" 
+        },
+        "prev": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "description": "IDs of previous steps"
+          }
+        },
+        "comment": {
+          "type": "string",
+          "description": "Comment to a step"
+        },
+        "participants": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "description": "Users logins or groups names"
+          }
+        },
+        "description": {
+          "type": "string",
+          "description": "Step description"
+        }
+      }
+    },
+    "NewStepData": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["start", "accept_single", "accept_all", "view_single", "view_all", "sign_single", "sign_all", "join_any", "join_all", "archive"],
+          "description": "start - start point for a flow (cannot be removed)\naccept_single - at least one participant must accept document\naccept_all - all participants must accept document\nview_single - at leat one participant must see document\nview_all - all participants must see document\nsign_single - at least participant must sing document\nsign_all - all participants must sing document; join_any - merge document paths if at least previous step is done\njoin_all - merge document paths if all previous steps are done\narchive - last step, there must be at least one and all paths must be ended with this step" 
+        },
+        "prev": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "description": "IDs of previous steps"
+          }
+        },
+        "participants": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "description": "Users logins or groups names"
+          }
+        },
+        "description": {
+          "type": "string",
+          "description": "Step description"
+        }
+      }
+    },
+    "StepId": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

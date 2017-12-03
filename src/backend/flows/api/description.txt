@@ -1,0 +1,393 @@
+### [pobranie flows] ###################################################
+#                                                                      #
+# Pobranie listy zdefiniowanych flows (przepływów) dokumentów          #
+#                                                                      #
+########################################################################
+
+Method: GET
+Endpoint: /flows
+
+Return:
+_200:
+[
+  {
+    "id": uuid,
+    "name": string,
+    "active": bool
+  }
+]
+
+_500:
+Internal server error
+
+
+### [pobranie flow] ####################################################
+#                                                                      #
+# Pobranie szczegółów wskazanego flow                                  #
+#                                                                      #
+########################################################################
+
+Method: GET
+Endpoint: /flow/{id}
+
+Return:
+_200:
+{
+  "id": uuid,
+  "name": string,
+  "active": bool,
+  "owner": string,
+  "create_date": string
+}
+
+_404:
+Not found
+
+_500:
+Internal server error
+
+
+### [stworzenie nowego flow] ###########################################
+#                                                                      #
+# Dodanie nowego flow do listy                                         #
+#                                                                      #
+########################################################################
+
+Method: POST
+Endpoint: /flow
+Data:
+{
+  "name": string,
+  "active": bool,
+  "owner": string
+}
+
+Return:
+_200:
+{
+    "id": uuid
+}
+
+_400:
+Invalid request
+
+_500:
+Internal server error
+
+
+
+### [aktualizacja flow] ################################################
+#                                                                      #
+# Aktualizacja flow                                                    #
+#                                                                      #
+########################################################################
+
+Method: PUT
+Endpoint: /flow/{id}
+Data:
+{
+  "name": string,
+  "active": bool,
+  "owner": string
+}
+
+Return:
+_200:
+Success
+
+_400:
+Invalid request
+
+_404:
+Not found
+
+_500:
+Internal server error
+
+
+### [usunięcie flow] ###################################################
+#                                                                      #
+# Aktualizacja flow                                                    #
+#                                                                      #
+########################################################################
+
+Method: DELETE
+Endpoint: /flow/{id}
+
+Return: 
+_200:
+Success
+
+_404:
+Not found
+
+_500:
+Internal server error
+
+
+
+### [lista obsługiwanych/dopuszczalnych typów kroków] ##################
+#                                                                      #
+# Endpoint do pobierania obsługiwanych typów kroków                    #
+# type    - typ kroku                                                  #
+# name    - nazwa kroku                                                #
+#                                                                      #
+# Typy kroków:                                                         #
+#   start         - Początkowy krok dla flow (domyślnie dodawany       #
+#                   dla każdego flow - nie może byc usunięty)          #
+#   accept_single - dokument musi być zaakceptowany przez              #
+#                   przynajmniej jedną osobę                           #
+#   accept_all    - dokument musi być zaakceptowany przez              #
+#                   wszsytkie osoby                                    #
+#   view_single   - dokument musi przeczytany przez przynajmniej       #
+#                   jedną osobę                                        #
+#   view_all      - dokument musi być przeczytany przez wszystkie      #
+#                   osoby                                              #
+#   sign_single   - dokument musi być podpisany przez przynajmniej     #
+#                   jedną osobę                                        #
+#   sign_all      - dokument musi być podpisany przez wszystkich       #
+#   join_any      - połączenie kilku poprzednich kroków przy czym      #
+#                   tylko jeden z nich musi być zakończony by          #
+#                   przejść dalej                                      #
+#   join_all      - połączenie kilku poprzednich kroków przy czym      #
+#                   wszystkie muszą być zakończone by przejść dalej    #
+#   archive       - dokument trafia do archiwum dokumentów             # 
+#                   (ostatni krok - domyślnie dodawany do każdego      #
+#                   flow, musi być zawsze przynajmniej jeden taki      #
+#                   krok i wszystkie sćieżki muszą być nim zakończone) #
+#                                                                      #
+########################################################################
+
+Method: GET
+Endpoint: /steps
+
+Return: 
+_200:
+[
+  {
+    "type": string,
+    "name": string
+  }
+]
+
+_500:
+Internal server error
+
+
+######### [sklad flow] #################################################
+#                                                                      #
+# Endpoint do pobierania składu flow                                   #
+# Zwracane są tylko podstawowe dane o krokach takie jak:               #
+# id      - id kroku                                                   #
+# typ     - typ kroku (jeden z obsługiwanych typów)                    #
+# prev    - id poprzednich kroków                                      #
+#           (jeżeli puste to jest to krok wejściowy/root               #
+#            może być tylko jeden taki krok w przepływie)              #
+# comment - komentarz do kroku                                         #
+#                                                                      #
+########################################################################
+
+Method: GET
+Endpoint: /flow/{id}/steps
+
+Return: 
+_200:
+[
+  {
+    "id": uuid,
+    "type": string,
+    "prev": [
+      uuid
+    ],
+    "comment": string
+  }
+]
+
+_404:
+Not found
+
+_500:
+Internal server error
+
+
+######### [szczegóły kroku] ############################################
+#                                                                      #
+# Endpoint do pobierania szczegółu kroku                               #
+# Zwracane są szczegółowe dane o kroku takie jak:                      #
+# id          - id kroku                                               #
+# typ         - typ kroku (jeden z obsługiwanych typów)                #
+# prev        - id poprzednich kroków                                  #
+#               (jeżeli puste to jest to krok wejściowy/root           #
+#                może być tylko jeden taki krok w przepływie)          #
+# comment      - komentarz do kroku                                    #
+# participants - tablica osób uczestniczących w kroku, elementami tej  #
+#                listy mogą być: loginy użytkowników, id grup          #
+#                                                                      #
+########################################################################
+
+Method: GET
+Endpoint: /flow/{flow_id}/step/{step_id}
+
+Return: 
+_200:
+{
+  "id": uuid,
+  "type": string,
+  "prev": [
+    uuid
+  ],
+  "comment": string,
+  "participants": [
+    string
+  ]
+}
+
+_404:
+Not found
+
+_500:
+Internal server error
+
+
+######### [dodanie kroku] ##############################################
+#                                                                      #
+# Dodanie kroku do flow.                                               # 
+# Krok jest dodawany z podaniem poprzedniego kroku.                    # 
+# Jeżeli nie jest podany parametr split to to kroki, które mają w prev #
+# ten sam krok co dodawany będą miały zmieniony prev na dodawany.      #
+#                                                                      #
+# Przy dodawaniu kroków join_any i join_all w prev mogą być wskazane   #
+# wszystkie łączone ścieżci. Wśród nich może być maksymalnie tylko     #
+# jeden krok, który jako następnik ma krok inny niż typu archive -     #
+# w przeciwnym wypadku zostanie zgłoszony błąd. Jeżeli jest konieczne  #
+# łączenie ścieżek, które nie kończą się bezpośrednio krokami archive  #
+# to należy najpierw z niepotrzebnych ścieżek usunąć kroki.            #
+#                                                                      #
+# Nie można dodać kroku po archive                                     #
+#                                                                      #
+# Możliwe są następujące parametry:                                    #
+# split       - jeżeli ma wartość 't' to zamiast przesuwania kroków    #
+#               za dodawany krok następuje utworzenie alternatywnej    #
+#               ścieżki                                                #
+# return_flow - jeżeli ma wartość 't' to zwracany jest cały przebieg   #
+#               a nie tylko nowo dodany krok                           #
+#                                                                      #
+########################################################################
+
+Method: POST
+Endpoint: /flow/{flow_id}/step?split={split}&return_flow={return_flow}
+Data:
+{
+  "type": string,
+  "prev": [
+    uuid
+  ],
+  "comment": string
+}
+
+
+Return: 
+_200:
+[
+  {
+    "id": uuid,
+    "type": string,
+    "prev": [
+      uuid
+    ],
+    "comment": string
+  }
+]
+
+_400:
+Invalid request
+
+_404:
+Not found
+
+_409:
+Conflict (nie można dodać kroku - niespełnione warunki)
+
+_500:
+Internal server error
+
+
+######### [modyfikacja kroku] ##########################################
+#                                                                      #
+# Endpoint do modyfikacji kroku.                                       #
+# W przypadku modyfikacji wartości prev następuje operacja analogiczna #
+# do usunięcia kroku i dodania go w innym miejscu.                     #
+#                                                                      #
+# Możliwe są następujące parametry:                                    #
+# return_flow - jeżeli ma wartość 't' to zwracany jest cały nowy       #
+#               przebieg a nie tylko modyfikowany krok                 #
+#                                                                      #
+########################################################################
+
+Method: PUT
+Endpoint: /flow/{flow_id}/step/{step_id}?return_flow={return_flow}
+
+Return: 
+_200:
+[
+  {
+    "id": uuid,
+    "type": string,
+    "prev": [
+      uuid
+    ],
+    "comment": string
+  }
+]
+
+_404:
+Not found
+
+_409:
+Conflict (nie można dodać kroku - niespełnione warunki)
+
+_500:
+Internal server error
+
+
+######### [usunięcie kroku] ############################################
+#                                                                      #
+# Endpoint do usuwania kroku.                                          #
+#                                                                      #
+# Usunięcie kroku powoduje, że wszystkie kroki, które w prev mają      #
+# ustawiony krok usuwany zostaną zmienione tak by miały w tym polu     #
+# wartość prev z usuwanego kroku.                                      # 
+#                                                                      #
+# Nie można usunąć kroku początkowego.                                 #
+# Nie można usunąć kroku archive - są one usuwane automatycznie        #
+#                                                                      #
+# Możliwe są następujące parametry:                                    #
+# return_flow - jeżeli ma wartość 't' to zwracany jest cały nowy       #
+#               przebieg a nie sam status                              #
+#                                                                      #
+########################################################################
+
+Method: DELETE
+Endpoint: /flow/{flow_id}/step/{step_id}?return_flow={return_flow}
+
+Return: 
+_200:
+[
+  {
+    "id": uuid,
+    "type": string,
+    "prev": [
+      uuid
+    ],
+    "comment": string
+  }
+]
+
+_404:
+Not found
+
+_409:
+Conflict (nie można usunąć kroku - niespełnione warunki)
+
+_500:
+Internal server error
