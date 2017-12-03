@@ -47,6 +47,11 @@ app.config(function($routeProvider, $locationProvider) {
         templateUrl: "/www/angular/groups.html",
         controller: "GroupsController"
     });
+    $routeProvider.when("/groups/:search", {
+        title: "Grupy użytkowników",
+        templateUrl: "/www/angular/groups.html",
+        controller: "GroupsController"
+    });
     $routeProvider.when("/members/:group", {
         title: "Grupa użytkowników",
         templateUrl: "/www/angular/members.html",
@@ -107,9 +112,6 @@ app.controller("ngDMSBody", ["$scope", "$cookies", "$location", function($scope,
             case "/user":
                 $scope.body = "page page-user";
                 break;
-            case "/groups":
-                $scope.body = "page page-groups";
-                break;
             default:
                 $scope.body = "page-404";
                 break;
@@ -119,6 +121,8 @@ app.controller("ngDMSBody", ["$scope", "$cookies", "$location", function($scope,
             $scope.body = "page page-documents";
         } else if ($location.path().search("/document") != -1) {
             $scope.body = "page page-document";
+        } else if ($location.path().search("/groups") != -1) {
+            $scope.body = "page page-groups";
         } else if ($location.path().search("/members") != -1) {
             $scope.body = "page page-members";
         }
@@ -837,11 +841,12 @@ app.controller("UserController", function($scope, $cookies, $http, $routeParams)
  ** Groups Controller
  */
 app.controller("GroupsController", function($route, $scope, $http, $routeParams, $cookies, $location) {
-    $scope.groups = [];
+	$scope.groups = [];
 	$scope.notice = [];
     $scope.login = $cookies.get("login");
     $scope.token = $cookies.get("token");
     $scope.loadPage = true;
+	$scope.search = $routeParams.search && $routeParams.search != "null" ? decodeURI($routeParams.search) : "";
     var groupsName = null;
     var groupsDescription = null;
 
@@ -853,10 +858,21 @@ app.controller("GroupsController", function($route, $scope, $http, $routeParams,
     month = month < 10 ? "0" + month : month;
     year = nowDate.getFullYear();
     $scope.date = year + "-" + month + "-" + day;
+	
+	$scope.filter = function($event) {
+		$event.preventDefault();
+		search = document.getElementsByClassName( "documents-phrase" )[0].value;
+		
+		if( search !== "" ) {
+			$location.path("/groups/" + search);
+		} else {
+			$location.path("/groups/");
+		}
+	}
 
     // Get all group
     $http.get(
-        "/service/groups/groups"
+        "/service/groups/groups?" + "search=" + $scope.search
     ).then(
         function(response) { // Success
             if (response.status == 200) {
