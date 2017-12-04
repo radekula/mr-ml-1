@@ -1,0 +1,8 @@
+*.radekula
+src/backend/documents/docker/documents
+src/backend/flows/docker/flows
+src/backend/flows/docker/go/
+src/backend/groups/docker/go/
+src/backend/groups/docker/groups
+src/backend/users/docker/go/
+src/backend/users/docker/users
