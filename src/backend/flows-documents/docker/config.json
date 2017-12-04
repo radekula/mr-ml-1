@@ -1,0 +1,13 @@
+{
+    "service": {
+        "port": 8080
+    },
+    "database": {
+        "host": "flows-documents-database-mongo",
+        "name": "flowsDocumentsDatabase",
+        "collection": "flowsDocuments"
+    },
+    "remotes": {
+        "users": "http://users:8080"
+    }
+}

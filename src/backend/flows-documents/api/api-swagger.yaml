@@ -1,0 +1,357 @@
+swagger: '2.0'
+info:
+  description: This is description of groups API
+  version: '0.1'
+  title: groups
+basePath: /
+tags: []
+schemes:
+  - http
+paths:
+  '/groups/{token}':
+    get:
+      tags:
+        - groups
+      summary: Get list of groups
+      description: Get list of groups
+      operationId: groups
+      parameters:
+        - name: token
+          in: path
+          description: Token of user performing operation (or system user token)
+          required: true
+          type: string
+        - name: offset
+          in: query
+          description: Offset results by given number
+          required: false
+          type: integer
+        - name: limit
+          in: query
+          description: Limit number of results by given number
+          required: false
+          type: integer
+        - name: search
+          in: query
+          description: Search groups with given string (in name)
+          required: false
+          type: string
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: object
+            properties:
+              total:
+                type: integer
+                description: Total number of results (before limit and offset)
+              result:
+                type: array
+                items:
+                  $ref: '#/definitions/GroupDataFull'
+        '400':
+          description: Invalid request
+        '403':
+          description: Invalid token or token expired
+        '500':
+          description: Internal server error
+  '/group/{name}/{token}':
+    get:
+      tags:
+        - group
+      summary: Get information about group
+      description: This endpoint will return basic information about group.
+      operationId: getGroup
+      produces:
+        - application/json
+      parameters:
+        - name: name
+          in: path
+          description: Group name
+          required: true
+          type: string
+        - name: token
+          in: path
+          description: Token of user performing operation (or system user token)
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            $ref: '#/definitions/GroupData'
+        '403':
+          description: Your not allowed to get group data or your token expired
+        '404':
+          description: Group not found
+        '500':
+          description: Internal server error
+    post:
+      tags:
+        - group
+      summary: Create group
+      description: Create new group in database
+      operationId: createNewGroup
+      consumes:
+        - application/json
+      parameters:
+        - name: name
+          in: path
+          description: New group name
+          required: true
+          type: string
+        - name: token
+          in: path
+          description: Token of user performing operation (system user token)
+          required: true
+          type: string
+        - name: group_data
+          in: body
+          description: Group data
+          required: true
+          schema:
+            $ref: '#/definitions/GroupData'
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Bad request
+        '403':
+          description: Invalid token or token expired
+        '409':
+          description: Group with given name exists
+        '500':
+          description: Internal server error
+    put:
+      tags:
+        - group
+      summary: Update group data
+      description: Update group data with new values
+      operationId: updateGroup
+      consumes:
+        - application/json
+      parameters:
+        - name: name
+          in: path
+          description: Group name
+          required: true
+          type: string
+        - name: token
+          in: path
+          description: Token of user performing operation (or system user token)
+          required: true
+          type: string
+        - name: group_data
+          in: body
+          description: Group data
+          required: true
+          schema:
+            $ref: '#/definitions/GroupData'
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Bad request
+        '403':
+          description: Invalid token or token expired
+        '404':
+          description: Group not found
+        '500':
+          description: Internal server error
+    delete:
+      tags:
+        - group
+      summary: Delete group
+      description: Delete group
+      operationId: deleteGroup
+      parameters:
+        - name: name
+          in: path
+          description: Group name
+          required: true
+          type: string
+        - name: token
+          in: path
+          description: Token of user performing operation (or system user token)
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successful operation
+        '403':
+          description: Invalid token or token expired
+        '404':
+          description: Group not found
+        '500':
+          description: Internal server error
+  '/members/get/{name}/{token}':
+    get:
+      tags:
+        - members
+      summary: Get group members
+      description: Get the list of group members
+      operationId: members
+      produces:
+        - application/json
+      parameters:
+        - name: name
+          in: path
+          description: Group name
+          required: true
+          type: string
+        - name: token
+          in: path
+          description: Token of user performing operation (or system user token)
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: array
+            items:
+              type: string
+        '403':
+          description: Invalid token or token expired
+        '404':
+          description: Group not found
+        '500':
+          description: Internal server error
+  '/members/add/{name}/{token}':
+    post:
+      tags:
+        - members
+      summary: Add users to group
+      description: Add users to group
+      operationId: membersAdd
+      parameters:
+        - name: name
+          in: path
+          description: Group name
+          required: true
+          type: string
+        - name: token
+          in: path
+          description: Token of user performing operation (or system user token)
+          required: true
+          type: string
+        - name: users
+          in: body
+          description: List of users to add
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Invalid request
+        '403':
+          description: Invalid token or token expired
+        '404':
+          description: Group not found
+        '500':
+          description: Internal server error
+  '/members/remove/{name}/{token}':
+    post:
+      tags:
+        - members
+      summary: Remove users from group
+      description: Remove users from group
+      operationId: membersRemove
+      parameters:
+        - name: name
+          in: path
+          description: Group name
+          required: true
+          type: string
+        - name: token
+          in: path
+          description: Token of user performing operation (or system user token)
+          required: true
+          type: string
+        - name: users
+          in: body
+          description: List of users to remove
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Invalid request
+        '403':
+          description: Invalid token or token expired
+        '404':
+          description: Group not found
+        '500':
+          description: Internal server error
+  '/user/{login}/groups/{token}':
+    get:
+      tags:
+        - user
+      summary: Get user group list
+      description: Get list of group where user is assined
+      operationId: userGroups
+      parameters:
+        - name: login
+          in: path
+          description: User login
+          required: true
+          type: string
+        - name: token
+          in: path
+          description: Token of user performing operation (or system user token)
+          required: true
+          type: string
+        - name: groups
+          in: body
+          description: List of groups
+          required: true
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/GroupDataFull'
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Invalid request
+        '403':
+          description: Invalid token or token expired
+        '404':
+          description: User not found
+        '500':
+          description: Internal server error
+definitions:
+  GroupData:
+    type: object
+    properties:
+      active:
+        type: boolean
+      create_date:
+        type: string
+        description: 'Timestamp in YYYY-MM-DD HH:MM:SS format'
+      creator:
+        type: string
+      description:
+        type: string
+  GroupDataFull:
+    type: object
+    properties:
+      name:
+        type: string
+      active:
+        type: boolean
+      create_date:
+        type: string
+        description: 'Timestamp in YYYY-MM-DD HH:MM:SS format'
+      creator:
+        type: string
+      description:
+        type: string

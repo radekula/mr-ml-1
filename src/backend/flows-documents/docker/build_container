@@ -1,0 +1,4 @@
+#!/bin/bash
+
+./build
+docker build -t flows-documents -t flows-documents:latest -t localhost:5000/flows-documents:latest .
