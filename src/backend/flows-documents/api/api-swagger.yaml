@@ -1,248 +1,138 @@
 swagger: '2.0'
 info:
-  description: This is description of groups API
+  description: This is description of flows-documents API
   version: '0.1'
-  title: groups
+  title: flows-documents
 basePath: /
 tags: []
 schemes:
   - http
 paths:
-  '/groups/{token}':
-    get:
+  '/start/{token}':
+    post:
       tags:
-        - groups
-      summary: Get list of groups
-      description: Get list of groups
-      operationId: groups
+        - flows-documents
+      summary: Start a flow for a document
+      description: Start a flow for a document
+      operationId: flowStart
       parameters:
         - name: token
           in: path
           description: Token of user performing operation (or system user token)
           required: true
           type: string
-        - name: offset
-          in: query
-          description: Offset results by given number
-          required: false
-          type: integer
-        - name: limit
-          in: query
-          description: Limit number of results by given number
-          required: false
-          type: integer
-        - name: search
-          in: query
-          description: Search groups with given string (in name)
-          required: false
-          type: string
+        - name: flow_document
+          in: body
+          description: Start data
+          required: true
+          schema:
+            $ref: '#/definitions/StartFlowData'
       responses:
         '200':
           description: Successful operation
-          schema:
-            type: object
-            properties:
-              total:
-                type: integer
-                description: Total number of results (before limit and offset)
-              result:
-                type: array
-                items:
-                  $ref: '#/definitions/GroupDataFull'
         '400':
           description: Invalid request
         '403':
           description: Invalid token or token expired
+        '404':
+          description: Invalid document ID or flow ID
+        '409':
+          description: There is already a flow for this document
         '500':
           description: Internal server error
-  '/group/{name}/{token}':
+  '/status/{id}/{token}':
     get:
       tags:
-        - group
-      summary: Get information about group
-      description: This endpoint will return basic information about group.
-      operationId: getGroup
+        - flows-documents
+      summary: Get information about document status in flow
+      description: Get information about document status in flow.
+      operationId: flowStatus
       produces:
         - application/json
       parameters:
-        - name: name
+        - name: id
           in: path
-          description: Group name
+          description: Document id
           required: true
           type: string
         - name: token
           in: path
-          description: Token of user performing operation (or system user token)
+          description: Token of user performing operation
           required: true
           type: string
       responses:
         '200':
           description: Successful operation
           schema:
-            $ref: '#/definitions/GroupData'
-        '403':
-          description: Your not allowed to get group data or your token expired
-        '404':
-          description: Group not found
-        '500':
-          description: Internal server error
-    post:
-      tags:
-        - group
-      summary: Create group
-      description: Create new group in database
-      operationId: createNewGroup
-      consumes:
-        - application/json
-      parameters:
-        - name: name
-          in: path
-          description: New group name
-          required: true
-          type: string
-        - name: token
-          in: path
-          description: Token of user performing operation (system user token)
-          required: true
-          type: string
-        - name: group_data
-          in: body
-          description: Group data
-          required: true
-          schema:
-            $ref: '#/definitions/GroupData'
-      responses:
-        '200':
-          description: Successful operation
+            $ref: '#/definitions/StatusData'
         '400':
-          description: Bad request
+          description: Invalid request
         '403':
           description: Invalid token or token expired
-        '409':
-          description: Group with given name exists
+        '404':
+          description: Document not found
         '500':
           description: Internal server error
+  '/action/{id}/{step}/{token}':
     put:
       tags:
-        - group
-      summary: Update group data
-      description: Update group data with new values
-      operationId: updateGroup
-      consumes:
-        - application/json
+        - flows-documents
+      summary: Perform a user action for a step
+      description: Depending on a step type action is performed.
+      operationId: actionDo
       parameters:
-        - name: name
+        - name: id
           in: path
-          description: Group name
+          description: Document id
+          required: true
+          type: string
+        - name: step
+          in: path
+          description: Step ID where action will be performed
           required: true
           type: string
         - name: token
           in: path
-          description: Token of user performing operation (or system user token)
+          description: Token of user performing operation
           required: true
           type: string
-        - name: group_data
-          in: body
-          description: Group data
-          required: true
-          schema:
-            $ref: '#/definitions/GroupData'
       responses:
         '200':
           description: Successful operation
         '400':
-          description: Bad request
+          description: Invalid request
         '403':
           description: Invalid token or token expired
         '404':
-          description: Group not found
+          description: Invalid document ID or step ID
+        '406':
+          description: User cannot perform this action (not assigned to step)
         '500':
           description: Internal server error
     delete:
       tags:
-        - group
-      summary: Delete group
-      description: Delete group
-      operationId: deleteGroup
-      parameters:
-        - name: name
-          in: path
-          description: Group name
-          required: true
-          type: string
-        - name: token
-          in: path
-          description: Token of user performing operation (or system user token)
-          required: true
-          type: string
-      responses:
-        '200':
-          description: Successful operation
-        '403':
-          description: Invalid token or token expired
-        '404':
-          description: Group not found
-        '500':
-          description: Internal server error
-  '/members/get/{name}/{token}':
-    get:
-      tags:
-        - members
-      summary: Get group members
-      description: Get the list of group members
-      operationId: members
+        - flows-documents
+      summary: Delete a user action for a step
+      description: Delete a previous performed action for a document.
+      operationId: actionDelete
       produces:
         - application/json
       parameters:
-        - name: name
+        - name: id
           in: path
-          description: Group name
+          description: Document id
+          required: true
+          type: string
+        - name: step
+          in: path
+          description: Step ID where action will be performed
           required: true
           type: string
         - name: token
           in: path
-          description: Token of user performing operation (or system user token)
+          description: Token of user performing operation
           required: true
           type: string
-      responses:
-        '200':
-          description: Successful operation
-          schema:
-            type: array
-            items:
-              type: string
-        '403':
-          description: Invalid token or token expired
-        '404':
-          description: Group not found
-        '500':
-          description: Internal server error
-  '/members/add/{name}/{token}':
-    post:
-      tags:
-        - members
-      summary: Add users to group
-      description: Add users to group
-      operationId: membersAdd
-      parameters:
-        - name: name
-          in: path
-          description: Group name
-          required: true
-          type: string
-        - name: token
-          in: path
-          description: Token of user performing operation (or system user token)
-          required: true
-          type: string
-        - name: users
-          in: body
-          description: List of users to add
-          required: true
-          schema:
-            type: array
-            items:
-              type: string
       responses:
         '200':
           description: Successful operation
@@ -251,35 +141,36 @@ paths:
         '403':
           description: Invalid token or token expired
         '404':
-          description: Group not found
+          description: Invalid document ID or step ID
+        '406':
+          description: User cannot perform this action (not assigned to step)
         '500':
           description: Internal server error
-  '/members/remove/{name}/{token}':
-    post:
+  '/force/{id}/{step}/{token}':
+    put:
       tags:
-        - members
-      summary: Remove users from group
-      description: Remove users from group
-      operationId: membersRemove
+        - flows-documents
+      summary: Force document to next step
+      description: Force document to next step. Only administrator can perform this action
+      operationId: flowForce
+      produces:
+        - application/json
       parameters:
-        - name: name
+        - name: id
           in: path
-          description: Group name
+          description: Document ID
+          required: true
+          type: string
+        - name: step
+          in: path
+          description: Step ID
           required: true
           type: string
         - name: token
           in: path
-          description: Token of user performing operation (or system user token)
+          description: Token of user performing operation (administrator)
           required: true
           type: string
-        - name: users
-          in: body
-          description: List of users to remove
-          required: true
-          schema:
-            type: array
-            items:
-              type: string
       responses:
         '200':
           description: Successful operation
@@ -288,70 +179,66 @@ paths:
         '403':
           description: Invalid token or token expired
         '404':
-          description: Group not found
-        '500':
-          description: Internal server error
-  '/user/{login}/groups/{token}':
-    get:
-      tags:
-        - user
-      summary: Get user group list
-      description: Get list of group where user is assined
-      operationId: userGroups
-      parameters:
-        - name: login
-          in: path
-          description: User login
-          required: true
-          type: string
-        - name: token
-          in: path
-          description: Token of user performing operation (or system user token)
-          required: true
-          type: string
-        - name: groups
-          in: body
-          description: List of groups
-          required: true
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/GroupDataFull'
-      responses:
-        '200':
-          description: Successful operation
-        '400':
-          description: Invalid request
-        '403':
-          description: Invalid token or token expired
-        '404':
-          description: User not found
+          description: Invalid document ID or step ID
+        '406':
+          description: User cannot perform this action (not adminitrator)
         '500':
           description: Internal server error
 definitions:
-  GroupData:
+  StartFlowData:
     type: object
     properties:
-      active:
-        type: boolean
-      create_date:
+      document:
         type: string
-        description: 'Timestamp in YYYY-MM-DD HH:MM:SS format'
-      creator:
+        description: Document ID
+      flow:
         type: string
-      description:
-        type: string
-  GroupDataFull:
+        description: Flow ID
+  StatusData:
     type: object
     properties:
-      name:
+      document:
         type: string
-      active:
-        type: boolean
-      create_date:
+        description: Document ID
+      flow:
         type: string
-        description: 'Timestamp in YYYY-MM-DD HH:MM:SS format'
-      creator:
+        description: Flow ID
+      current_step:
         type: string
-      description:
+        description: Current step ID
+      history:
+        type: array
+        items:
+          $ref: '#/definitions/HistoryData'
+  HistoryData:
+    type: object
+    properties:
+      step:
         type: string
+        description: Step ID
+      actions:
+        type: array
+        items:
+          $ref: '#/definitions/HistoryActionData'
+  HistoryActionData:
+    type: object
+    properties:
+      login:
+        type: string
+        description: User login performing action
+      action:
+        type: string
+        enum:
+          - accept
+          - view
+          - sign
+          - force_next
+        description: |-
+          Type of action:
+          accept - user accepted document
+          view - user viewed document
+          sign - user signed document
+          force_next - document was forced to next step
+      date:
+        type: string
+        description: 'Date of action. Timestamp in YYYY-MM-DD HH:MM:SS format'
