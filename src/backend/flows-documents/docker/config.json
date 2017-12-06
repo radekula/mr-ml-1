@@ -8,6 +8,9 @@
         "collection": "flowsDocuments"
     },
     "remotes": {
-        "users": "http://users:8080"
+        "users": "http://godms.pl:8081",
+        "groups": "http://godms.pl:8082",
+        "documents": "http://godms.pl:8080",
+        "flows": "http://godms.pl:8083"
     }
 }
