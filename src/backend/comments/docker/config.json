@@ -1,0 +1,13 @@
+{
+    "service": {
+        "port": 8080
+    },
+    "database": {
+        "host": "comments-database-mongo",
+        "name": "commentsDatabase",
+        "collection": "comments"
+    },
+    "remotes": {
+        "users": "http://users:8080"
+    }
+}

@@ -1,0 +1,177 @@
+swagger: '2.0'
+info:
+  version: '0.1'
+  title: comments
+basePath: /
+tags: []
+schemes:
+  - http
+paths:
+  '/comments/{token}':
+    get:
+      tags:
+        - comments
+      summary: List comments.
+      parameters:
+        - name: token
+          in: path
+          description: Token of user performing operation (or system user token)
+          required: true
+          type: string
+        - name: documentId
+          in: query
+          description: Limit result set to comments assigned to specific document ID.
+          required: false
+          type: string
+        - name: userId
+          in: query
+          description: Limit result set to comments assigned to specific user ID.
+          required: false
+          type: string
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: object
+            properties:
+              total:
+                type: integer
+                description: Total number of results.
+              result:
+                type: array
+                items:
+                  $ref: '#/definitions/CommentData'
+        '400':
+          description: Invalid request
+        '403':
+          description: Invalid token or token expired
+        '500':
+          description: Internal server error
+    post:
+      tags:
+        - comments
+      summary: Create a comment.
+      consumes:
+        - application/json
+      parameters:
+        - name: token
+          in: path
+          description: Token of a user making a request
+          required: true
+          type: string
+        - name: document
+          in: body
+          description: A new comment data.
+          required: true
+          schema:
+            $ref: '#/definitions/NewCommentData'
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Bad request
+        '403':
+          description: Invalid token or token expired
+        '404':
+          description: Comment not found
+        '500':
+          description: Internal server error
+  '/comments/{id}/{token}':
+    put:
+      tags:
+        - comments
+      summary: Edit a comment.
+      consumes:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of comment.
+          required: true
+          type: string
+        - name: token
+          in: path
+          description: Token of a user making a request
+          required: true
+          type: string
+        - name: document
+          in: body
+          description: Definition of a document
+          required: true
+          schema:
+            $ref: '#/definitions/EditCommentData'
+      responses:
+        '200':
+          description: Successful operation.
+        '400':
+          description: Bad request.
+        '403':
+          description: Invalid token or token expired.
+        '404':
+          description: Comment not found.
+        '500':
+          description: Internal server error.
+    delete:
+      tags:
+        - comments
+      summary: Delete a comment.
+      parameters:
+        - name: id
+          in: path
+          description: ID of comment to delete.
+          required: true
+          type: string
+        - name: token
+          in: path
+          description: Token of a user making a request.
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successful operation.
+        '403':
+          description: Invalid token or token expired.
+        '404':
+          description: Comment not found.
+        '500':
+          description: Internal server error.
+definitions:
+  CommentData:
+    type: object
+    properties:
+      id:
+        type: string
+        description: ID of a comment.
+      documentId:
+        type: string
+        description: ID of a commented document.
+      parent:
+        type: string
+        description: ID of a parent comment.
+      author:
+        type: string
+        description: Author's name of a comment.
+      create_date:
+        type: string
+        description: Timestamp in YYYY-MM-DD HH:MM:SS format.
+      content:
+        type: string
+        description: Content of comment.
+  NewCommentData:
+    type: object
+    properties:
+      documentId:
+        type: string
+        description: ID of commented document.
+      parent:
+        type: string
+        description: ID of parent comment (null if You create a new thread).
+      content:
+        type: string
+        description: Content of comment.
+  EditCommentData:
+    type: object
+    properties:
+      content:
+        type: string
+        description: Content of comment.
