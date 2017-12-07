@@ -16,7 +16,7 @@ type HistoryData struct {
 type StatusData struct {
     Document string              `json:"document"`
     Flow string                  `json:"flow"`
-    CurrentStep string           `json:"current_step"`
+    CurrentSteps []string        `json:"current_steps"`
     History []HistoryData        `json:"history"`
 }
 

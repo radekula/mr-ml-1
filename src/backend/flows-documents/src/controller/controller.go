@@ -17,6 +17,23 @@ import (
 )
 
 
+func getActionFromStep(step model.StepData) (string) {
+    if step.Type == "accept_single" || step.Type == "accept_all" {
+        return "accept"
+    }
+
+    if step.Type == "view_single" || step.Type == "view_all" {
+        return "view"
+    }
+
+    if step.Type == "sign_single" || step.Type == "sign_all" {
+        return "sign"
+    }
+
+    return "invalid_action"
+}
+
+
 
 func getStartStep(steps []model.StepData) (model.StepData, int) {
     var step model.StepData
@@ -93,6 +110,13 @@ func startFlow(c *mgo.Collection, data model.StartFlow, user model.UserData) (in
     history.Actions = append(history.Actions, action)
     documentFlow.History = append(documentFlow.History, history)
 
+    // add empty next steps
+    for _, s := range nextSteps {
+        var h model.DBHistoryData
+        h.Step = s
+        documentFlow.History = append(documentFlow.History, history)
+    }
+
     c.Insert(&documentFlow)
 
     return 0
@@ -100,154 +124,228 @@ func startFlow(c *mgo.Collection, data model.StartFlow, user model.UserData) (in
 
 
 
-func getStatus(c *mgo.Collection, document string) (model.StatusData, int) {
+func getStatus(c *mgo.Collection, document string, token string) (model.StatusData, int) {
+    var search_data model.DBStatusData
     var ret_data model.StatusData
-/*
-    var search_data model.DBFlowData
 
-    count, _ := c.Find(bson.M{"id": id}).Count()
-    if count != 1 {
-        return ret_data, -1
+    // check if document exist
+    if remote.CheckValidDocument(document, token) != true {
+        return ret_data, 1
     }
 
-    err := c.Find(bson.M{"id": id}).One(&search_data)
+    // check if document is in a flow
+    count, _ := c.Find(bson.M{"document": document}).Count()
+    if count > 0 {
+        return ret_data, 1
+    }
+
+    // find document's steps history
+    err := c.Find(bson.M{"document": document}).One(&search_data)
     if err != nil {
         return ret_data, -1
     }
 
-    ret_data.Id          = search_data.Id
-    ret_data.Name        = search_data.Name
-    ret_data.Active      = search_data.Active
-    ret_data.Owner       = search_data.Owner
-    ret_data.CreateDate  = search_data.CreateDate
-    ret_data.Description = search_data.Description
-*/
+    ret_data.Document          = search_data.Document
+    ret_data.Flow              = search_data.Flow
+    ret_data.CurrentSteps      = search_data.CurrentSteps
+
+    for _, h := range search_data.History {
+        var hist model.HistoryData
+        
+        hist.Step = h.Step
+        for _, a := range h.Actions {
+            var act model.HistoryAction
+
+            act.Login = a.Login
+            act.Action = a.Action
+            act.Date = a.Date
+
+            hist.Actions = append(hist.Actions, act)
+        }
+
+        ret_data.History = append(ret_data.History, hist)
+    }
+
     return ret_data, 0
 }
 
 
 
-func actionPerform(c *mgo.Collection, document string, step string, user model.VerifyData) (int) {
-/*    if id != "generate" {
-        _, err := getFlow(c, id)
-        if err == 0 {
-            return 1
-        }
-    } else {
-        id = uuid.NewV4().String()
+func actionPerform(c *mgo.Collection, document string, step string, user model.UserData) (int) {
+    var search_data model.DBStatusData
+
+    // check if document exist
+    if remote.CheckValidDocument(document, user.Token) != true {
+        return 1
     }
 
-    var add_data model.DBFlowData
-    
-    add_data.Id          = id
-    add_data.Name        = data.Name
-    add_data.Active      = data.Active
-    add_data.Owner       = data.Owner
-    add_data.CreateDate  = data.CreateDate
-    add_data.Description = data.Description
+    // check if document is in a flow
+    count, _ := c.Find(bson.M{"document": document}).Count()
+    if count > 0 {
+        return 1
+    }
 
-    c.Insert(&add_data)
+    // find document's steps history
+    err := c.Find(bson.M{"document": document}).One(&search_data)
+    if err != nil {
+        return -1
+    }
 
-    var start_data model.DBStepData
+    // check if user is in a step
+    users, err2 := remote.GetUsersForStep(search_data.Flow, step, user.Token)
+    if err2 != 200 {
+        return -1
+    }
 
-    start_data.Id           = uuid.NewV4().String()
-    start_data.Flow         = id
-    start_data.Type         = "start"
+    userExist := false
+    for _, u := range users {
+        if u == user.Login {
+            userExist = true
+            break
+        }
+    }
 
-    db.GetCollectionSteps().Insert(&start_data)
+    if userExist == false {
+        return 2
+    }
 
-    var end_data model.DBStepData
+    // check if step in one of current steps
+    inCurrent := false
+    for _, s := range search_data.CurrentSteps {
+        if s == step {
+            inCurrent = true
+            break
+        }
+    }
+    if inCurrent == false {
+        return 3
+    }
 
-    end_data.Id           = uuid.NewV4().String()
-    end_data.Flow         = id
-    end_data.Prev         = append(end_data.Prev, start_data.Id)
-    end_data.Type         = "archive"
+    // get step data
+    flowStep, err3 := remote.GetStepData(search_data.Flow, step, user.Token)
+    if err3 != 200 {
+        return -1
+    }
 
-    db.GetCollectionSteps().Insert(&end_data)*/
+    // search and remove user action if exists
+    for idx, _ := range search_data.History {
+        if search_data.History[idx].Step != step {
+            continue
+        }
+
+        // check if user already performed action
+        for _, a := range search_data.History[idx].Actions {
+            if a.Login != user.Login {
+                return 3
+            }
+        }
+
+        var act model.DBHistoryAction
+
+        act.Login  = user.Login
+        act.Action = getActionFromStep(flowStep)
+        act.Date   = libs.CurrentTime()
+    }
+
+//TODO check if action if enough for next step
+
+    data_change := bson.M{"history"       : search_data.History}
+
+    change := mgo.Change{
+        Update:  bson.M{"$set": data_change},
+        ReturnNew: false,
+    }
+
+    c.Find(bson.M{"document": search_data.Document, "flow": search_data.Flow}).Apply(change, &search_data)
+
     return 0
 }
 
 
 
 
-func actionDelete(c *mgo.Collection, document string, step string, user model.VerifyData) (int) {
-/*    if id != "generate" {
-        _, err := getFlow(c, id)
-        if err == 0 {
-            return 1
-        }
-    } else {
-        id = uuid.NewV4().String()
+func actionDelete(c *mgo.Collection, document string, step string, user model.UserData) (int) {
+    var search_data model.DBStatusData
+
+    // check if document exist
+    if remote.CheckValidDocument(document, user.Token) != true {
+        return 1
     }
 
-    var add_data model.DBFlowData
-    
-    add_data.Id          = id
-    add_data.Name        = data.Name
-    add_data.Active      = data.Active
-    add_data.Owner       = data.Owner
-    add_data.CreateDate  = data.CreateDate
-    add_data.Description = data.Description
+    // check if document is in a flow
+    count, _ := c.Find(bson.M{"document": document}).Count()
+    if count > 0 {
+        return 1
+    }
 
-    c.Insert(&add_data)
+    // find document's steps history
+    err := c.Find(bson.M{"document": document}).One(&search_data)
+    if err != nil {
+        return -1
+    }
 
-    var start_data model.DBStepData
+    // check if user is in a step
+    users, err2 := remote.GetUsersForStep(search_data.Flow, step, user.Token)
+    if err2 != 200 {
+        return -1
+    }
 
-    start_data.Id           = uuid.NewV4().String()
-    start_data.Flow         = id
-    start_data.Type         = "start"
+    userExist := false
+    for _, u := range users {
+        if u == user.Login {
+            userExist = true
+            break
+        }
+    }
 
-    db.GetCollectionSteps().Insert(&start_data)
+    if userExist == false {
+        return 2
+    }
 
-    var end_data model.DBStepData
+    // check if step in one of current steps
+    inCurrent := false
+    for _, s := range search_data.CurrentSteps {
+        if s == step {
+            inCurrent = true
+            break
+        }
+    }
+    if inCurrent == false {
+        return 3
+    }
 
-    end_data.Id           = uuid.NewV4().String()
-    end_data.Flow         = id
-    end_data.Prev         = append(end_data.Prev, start_data.Id)
-    end_data.Type         = "archive"
+    // search and remove user action if exists
+    for idx, _ := range search_data.History {
+        if search_data.History[idx].Step != step {
+            continue
+        }
 
-    db.GetCollectionSteps().Insert(&end_data)*/
+        var act []model.DBHistoryAction
+
+        for _, a := range search_data.History[idx].Actions {
+            if a.Login != user.Login {
+                act = append(act, a)
+            }
+        }
+
+        search_data.History[idx].Actions = act
+    }
+
+    data_change := bson.M{"history"       : search_data.History}
+
+    change := mgo.Change{
+        Update:  bson.M{"$set": data_change},
+        ReturnNew: false,
+    }
+
+    c.Find(bson.M{"document": search_data.Document, "flow": search_data.Flow}).Apply(change, &search_data)
+
     return 0
 }
 
 
-func documentForce(c *mgo.Collection, document string, step string, user model.VerifyData) (int) {
-/*    if id != "generate" {
-        _, err := getFlow(c, id)
-        if err == 0 {
-            return 1
-        }
-    } else {
-        id = uuid.NewV4().String()
-    }
-
-    var add_data model.DBFlowData
-    
-    add_data.Id          = id
-    add_data.Name        = data.Name
-    add_data.Active      = data.Active
-    add_data.Owner       = data.Owner
-    add_data.CreateDate  = data.CreateDate
-    add_data.Description = data.Description
-
-    c.Insert(&add_data)
-
-    var start_data model.DBStepData
-
-    start_data.Id           = uuid.NewV4().String()
-    start_data.Flow         = id
-    start_data.Type         = "start"
-
-    db.GetCollectionSteps().Insert(&start_data)
-
-    var end_data model.DBStepData
-
-    end_data.Id           = uuid.NewV4().String()
-    end_data.Flow         = id
-    end_data.Prev         = append(end_data.Prev, start_data.Id)
-    end_data.Type         = "archive"
-
-    db.GetCollectionSteps().Insert(&end_data)*/
+func documentForce(c *mgo.Collection, document string, step string, user model.UserData) (int) {
+// TODO
     return 0
 }
 
@@ -361,7 +459,7 @@ func Status(w http.ResponseWriter, r *http.Request) {
 
     switch r.Method {
         case "GET":
-            data, ret := getStatus(db.GetCollection(), document)
+            data, ret := getStatus(db.GetCollection(), document, token)
 
             if ret < 0 {
                 w.WriteHeader(http.StatusInternalServerError)
@@ -417,11 +515,13 @@ func Action(w http.ResponseWriter, r *http.Request) {
     step     := request[3]
     token    := request[4]
 
-    user, ret := remote.VerifyToken(token)
+    user, ret := remote.GetUser(token)
     if ret != 200 {
         w.WriteHeader(http.StatusForbidden)
         return
     }
+
+    user.Token = token
 
     switch r.Method {
         case "PUT":
@@ -500,11 +600,18 @@ func Force(w http.ResponseWriter, r *http.Request) {
     step     := request[3]
     token    := request[4]
 
-    user, ret := remote.VerifyToken(token)
+    user, ret := remote.GetUser(token)
     if ret != 200 {
         w.WriteHeader(http.StatusForbidden)
         return
     }
+
+    if user.Type != "admin" {
+        w.WriteHeader(http.StatusForbidden)
+        return
+    }
+
+    user.Token = token
 
     switch r.Method {
         case "PUT":
