@@ -298,8 +298,11 @@
           "type": "string",
           "description": "Flow ID"
         },
-        "current_step": {
-          "type": "string",
+        "current_steps": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
           "description": "Current step ID"
         },
         "history": {

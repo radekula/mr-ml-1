@@ -16,7 +16,7 @@ type DBHistoryData struct {
 type DBStatusData struct {
     Document string              `bson:"document"`
     Flow string                  `bson:"flow"`
-    CurrentStep string           `bson:"current_step"`
+    CurrentSteps []string        `bson:"current_steps"`
     History []DBHistoryData      `bson:"history"`
 }
 

@@ -8,65 +8,93 @@ import (
     "net/http"
     "regexp"
     "gopkg.in/mgo.v2"
-//    "gopkg.in/mgo.v2/bson"
+    "gopkg.in/mgo.v2/bson"
     "../model"
     "../remote"
     "../db"
+    "../libs"
 //    "fmt"
 )
 
 
 
-func startFlow(c *mgo.Collection, data model.StartFlow, user model.VerifyData) (int) {
-/*    var search_data []model.DBFlowData
-    var flows []model.FlowData
+func getStartStep(steps []model.StepData) (model.StepData, int) {
+    var step model.StepData
 
-    find_by := bson.M{}
-    sort_by := "name"
-    limit := -1
-    offset := 0
-
-    if value, ok := params["limit"]; ok {
-        m_limit, err := strconv.Atoi(value[0])
-        if (err != nil ) {
-            return flows, -1
+    for _, s := range steps {
+        if s.Type == "start" {
+            return s, 0
         }
-        limit = m_limit
     }
 
-    if value, ok := params["offset"]; ok {
-        m_offset, err := strconv.Atoi(value[0])
-        if (err != nil ) {
-            return flows, -1
+    return step, -1
+}
+
+
+
+func getNextSteps(steps []model.StepData, step string) ([]string, int) {
+    var nextSteps []string
+
+    for _, s := range steps {
+        for _, p := range s.Prev {
+            if p == step {
+                nextSteps = append(nextSteps, s.Id)
+            }
         }
-        offset = m_offset
     }
 
-    if value, ok := params["search"]; ok {
-        find_by = bson.M{"name":bson.RegEx{".*" + value[0] + ".*", ""}}
+    return nextSteps, 0
+}
+
+
+func startFlow(c *mgo.Collection, data model.StartFlow, user model.UserData) (int) {
+    // check if document exist
+    if remote.CheckValidDocument(data.Document, user.Token) != true {
+        return 1
     }
-    
-    total, _ := c.Find(find_by).Count()
-    
-    if limit < 0 {
-        limit = total
+
+    // check if document is already in other flow
+    count, _ := c.Find(bson.M{"document": data.Document}).Count()
+    if count > 0 {
+        return 2
     }
 
-    c.Find(find_by).Sort(sort_by).Skip(offset).Limit(limit).All(&search_data)
-
-    for _, f := range search_data {
-        var flow model.FlowData
-
-        flow.Id          = f.Id
-        flow.Name        = f.Name
-        flow.Active      = f.Active
-        flow.Owner       = f.Owner
-        flow.CreateDate  = f.CreateDate
-        flow.Description = f.Description
-
-        flows = append(flows, flow)
+    // get steps data for the flow
+    steps, err := remote.GetFlowSteps(data.Flow, user.Token)
+    if err != 0 {
+        return 1
     }
-*/
+
+    // find starting step for a flow
+    startStep, err2 := getStartStep(steps)
+    if err2 != 0 {
+        return -1
+    }
+
+    // add new flow info for document
+    var documentFlow model.DBStatusData
+    documentFlow.Document     = data.Document
+    documentFlow.Flow         = data.Flow
+    nextSteps, err3 := getNextSteps(steps, startStep.Id)
+    if err3 != 0 {
+        return -1
+    }
+    documentFlow.CurrentSteps = nextSteps
+
+    // add start step to history
+    var history model.DBHistoryData
+    var action model.DBHistoryAction
+
+    action.Login  = user.Login
+    action.Action = "accept"
+    action.Date   = libs.CurrentTime()
+
+    history.Step = startStep.Id
+    history.Actions = append(history.Actions, action)
+    documentFlow.History = append(documentFlow.History, history)
+
+    c.Insert(&documentFlow)
+
     return 0
 }
 
@@ -257,16 +285,18 @@ func Start(w http.ResponseWriter, r *http.Request) {
     request := strings.Split(r.URL.Path, "/")
     token   := request[2]
 
-    user, ret := remote.VerifyToken(token)
+    user, ret := remote.GetUser(token)
     if ret != 200 {
         w.WriteHeader(http.StatusForbidden)
         return
     }
 
+    user.Token = token
+
     switch r.Method {
         case "POST":
             var data model.StartFlow
-            
+
             err := json.NewDecoder(r.Body).Decode(&data)
             if err != nil {
                 w.WriteHeader(http.StatusBadRequest)
