@@ -1,20 +1,180 @@
-<div class="page-documents">
-	<header class="header" ng-include="'/www/angular/header.html'"></header>
-    <main class="main">
-		<button class="menu-toggle" type="button" ng-click="menuToggle()" ng-class="{'toggled-on' : toggle}">
-			<span></span>
-		</button><!-- .menu-toggle -->
-		<nav class="menu" ng-controller="menu" ng-include="'/www/angular/menu.html'"></nav>
-        <article class="article">
-            <div class="breadcrumb">
-                <header class="breadcrumb-header">
-					<h1 class="breadcrumb-title">Pulpit</h1>
-				</header><!-- .breadcrumb-header -->
-				<span class="breadcrumb-item breadcrumb-current">Home</span>
-            </div><!-- .breadcrumb -->
-            <div class="content">
-				<!-- content -->
-            </div><!-- .content -->
-        </article><!-- .article -->
-    </main><!-- .main -->
-</div><!-- .page-documents -->
+<header class="header" ng-include="'/www/angular/header.html'"></header>
+<main class="main">
+	<button class="menu-toggle" type="button" ng-click="menuToggle()" ng-class="{'toggled-on' : toggle}">
+		<span></span>
+	</button><!-- .menu-toggle -->
+	<nav class="menu" ng-controller="menu" ng-include="'/www/angular/menu.html'"></nav>
+	<article class="article">
+		<div class="breadcrumb">
+			<header class="breadcrumb-header">
+				<h1 class="breadcrumb-title">Pulpit</h1>
+			</header><!-- .breadcrumb-header -->
+			<span class="breadcrumb-item breadcrumb-current">Home</span>
+		</div><!-- .breadcrumb -->
+		<div class="content">
+			<section class="box">
+				<header class="box-header">
+					<h3 class="box-title">Akcje:</h3>
+				</header>
+				<table class="box-table">
+					<tr>
+						<th>Nazwa</th>
+						<th>Data</th>
+						<th>Autor</th>
+						<th></th>
+					</tr>
+					<tr>
+						<td>Akceptacja</td>
+						<td class="box-date">2017-12-03</td>
+						<td class="box-author">admin</td>
+						<td>
+							<a>
+								<i class="icon">&#xf14c;</i>
+							</a>
+						</td>
+					</tr>
+					<tr>
+						<td>Podpis</td>
+						<td class="box-date">2017-12-03</td>
+						<td class="box-author">admin</td>
+						<td>
+							<a>
+								<i class="icon">&#xf14c;</i>
+							</a>
+						</td>
+					</tr>
+					<tr>
+						<td>Akceptacja</td>
+						<td class="box-date">2017-12-03</td>
+						<td class="box-author">admin</td>
+						<td>
+							<a>
+								<i class="icon">&#xf14c;</i>
+							</a>
+						</td>
+					</tr>
+					<tr>
+						<td>Podpis</td>
+						<td class="box-date">2017-12-03</td>
+						<td class="box-author">admin</td>
+						<td>
+							<a>
+								<i class="icon">&#xf14c;</i>
+							</a>
+						</td>
+					</tr>
+				</table>
+				<a class="box-more">
+					<i class="icon">&#xe80e;</i>
+				</a>
+			</section>
+			<section class="box">
+				<header class="box-header">
+					<h3 class="box-title">Komentarze:</h3>
+				</header>
+				<table class="box-table">
+					<tr>
+						<th>Treść</th>
+						<th>Data</th>
+						<th>Autor</th>
+						<th></th>
+					</tr>
+					<tr>
+						<td>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</td>
+						<td class="box-date">2017-12-03</td>
+						<td class="box-author">admin</td>
+						<td>
+							<a>
+								<i class="icon">&#xf14c;</i>
+							</a>
+						</td>
+					</tr>
+					<tr>
+						<td>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</td>
+						<td class="box-date">2017-12-03</td>
+						<td class="box-author">admin</td>
+						<td>
+							<a>
+								<i class="icon">&#xf14c;</i>
+							</a>
+						</td>
+					</tr>
+					<tr>
+						<td>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</td>
+						<td class="box-date">2017-12-03</td>
+						<td class="box-author">admin</td>
+						<td>
+							<a>
+								<i class="icon">&#xf14c;</i>
+							</a>
+						</td>
+					</tr>
+					<tr>
+						<td>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</td>
+						<td class="box-date">2017-12-03</td>
+						<td class="box-author">admin</td>
+						<td>
+							<a>
+								<i class="icon">&#xf14c;</i>
+							</a>
+						</td>
+					</tr>
+				</table>
+				<a class="box-more">
+					<i class="icon">&#xe80e;</i>
+				</a>
+			</section>
+			<section class="box">
+				<header class="box-header">
+					<h3 class="box-title">Moje dokumenty:</h3>
+				</header>
+				<table class="box-table">
+					<tr>
+						<th>Nazwa</th>
+						<th>Data</th>
+						<th></th>
+					</tr>
+					<tr>
+						<td>Dokument 1</td>
+						<td class="box-date">2017-12-03</td>
+						<td>
+							<a>
+								<i class="icon">&#xf14c;</i>
+							</a>
+						</td>
+					</tr>
+					<tr>
+						<td>Dokument 2</td>
+						<td class="box-date">2017-12-03</td>
+						<td>
+							<a>
+								<i class="icon">&#xf14c;</i>
+							</a>
+						</td>
+					</tr>
+					<tr>
+						<td>Dokument 3</td>
+						<td class="box-date">2017-12-03</td>
+						<td>
+							<a>
+								<i class="icon">&#xf14c;</i>
+							</a>
+						</td>
+					</tr>
+					<tr>
+						<td>Dokument 4</td>
+						<td class="box-date">2017-12-03</td>
+						<td>
+							<a>
+								<i class="icon">&#xf14c;</i>
+							</a>
+						</td>
+					</tr>
+				</table>
+				<a class="box-more">
+					<i class="icon">&#xe80e;</i>
+				</a>
+			</section>
+		</div><!-- .content -->
+	</article><!-- .article -->
+</main><!-- .main -->
