@@ -3,14 +3,14 @@
         "port": 8080
     },
     "database": {
-        "host": "flowsDocumentsDatabaseMongo",
+        "host": "flows-documents-database-mongo",
         "name": "flowsDocumentsDatabase",
         "collection": "flowsDocuments"
     },
     "remotes": {
-        "users": "http://godms.pl:9081",
-        "groups": "http://godms.pl:9082",
-        "documents": "http://godms.pl:9080",
-        "flows": "http://godms.pl:9083"
+        "users": "http://users:8080",
+        "groups": "http://groups:8080",
+        "documents": "http://documents:8080",
+        "flows": "http://flows:8080"
     }
 }

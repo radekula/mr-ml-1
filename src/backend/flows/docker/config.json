@@ -9,6 +9,6 @@
         "collection_steps": "steps"
     },
     "remotes": {
-        "users": "http://godms.pl:8081"
+        "users": "http://users:8080"
     }
 }

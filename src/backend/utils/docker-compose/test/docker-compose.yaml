@@ -29,3 +29,13 @@ flows-test:
         - "users-test:users"
     ports:
         - "9083:8080"
+flows-documents-test:
+    image: localhost:5000/flows-documents:latest
+    links:
+        - "mongo-test:flows-documents-database-mongo"
+        - "users-test:users"
+        - "document-test:documents"
+        - "groups-test:groups"
+        - "flows-test:flows"
+    ports:
+        - "9084:8080"
