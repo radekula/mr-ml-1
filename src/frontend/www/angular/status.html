@@ -1,0 +1,39 @@
+<header class="header" ng-include="'/www/angular/header.html'"></header>
+<main class="main">
+	<button class="menu-toggle" type="button" ng-click="menuToggle()" ng-class="{'toggled-on' : toggle}">
+		<span></span>
+	</button><!-- .menu-toggle -->
+	<nav class="menu" ng-controller="menu" ng-include="'/www/angular/menu.html'"></nav>
+	<article class="article">
+		<div class="breadcrumb">
+			<header class="breadcrumb-header">
+				<h1 class="breadcrumb-title">Nazwa dokumentu</h1>
+			</header><!-- .breadcrumb-header -->
+			<span class="breadcrumb-item">
+				<a class="breadcrumb-link" href="/#!/">Home</a>
+			</span><!-- .breadcrumb-item -->
+			<span class="breadcrumb-item breadcrumb-current">Status</span>
+		</div><!-- .breadcrumb -->
+		<div class="content">
+			<section class="steps">
+				<section class="steps-step">
+					<header class="steps-header">
+						<h3 class="steps-title">Krok 1</h3>
+					</header>
+					<i class="icon steps-status">&#xe811;</i>
+				</section>
+				<section class="steps-step">
+					<header class="steps-header">
+						<h3 class="steps-title">Krok 2</h3>
+					</header>
+					<i class="icon steps-status">&#xe811;</i>
+				</section>
+				<section class="steps-step">
+					<header class="steps-header">
+						<h3 class="steps-title">Krok 3</h3>
+					</header>
+				</section>
+			</section>
+		</div><!-- .content -->
+	</article><!-- .article -->
+</main><!-- .main -->
