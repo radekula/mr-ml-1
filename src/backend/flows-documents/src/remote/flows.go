@@ -93,5 +93,5 @@ func GetUsersForStep(flow string, step string, token string) ([]string, int) {
         users = append(users, members...)
     }
     
-    return users, 0
+    return users, 200
 }

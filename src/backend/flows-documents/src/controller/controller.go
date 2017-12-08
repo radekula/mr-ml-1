@@ -13,7 +13,7 @@ import (
     "../remote"
     "../db"
     "../libs"
-//    "fmt"
+    "fmt"
 )
 
 
@@ -67,11 +67,12 @@ func getNextSteps(steps []model.StepData, step string) ([]string, int) {
 
 func checkActionToNextStep(actions []model.DBHistoryAction, stepType string, users []string) (bool) {
     var usersMap map[string]bool
+    usersMap = make(map[string]bool)
 
     for _, u := range users {
         usersMap[u] = false
     }
-    
+
     switch stepType {
         case "start":
             // always return true
@@ -175,7 +176,7 @@ func startFlow(c *mgo.Collection, data model.StartFlow, user model.UserData) (in
 
     // get steps data for the flow
     steps, err := remote.GetFlowSteps(data.Flow, user.Token)
-    if err != 0 {
+    if err != 200 {
         return 1
     }
 
@@ -232,7 +233,7 @@ func getStatus(c *mgo.Collection, document string, token string) (model.StatusDa
 
     // check if document is in a flow
     count, _ := c.Find(bson.M{"document": document}).Count()
-    if count > 0 {
+    if count == 0 {
         return ret_data, 1
     }
 
@@ -278,7 +279,7 @@ func actionPerform(c *mgo.Collection, document string, step string, user model.U
 
     // check if document is in a flow
     count, _ := c.Find(bson.M{"document": document}).Count()
-    if count > 0 {
+    if count == 0 {
         return 1
     }
 
@@ -353,7 +354,7 @@ func actionPerform(c *mgo.Collection, document string, step string, user model.U
     if checkActionToNextStep(stepHistory.Actions, flowStep.Type, users) == true {
         // get steps data for the flow
         steps, err := remote.GetFlowSteps(search_data.Flow, user.Token)
-        if err != 0 {
+        if err != 200 {
             return 1
         }
 
@@ -764,6 +765,7 @@ func Force(w http.ResponseWriter, r *http.Request) {
             }
             break
         default:
+            fmt.Println("Bad request")
             w.WriteHeader(http.StatusBadRequest)
             break
     }

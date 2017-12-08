@@ -302,7 +302,7 @@
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
           "description": "Current step ID"
         },
         "history": {
