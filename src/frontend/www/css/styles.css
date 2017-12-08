@@ -19,6 +19,7 @@
 		4.5 - Groups Page
 		4.6 - 404 Page
 		4.7 - Desktop Page
+		4.8 - Flow Page
 */
 
 
@@ -1678,4 +1679,123 @@ ul {
 .box-more > .icon:hover {
     opacity: .8;
     -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
+}
+
+
+/*
+**
+** 4.8 - Flow Page
+**
+*/
+
+.steps {
+	margin: 0 0 0 40px;
+	padding: 40px 40px 40px 0;
+	width: 50%;
+	border-top: 1px solid rgba(0,0,0,.05);
+}
+
+.steps-step {
+	display: -webkit-box;
+	display: -webkit-flex;
+	display: -moz-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	-webkit-align-items: center;
+	   -moz-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	margin: 0 0 15px;
+	padding: 20px 50px;
+	background-color: #fff;
+}
+
+.steps-header {
+	font-size: 22px;
+	margin: 0;
+}
+
+.steps-title {
+	margin: 0;
+	font: inherit;
+	color: #252a34;
+}
+
+.steps-nav {
+	display: -webkit-box;
+	display: -webkit-flex;
+	display: -moz-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	-webkit-align-items: center;
+	   -moz-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	margin: 0 0 0 auto;
+	font-size: 24px;
+	color: #323945;
+}
+
+.steps-link {
+	cursor: pointer;
+	padding: 0 8px;
+}
+
+.steps-link .icon {
+	height: 30px;
+	width: 30px;
+	line-height: 30px;
+	-webkit-transition: .3s opacity;
+	-o-transition: .3s opacity;
+	-moz-transition: .3s opacity;
+	transition: .3s opacity;
+}
+
+.steps-link .icon:hover {
+    opacity: .8;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
+}
+
+.steps-add {
+	display: table;
+	margin: 0 auto 15px;
+	padding: 0;
+	font-size: 35px;
+	background: none;
+	border: none;
+	cursor: pointer;
+	color: #e8ebf1;
+	-webkit-transition: .3s opacity;
+	-o-transition: .3s opacity;
+	-moz-transition: .3s opacity;
+	transition: .3s opacity;
+}
+
+.steps-add:hover {
+    opacity: .8;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
+}
+
+.steps-status {
+	margin: 0 0 0 auto;
+	color: green;
+}
+
+#dialog {
+	padding: 20px;
+}
+
+#dialog > input {
+	margin: 0 0 25px;
+}
+
+.ui-widget.ui-widget-content {
+	font: 300 16px/normal Roboto, sans-serif;
+}
+
+.ui-dialog .ui-dialog-title {
+	font-weight: 300;
+	font-size: 22px;
 }
