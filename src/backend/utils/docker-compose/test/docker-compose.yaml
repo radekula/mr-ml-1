@@ -34,7 +34,7 @@ flows-documents-test:
     links:
         - "mongo-test:flows-documents-database-mongo"
         - "users-test:users"
-        - "document-test:documents"
+        - "documents-test:documents"
         - "groups-test:groups"
         - "flows-test:flows"
     ports:
