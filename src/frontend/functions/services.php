@@ -171,3 +171,44 @@ function callFlows($data, $config) {
     $ret = remoteCall($remoteUrl, $method, $data['body']);
     return $ret;
 }
+
+
+
+/*
+ * Call flows-documents service
+ */
+function callFlowsDocuments($data, $config) {
+    $remoteUrl = $config['service']['flows_documents'] . '/' . $data['params'][1];
+    $method = $data['method'];
+
+    switch($data['params'][1]) {
+        case "start":
+            $remoteUrl .= '/' . $data['token'];
+            break;
+        case "status":
+            $remoteUrl .= '/' . $data['params'][2] . '/' . $data['token'];
+            break;
+        case "action":
+            $remoteUrl .= '/' . $data['params'][2] . '/' . $data['params'][3] . $data['token'];
+            break;
+        case "force":
+            $remoteUrl .= '/' . $data['params'][2] . '/' . $data['params'][3] . $data['token'];
+            break;
+    }
+
+    if(isset($data['params_get'])) {
+        $getParams = [];
+        
+        foreach($data['params_get'] as $key => $value) {
+            $getParams[] = $key . '=' . $value;
+        }
+        $remoteParams = implode('&', $getParams);
+    };
+
+    if(!empty($remoteParams)) {
+        $remoteUrl .= '?' . $remoteParams;
+    }
+
+    $ret = remoteCall($remoteUrl, $method, $data['body']);
+    return $ret;
+}
