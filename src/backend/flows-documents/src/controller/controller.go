@@ -64,6 +64,103 @@ func getNextSteps(steps []model.StepData, step string) ([]string, int) {
 }
 
 
+
+func checkActionToNextStep(actions []model.DBHistoryAction, stepType string, users []string) (bool) {
+    var usersMap map[string]bool
+
+    for _, u := range users {
+        usersMap[u] = false
+    }
+    
+    switch stepType {
+        case "start":
+            // always return true
+            return true
+        case "archive":
+            // always return false
+            return false
+        case "accept_single":
+            // check if any user accepted
+            for _, a := range actions {
+                if a.Action == "accept" {
+                    return true
+                }
+            }
+            return false
+        case "accept_all":
+            // check if all users accepted
+            for _, a := range actions {
+                if a.Action == "accept" {
+                    usersMap[a.Login] = true
+                }
+            }
+
+            for l, _ := range usersMap {
+                if usersMap[l] == false {
+                    return false
+                }
+            }
+
+            return true
+        case "view_single":
+            // check if any user viewed
+            for _, a := range actions {
+                if a.Action == "view" {
+                    return true
+                }
+            }
+            return false
+        case "view_all":
+            // check if all users viewed
+            for _, a := range actions {
+                if a.Action == "view" {
+                    usersMap[a.Login] = true
+                }
+            }
+
+            for l, _ := range usersMap {
+                if usersMap[l] == false {
+                    return false
+                }
+            }
+
+            return true
+        case "sign_single":
+            // check if any user signed
+            for _, a := range actions {
+                if a.Action == "sign" {
+                    return true
+                }
+            }
+            return false
+        case "sign_all":
+            // check if all users signed
+            for _, a := range actions {
+                if a.Action == "sign" {
+                    usersMap[a.Login] = true
+                }
+            }
+
+            for l, _ := range usersMap {
+                if usersMap[l] == false {
+                    return false
+                }
+            }
+
+            return true
+        case "join_any":
+// TODO
+            return false
+        case "join_all":
+// TODO
+            return false
+    }
+
+    return false
+}
+
+
+
 func startFlow(c *mgo.Collection, data model.StartFlow, user model.UserData) (int) {
     // check if document exist
     if remote.CheckValidDocument(data.Document, user.Token) != true {
@@ -114,7 +211,7 @@ func startFlow(c *mgo.Collection, data model.StartFlow, user model.UserData) (in
     for _, s := range nextSteps {
         var h model.DBHistoryData
         h.Step = s
-        documentFlow.History = append(documentFlow.History, history)
+        documentFlow.History = append(documentFlow.History, h)
     }
 
     c.Insert(&documentFlow)
@@ -227,29 +324,58 @@ func actionPerform(c *mgo.Collection, document string, step string, user model.U
         return -1
     }
 
-    // search and remove user action if exists
+    // get step history
+    var stepHistory *model.DBHistoryData
+
     for idx, _ := range search_data.History {
-        if search_data.History[idx].Step != step {
-            continue
+        if search_data.History[idx].Step == step {
+            stepHistory = &search_data.History[idx]
         }
-
-        // check if user already performed action
-        for _, a := range search_data.History[idx].Actions {
-            if a.Login != user.Login {
-                return 3
-            }
-        }
-
-        var act model.DBHistoryAction
-
-        act.Login  = user.Login
-        act.Action = getActionFromStep(flowStep)
-        act.Date   = libs.CurrentTime()
     }
 
-//TODO check if action if enough for next step
+    // check if user already performed action
+    for _, a := range stepHistory.Actions {
+        if a.Login == user.Login {
+            return 3
+        }
+    }
 
-    data_change := bson.M{"history"       : search_data.History}
+    // add user action
+    var act model.DBHistoryAction
+
+    act.Login  = user.Login
+    act.Action = getActionFromStep(flowStep)
+    act.Date   = libs.CurrentTime()
+
+    stepHistory.Actions = append(stepHistory.Actions, act)
+
+    // check if action if enough for next step
+    if checkActionToNextStep(stepHistory.Actions, flowStep.Type, users) == true {
+        // get steps data for the flow
+        steps, err := remote.GetFlowSteps(search_data.Flow, user.Token)
+        if err != 0 {
+            return 1
+        }
+
+        // find next steps
+        nextSteps, err4 := getNextSteps(steps, step)
+        if err4 != 0 {
+            return -1
+        }
+
+        search_data.CurrentSteps = nextSteps
+
+        // add empty next steps
+        for _, s := range nextSteps {
+            var h model.DBHistoryData
+            h.Step = s
+            search_data.History = append(search_data.History, h)
+        }
+    }
+
+    // Save changes to database
+    data_change := bson.M{"history"       : search_data.History,
+                          "current_steps" : search_data.CurrentSteps}
 
     change := mgo.Change{
         Update:  bson.M{"$set": data_change},
