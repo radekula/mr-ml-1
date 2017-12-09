@@ -1,0 +1,11 @@
+#!/bin/bash
+
+mkdir -p go/src
+DIR=`pwd`
+
+export GOPATH=$DIR/go/
+
+go get gopkg.in/mgo.v2
+go get github.com/satori/go.uuid
+go get golang.org/x/crypto/bcrypt
+CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o desktop ../src

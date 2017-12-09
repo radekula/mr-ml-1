@@ -1,0 +1,4 @@
+#!/bin/bash
+
+./build
+docker build -t desktop -t desktop:latest -t localhost:5000/desktop:latest .
