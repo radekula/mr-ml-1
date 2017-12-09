@@ -1,0 +1,75 @@
+<div class="page-documents" ng-controller="DocumentsController">
+	<header class="header" ng-include="'/www/angular/header.html'"></header>
+    <main class="main">
+		<button class="menu-toggle" type="button" ng-click="menuToggle()" ng-class="{'toggled-on' : toggle}">
+			<span></span>
+		</button><!-- .menu-toggle -->
+		<nav class="menu" ng-controller="menu" ng-include="'/www/angular/menu.html'"></nav>
+        <article class="article">
+            <div class="breadcrumb">
+                <header class="breadcrumb-header">
+					<h1 class="breadcrumb-title">Przepływy</h1>
+				</header><!-- .breadcrumb-header -->
+				<span class="breadcrumb-item">
+					<a class="breadcrumb-link" href="/#!/">Home</a>
+				</span><!-- .breadcrumb-item -->
+				<span class="breadcrumb-item breadcrumb-current">Przepływy</span>
+            </div><!-- .breadcrumb -->
+            <div class="content" ng-controller="ActionsController">
+                <form class="documents-form">
+                    <input class="input documents-input documents-phrase" name="phrase" type="text" placeholder="Fraza" ng-model="phrase">
+					<button class="button" type="submit" ng-click="filter($event)">Szukaj</button>
+					<a class="button" href="/#!/flow">Dodaj przepływ</a>
+					<div class="load" ng-show="loadPage"></div>
+                </form><!-- .documents-form -->
+                <table class="documents-table">
+                    <thead>
+                        <tr>
+                            <th>Numer</th>
+                            <th>Nazwa</th>
+                            <th>Data dodania</th>
+                            <th>Autor</th>
+                            <th>Akcje</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+						<tr ng-repeat="(key, value) in documents">
+							<td>{{$index + offset + 1}}</td>
+							<td>{{value.title}}</td>
+							<td>{{value.create_date}}</td>
+							<td class="documents-owner">
+								<span ng-repeat="owner in document.owner">{{owner}}</span>
+							</td><!-- .documents-owner -->
+							<td class="documents-menu">
+								<nav class="documents-actions">
+									<a href="/#!flow" class="documents-actions-link">
+										<i class="icon">&#xe80f;</i>
+									</a><!-- .documents-actions-link -->
+									<a class="documents-actions-link" ng-click="deleteDocument($event)" data-id="{{value.id}}">
+										<i class="icon">&#xe802;</i>
+									</a><!-- .documents-actions-link -->
+								</nav><!-- .documents-actions -->
+							</td>
+						</tr>
+						<tr ng-repeat="item in notice">
+							<td colspan="5">{{item.content}}</td>
+						</tr>
+					</tbody>
+                </table><!-- .documents-table -->
+				<nav class="documents-pagination">
+					<ul class="documents-pagination-list">
+						<li class="documents-pagination-prev">
+							<a href="{{loc}}{{currentPage - 1}}" class="button" ng-show="currentPage > 1">Poprzednia</a>
+						</li><!-- .documents-pagination-prev -->
+						<li class="documents-pagination-links" ng-repeat="page in pages">
+							<a href="{{loc}}{{page}}" ng-class="page == currentPage ? 'current' : ''">{{page}}</a>
+						</li><!-- .documents-pagination-links -->
+						<li class="documents-pagination-next">
+							<a href="{{loc}}{{currentPage + 1}}" class="button" ng-show="currentPage < numberOfPages">Następna</a>
+						</li><!-- .documents-pagination-next -->
+					</ul><!-- .documents-pagination-list -->
+				</nav><!-- .documents-pagination -->
+            </div><!-- .content -->
+        </article><!-- .article -->
+    </main><!-- .main -->
+</div><!-- .page-documents -->
