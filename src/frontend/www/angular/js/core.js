@@ -12,6 +12,10 @@ app.config(function($routeProvider, $locationProvider) {
         title: "Dodaj dokument",
         templateUrl: "/www/angular/add.html",
     });
+    $routeProvider.when("/flows", {
+        title: "Przepływy",
+        templateUrl: "/www/angular/flows.html",
+    });
     $routeProvider.when("/flow", {
         title: "Przepływ",
         templateUrl: "/www/angular/flow.html",
@@ -137,6 +141,8 @@ app.controller("ngDMSBody", ["$scope", "$cookies", "$location", function($scope,
             $scope.body = "page page-groups";
         } else if ($location.path().search("/members") != -1) {
             $scope.body = "page page-members";
+        } else if ($location.path().search("/flows") != -1) {
+            $scope.body = "page page-flow";
         } else if ($location.path().search("/flow") != -1) {
             $scope.body = "page page-flow";
         } else if ($location.path().search("/status") != -1) {
