@@ -15,10 +15,27 @@ app.config(function($routeProvider, $locationProvider) {
     $routeProvider.when("/flows", {
         title: "Przepływy",
         templateUrl: "/www/angular/flows.html",
+        controller: "FlowsController"
     });
-    $routeProvider.when("/flow", {
+    $routeProvider.when("/flows/:page", {
+        title: "Przepływy",
+        templateUrl: "/www/angular/flows.html",
+        controller: "FlowsController"
+    });
+    $routeProvider.when("/flows/:phrase", {
+        title: "Przepływy",
+        templateUrl: "/www/angular/flows.html",
+        controller: "FlowsController"
+    });
+    $routeProvider.when("/flows/:phrase/:page", {
+        title: "Przepływy",
+        templateUrl: "/www/angular/flows.html",
+        controller: "FlowsController"
+    });
+    $routeProvider.when("/flow/:page", {
         title: "Przepływ",
         templateUrl: "/www/angular/flow.html",
+        controller: "FlowController"
     });
     $routeProvider.when("/status", {
         title: "Status",
@@ -324,6 +341,551 @@ app.controller("ActionsController", function($scope, $http, $location, $route) {
             );
         }
     }
+});
+
+/*
+ ** FlowsController
+ */
+app.controller("FlowsController", function($scope, $route, $routeParams, $http, $timeout, $cookies, $location) {
+    if (isNaN($routeParams.page) &&
+        $routeParams.page != undefined
+    ) {
+        if ($routeParams.phrase) {
+            if ($location.path() !== "/flows/" + $routeParams.phrase + "/") {
+                $location.path("/flows/" + $routeParams.phrase + "/");
+            }
+        } else if ($location.path() !== "/flows") {
+            $location.path("/flows");
+        }
+    } else {
+		$scope.currentPage = !isNaN($routeParams.page) ? parseInt($routeParams.page) : 1;
+		$scope.offset = 5 * ( $scope.currentPage - 1 );
+		$scope.limit = 5;
+		$scope.numberOfPages = 0;
+		$scope.notice = [];
+		$scope.flows = [];
+		$scope.pages = [];
+		$scope.loadPage = true;
+        $scope.phrase = $routeParams.phrase && $routeParams.phrase != "null" ? decodeURI($routeParams.phrase) : "";
+		
+        if ( $scope.phrase !== "" ) {
+			$scope.loc = "/#!flows/" + $routeParams.phrase + "/";
+        } else {
+			$scope.loc = "/#!flows/";
+		}
+		
+		$scope.filter = function($event) {
+			$event.preventDefault();
+			phrase = document.getElementsByClassName( "flows-phrase" )[0].value;
+			
+			if( phrase !== "" ) {
+				$location.path("/flows/" + phrase + "/1");
+			} else {
+				$location.path("/flows/");
+			}
+		}
+		
+        function getPagination() {
+            $scope.pages = [];
+
+            if ($scope.currentPage - 1 < $scope.numberOfPages) {
+				i = $scope.currentPage;
+                max = i + 3;
+				diff = max - $scope.numberOfPages;
+				
+				if( diff > 0 ) {
+					i = ( i - diff ) > 1 ? ( i - diff ) : 1;
+				}
+				
+                for (i; i <= max; i++) {
+                    if (i > $scope.numberOfPages) break;
+                    $scope.pages.push(i);
+                }
+            }
+        }
+		
+        $http.get(
+            "/service/flows/flows?limit=" + $scope.limit + "&offset=" + $scope.offset + "&search=" + $scope.phrase
+        ).then(
+            function(response) { // Success
+                if (response.status == 200) {
+                    if( response.data.result !== null ) {
+						$scope.flows = response.data.result;
+						$scope.numberOfPages = Math.ceil( response.data.total / $scope.limit );
+						getPagination();
+					} else {
+						$scope.notice.push( {
+							"content": "Nie znaleziono przepływów.",
+							"class": "alert-danger"
+						} );
+					}
+					
+                    $scope.loadPage = false;
+                }
+            },
+            function(response) { // Error
+                if (response.status == 404) {
+                    $scope.notice.push = {
+                        "content": "Nie znaleziono przepływów.",
+                        "class": "alert-danger"
+                    };
+                } else if (response.status == 500) {
+                    $scope.notice.push = {
+                        "content": "Błąd wewnętrzny serwera.",
+                        "class": "alert-danger"
+                    };
+                }
+
+                $scope.loadPage = false;
+            }
+        );
+		
+		// Delete the flow
+		$scope.deleteFlow = function($event) {
+			$event.preventDefault();
+
+			if (confirm("Czy na pewno usunąć wskazany przepływ?")) {
+				$scope.loadPage = true;
+				flowId = $event.currentTarget.getAttribute("data-id");
+
+				$http.delete(
+					"/service/flows/flow/" + flowId
+				).then(
+					function(response) { // Success
+						if (response.status == 200) {
+							$route.reload();
+							alert("Przepływ został usunięty.");
+						}
+
+						$scope.loadPage = false;
+					},
+					function(response) { // Error
+						if (response.status == 404) {
+							alert("Nie znaleziono przepływu.");
+						} else if (response.status == 403) {
+							alert("Nieprawidłowy lub wygasły token.");
+						} else if (response.status == 500) {
+							alert("Wewnętrzny błąd serwera.");
+						}
+
+						$scope.loadPage = false;
+					}
+				);
+			}
+		}
+		
+		$scope.addFlow = function($event) {
+			$event.preventDefault();
+			$scope.login = $cookies.get("login");
+			name = document.getElementById("js-flow-name").value;
+			description = document.getElementById("js-flow-description").value;
+			
+			// Set date
+			nowDate = new Date();
+			day = nowDate.getDate();
+			day = day < 10 ? "0" + day : day;
+			month = nowDate.getMonth() + 1;
+			month = month < 10 ? "0" + month : month;
+			year = nowDate.getFullYear();
+			$scope.date = year + "-" + month + "-" + day;
+			
+			flow_data = {
+			  "name": name ? name : "",
+			  "active": true,
+			  "owner": $scope.login,
+			  "create_date": $scope.date,
+			  "description": description ? description : ""
+			}
+			
+			if( flow_data["name"] == "" ) {
+				alert( "Błędna nazwa przepływu." );
+			} else {
+				$http.post(
+					"/service/flows/flow/generate",
+					JSON.stringify(flow_data)
+				).then(
+					function(response) { // Success
+						if (response.status == 200) {
+							$route.reload();
+							alert("Przepływ został dodany.");
+						}
+					},
+					function(response) { // Error
+						alert( response.status );
+						if (response.status == 400) {
+							$scope.notice.push = {
+								"content": "Błędne żądanie.",
+								"class": "alert-danger"
+							};
+						} else if (response.status == 403) {
+							$scope.notice.push = {
+								"content": "Nieprawidłowy lub wygasły token.",
+								"class": "alert-danger"
+							};
+						} else if (response.status == 409) {
+							$scope.notice.push = {
+								"content": "Istnieje przepływ o podanej nazwie.",
+								"class": "alert-danger"
+							};
+						} else if (response.status == 500) {
+							$scope.notice.push = {
+								"content": "Błąd wewnętrzny serwera.",
+								"class": "alert-danger"
+							};
+						}
+
+						$scope.loadPage = false;
+					}
+				);
+			}
+		}
+    }
+});
+
+/*
+ ** FlowController
+ */
+app.controller("FlowController", function($scope, $route, $routeParams, $http, $timeout, $cookies, $location) {
+    if ( !$routeParams.page ) {
+        $location.path("/404");
+    } else {
+		$scope.data = {};
+		$scope.steps = [];
+		$scope.id = $routeParams.page;
+		
+		jQuery( document ).ready( function($scope) {
+			jQuery( "#sortable" ).sortable( {
+				stop: function (event, ui) {
+					prev_id = jQuery( ui.item ).prev().find( ".steps-inner" ).data( "id" );
+					if( prev_id ) {
+						self_id = jQuery( ui.item ).find( ".steps-inner" ).data( "id" );
+						type = jQuery( ui.item ).find( ".steps-inner" ).data( "type" );
+						updateOrderSteps(self_id, prev_id, type);
+					} else {
+						$route.reload();
+					}
+				}
+			} );
+					
+			dialog_edit = jQuery( "#dialog-edit" ).dialog( {
+				autoOpen: false,
+				height: 472,
+				width: 500
+			} );
+			
+			jQuery( ".steps" ).on( "click", ".edit-step", function() {
+				step_id = jQuery( this ).data( "id" );
+				updateStep( step_id );
+			});
+		} );
+		
+		function updateStep(step_id) {
+			$http.get(
+				"/service/flows/flow/" + $scope.id + "/step/" + step_id
+			).then(
+				function(response) { // Success
+					if (response.status == 200) {
+						document.getElementById("js-step-type").value = response.data.type;
+						document.getElementById("js-step-description").value = response.data.description;
+						dialog_edit.dialog( "open" );
+					}
+				},
+				function(response) { // Error
+					alert( response.status );
+					if (response.status == 403) {
+						$scope.notice.push = {
+							"content": "Your not allowed to get flow data or your token expired",
+							"class": "alert-danger"
+						};
+					} else if (response.status == 403) {
+						$scope.notice.push = {
+							"content": "Flow not found",
+							"class": "alert-danger"
+						};
+					} else if (response.status == 500) {
+						$scope.notice.push = {
+							"content": "Błąd wewnętrzny serwera.",
+							"class": "alert-danger"
+						};
+					}
+				}
+			);
+		}
+		
+		function updateOrderSteps(self_id, prev_id, type) {
+			step_data = {
+			  "type": type,
+			  "prev": [prev_id],
+			  "participants": [
+				"string"
+			  ],
+			  "description": "string"
+			}
+			
+			$http.put(
+				"/service/flows/flow/" + $scope.id + "/step/" + self_id,
+				JSON.stringify(step_data)
+			).then(
+				function(response) { // Success
+					if (response.status == 200) {
+						$route.reload();
+						alert("Kolejność kroków została zaktualizowana");
+						
+						// $scope.loadPage = false;
+					}
+				},
+				function(response) { // Error
+					alert( response.status );
+					if (response.status == 403) {
+						$scope.notice.push = {
+							"content": "Your not allowed to get flow data or your token expired",
+							"class": "alert-danger"
+						};
+					} else if (response.status == 403) {
+						$scope.notice.push = {
+							"content": "Flow not found",
+							"class": "alert-danger"
+						};
+					} else if (response.status == 500) {
+						$scope.notice.push = {
+							"content": "Błąd wewnętrzny serwera.",
+							"class": "alert-danger"
+						};
+					}
+
+					// $scope.loadPage = false;
+				}
+			);
+		}
+		
+		$http.get(
+			"/service/flows/flow/" + $scope.id
+		).then(
+			function(response) { // Success
+				if (response.status == 200) {
+					$scope.data = response.data;
+					
+					// $scope.loadPage = false;
+				}
+			},
+			function(response) { // Error
+				if (response.status == 403) {
+					$scope.notice.push = {
+						"content": "Your not allowed to get flow data or your token expired",
+						"class": "alert-danger"
+					};
+				} else if (response.status == 403) {
+					$scope.notice.push = {
+						"content": "Flow not found",
+						"class": "alert-danger"
+					};
+				} else if (response.status == 500) {
+					$scope.notice.push = {
+						"content": "Błąd wewnętrzny serwera.",
+						"class": "alert-danger"
+					};
+				}
+
+				// $scope.loadPage = false;
+			}
+		);
+		
+		// Get steps by id
+		$http.get(
+			"/service/flows/flow/" + $scope.id + "/steps"
+		).then(
+			function(response) { // Success
+				if (response.status == 200) {
+					$scope.steps = response.data;
+					
+					// $scope.loadPage = false;
+				}
+			},
+			function(response) { // Error
+				if (response.status == 400) {
+					$scope.notice.push = {
+						"content": "Błędne żądanie.",
+						"class": "alert-danger"
+					};
+				} else if (response.status == 403) {
+					$scope.notice.push = {
+						"content": "Nieprawidłowy lub wygasły token.",
+						"class": "alert-danger"
+					};
+				} else if (response.status == 500) {
+					$scope.notice.push = {
+						"content": "Błąd wewnętrzny serwera.",
+						"class": "alert-danger"
+					};
+				}
+
+				// $scope.loadPage = false;
+			}
+		);
+		
+		$scope.updateFlow = function($event) {
+			$event.preventDefault();
+			$scope.load = true;
+			$scope.notice = [];
+			$scope.login = $cookies.get("login");
+			name = document.getElementById("js-flow-name").value;
+			description = document.getElementById("js-flow-description").value;
+			
+			// Set date
+			nowDate = new Date();
+			day = nowDate.getDate();
+			day = day < 10 ? "0" + day : day;
+			month = nowDate.getMonth() + 1;
+			month = month < 10 ? "0" + month : month;
+			year = nowDate.getFullYear();
+			$scope.date = year + "-" + month + "-" + day;
+			
+			flow_data = {
+			 "name": name ? name : "",
+			  "active": true,
+			  "owner": $scope.login,
+			  "create_date": $scope.date,
+			  "description": description ? description : ""
+			}
+			
+			if( flow_data["name"] == "" ) {
+				alert( "Błędna nazwa przepływu." );
+			} else {
+				$http.put(
+					"/service/flows/flow/" + $scope.id,
+					JSON.stringify(flow_data)
+				).then(
+					function(response) { // Success
+					alert( response.status );
+						if (response.status == 200) {
+							$route.reload();
+							alert("Przepływ został zaktualizownay.");
+						}
+					},
+					function(response) { // Error
+						alert( response.status );
+						if (response.status == 400) {
+							$scope.notice.push = {
+								"content": "Błędne żądanie.",
+								"class": "alert-danger"
+							};
+						} else if (response.status == 403) {
+							$scope.notice.push = {
+								"content": "Nieprawidłowy lub wygasły token.",
+								"class": "alert-danger"
+							};
+						} else if (response.status == 404) {
+							$scope.notice.push = {
+								"content": "Nie znaleziono przepływu.",
+								"class": "alert-danger"
+							};
+						} else if (response.status == 500) {
+							$scope.notice.push = {
+								"content": "Błąd wewnętrzny serwera.",
+								"class": "alert-danger"
+							};
+						}
+
+						$scope.loadPage = false;
+					}
+				);
+			}
+		}
+		
+		$scope.addStep = function($event) {
+			$event.preventDefault();
+			
+			step_data = {
+			  "type": "testowy",
+			  "prev": [
+				"064bd64e-975f-4cb1-ba3a-07fd2e05f372"
+			  ],
+			  "participants": [],
+			  "description": "opis"
+			}
+			
+			$http.post(
+				"/service/flows/flow/" + $scope.id + "/step/generate",
+				JSON.stringify(step_data)
+			).then(
+				function(response) { // Success
+					if (response.status == 200) {
+						$route.reload();
+						alert("Krok został dodany.");
+					}
+				},
+				function(response) { // Error
+					alert( response.status );
+					if (response.status == 400) {
+						$scope.notice.push = {
+							"content": "Błędne żądanie.",
+							"class": "alert-danger"
+						};
+					} else if (response.status == 403) {
+						$scope.notice.push = {
+							"content": "Nieprawidłowy lub wygasły token.",
+							"class": "alert-danger"
+						};
+					} else if (response.status == 409) {
+						$scope.notice.push = {
+							"content": "Operation cannot be performed (invalid operation). Step ID already exists or invalid previous steps or change to invalid type.",
+							"class": "alert-danger"
+						};
+					} else if (response.status == 500) {
+						$scope.notice.push = {
+							"content": "Błąd wewnętrzny serwera.",
+							"class": "alert-danger"
+						};
+					}
+
+					$scope.loadPage = false;
+				}
+			);
+		}
+		
+		$scope.deleteStep = function($event) {
+			$event.preventDefault();
+			step_id = $event.currentTarget.getAttribute("data-id");
+			$scope.notice = [];
+			
+			$http.delete(
+				"/service/flows/flow/" + $scope.id + "/step/" + step_id	
+			).then(
+				function(response) { // Success
+					if (response.status == 200) {
+						$route.reload();
+						alert("Krok został usunięty.");
+					}
+				},
+				function(response) { // Error
+					alert( response.status );
+					if (response.status == 400) {
+						$scope.notice.push = {
+							"content": "Błędne żądanie.",
+							"class": "alert-danger"
+						};
+					} else if (response.status == 403) {
+						$scope.notice.push = {
+							"content": "Nieprawidłowy lub wygasły token.",
+							"class": "alert-danger"
+						};
+					} else if (response.status == 409) {
+						$scope.notice.push = {
+							"content": "Operation cannot be performed (invalid operation). Step ID already exists or invalid previous steps or change to invalid type.",
+							"class": "alert-danger"
+						};
+					} else if (response.status == 500) {
+						$scope.notice.push = {
+							"content": "Błąd wewnętrzny serwera.",
+							"class": "alert-danger"
+						};
+					}
+
+					// $scope.loadPage = false;
+				}
+			);
+		}
+	}
 });
 
 /*
