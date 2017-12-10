@@ -1,0 +1,202 @@
+swagger: '2.0'
+info:
+  description: This is description of desktop API
+  version: '0.1'
+  title: desktop
+basePath: /
+tags: []
+schemes:
+  - http
+paths:
+  '/documents/{token}':
+    get:
+      tags:
+        - my documents
+      summary: Get list of user documents
+      description: Get list of user documents
+      operationId: documents
+      parameters:
+        - name: token
+          in: path
+          description: Token of user performing operation
+          required: true
+          type: string
+        - name: offset
+          in: query
+          description: Offset results by given number
+          required: false
+          type: integer
+        - name: limit
+          in: query
+          description: Limit number of results by given number
+          required: false
+          type: integer
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: object
+            properties:
+              total:
+                type: integer
+                description: Total number of results (before limit and offset)
+              result:
+                type: array
+                items:
+                  $ref: '#/definitions/DocumentData'
+        '400':
+          description: Invalid request
+        '403':
+          description: Invalid token or token expired
+        '500':
+          description: Internal server error
+  '/actions/{token}':
+    get:
+      tags:
+        - my actions
+      summary: Get list of user actions to perform
+      description: Get list of user actions to prerform
+      operationId: actions
+      parameters:
+        - name: token
+          in: path
+          description: Token of user performing operation
+          required: true
+          type: string
+        - name: offset
+          in: query
+          description: Offset results by given number
+          required: false
+          type: integer
+        - name: limit
+          in: query
+          description: Limit number of results by given number
+          required: false
+          type: integer
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: object
+            properties:
+              total:
+                type: integer
+                description: Total number of results (before limit and offset)
+              result:
+                type: array
+                items:
+                  $ref: '#/definitions/ActionData'
+        '400':
+          description: Invalid request
+        '403':
+          description: Invalid token or token expired
+        '500':
+          description: Internal server error
+  '/comments/{token}':
+    get:
+      tags:
+        - my comments
+      summary: Get list of comments
+      description: Get list of comments
+      operationId: comments
+      parameters:
+        - name: token
+          in: path
+          description: Token of user performing operation
+          required: true
+          type: string
+        - name: offset
+          in: query
+          description: Offset results by given number
+          required: false
+          type: integer
+        - name: limit
+          in: query
+          description: Limit number of results by given number
+          required: false
+          type: integer
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: object
+            properties:
+              total:
+                type: integer
+                description: Total number of results (before limit and offset)
+              result:
+                type: array
+                items:
+                  $ref: '#/definitions/CommentData'
+        '400':
+          description: Invalid request
+        '403':
+          description: Invalid token or token expired
+        '500':
+          description: Internal server error
+definitions:
+  DocumentData:
+    type: object
+    properties:
+      id:
+        type: string
+      title:
+        type: string
+      file_name:
+        type: string
+      create_date:
+        type: string
+        description: 'Timestamp in YYYY-MM-DD HH:MM:SS format'
+      description:
+        type: string
+      owner:
+        type: array
+        items:
+          type: string
+      metadata:
+        type: array
+        items:
+          $ref: '#/definitions/DocumentMetadata'
+      thumbnail:
+        type: string
+        description: Thumbnail encoded in base64
+  DocumentMetadata:
+    type: object
+    properties:
+      name:
+        type: string
+      value:
+        type: string
+  ActionData:
+    type: object
+    properties:
+      document:
+        type: string
+        description: Document ID
+      title:
+        type: string
+        description: Title of a document
+      flow:
+        type: string
+        description: Flow ID
+      name:
+        type: string
+        description: Flow name
+      step:
+        type: string
+        description: Step ID
+      type:
+        type: string
+        description: Action type
+  CommentData:
+    type: object
+    properties:
+      document:
+        type: string
+        description: Document ID
+      author:
+        type: string
+        description: Comment author
+      content:
+        type: string
+        description: Comment content

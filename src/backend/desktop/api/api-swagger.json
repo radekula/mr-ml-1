@@ -56,7 +56,7 @@
                 "result": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/definitions/DocumentsData"
+                    "$ref": "#/definitions/DocumentData"
                   }
                 }
               }
@@ -118,7 +118,7 @@
                 "result": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/definitions/ActionsData"
+                    "$ref": "#/definitions/ActionData"
                   }
                 }
               }
@@ -180,7 +180,7 @@
                 "result": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/definitions/CommentsData"
+                    "$ref": "#/definitions/CommentData"
                   }
                 }
               }
@@ -200,125 +200,97 @@
     }
   },
   "definitions": {
-    "VerifyData": {
+    "DocumentData": {
       "type": "object",
       "properties": {
-        "login": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "file_name": {
+          "type": "string"
+        },
+        "create_date": {
+          "type": "string",
+          "description": "Timestamp in YYYY-MM-DD HH:MM:SS format"
+        },
+        "description": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "metadata": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DocumentMetadata"
+          }
+        },
+        "thumbnail": {
+          "type": "string",
+          "description": "Thumbnail encoded in base64"
+        }
+      }
+    },
+    "DocumentMetadata": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "value": {
           "type": "string"
         }
       }
-    },    "BasicUserData": {
+    },
+    "ActionData": {
       "type": "object",
       "properties": {
+        "document": {
+          "type": "string",
+          "description": "Document ID"
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of a document"
+        },
+        "flow": {
+          "type": "string",
+          "description": "Flow ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "Flow name"
+        },
+        "step": {
+          "type": "string",
+          "description": "Step ID"
+        },
         "type": {
           "type": "string",
-          "enum": ["normal", "administrator", "system"]
-        },
-        "active": {
-          "type": "boolean"
-        },
-        "login": {
-          "type": "string"
-        },
-        "first_name": {
-          "type": "string"
-        },
-        "last_name": {
-          "type": "string"
-        },
-        "email": {
-          "type": "string"
-        },
-        "last_login": {
-          "type": "string",
-          "description": "Timestamp in YYYY-MM-DD HH:MM:SS format"
-        },
-        "last_active": {
-          "type": "string",
-          "description": "Timestamp in YYYY-MM-DD HH:MM:SS format"
-        },
-        "expiration_time": {
-          "type": "string",
-          "description": "Timestamp in YYYY-MM-DD HH:MM:SS format"
+          "description": "Action type"
         }
       }
     },
-    "NewUserData": {
+    "CommentData": {
       "type": "object",
       "properties": {
-        "type": {
+        "document": {
           "type": "string",
-          "enum": ["normal", "administrator", "system"]
+          "description": "Document ID"
         },
-        "active": {
-          "type": "boolean"
-        },
-        "login": {
-          "type": "string"
-        },
-        "first_name": {
-          "type": "string"
-        },
-        "last_name": {
-          "type": "string"
-        },
-        "email": {
-          "type": "string"
-        },
-        "password": {
-          "type": "string"
-        }
-      }
-    },
-    "UpdateUserData": {
-      "type": "object",
-      "properties": {
-        "type": {
+        "author": {
           "type": "string",
-          "enum": ["normal", "administrator", "system"]
+          "description": "Comment author"
         },
-        "active": {
-          "type": "boolean"
-        },
-        "first_name": {
-          "type": "string"
-        },
-        "last_name": {
-          "type": "string"
-        },
-        "email": {
-          "type": "string"
-        }
-      }
-    },
-    "LoginData": {
-      "type": "object",
-      "properties": {
-        "password": {
-          "type": "string"
-        }
-      }
-    },
-    "TokenData": {
-      "type": "object",
-      "properties": {
-        "token": {
-          "type": "string"
-        },
-        "expiration_time": {
+        "content": {
           "type": "string",
-          "description": "Timestamp in YYYY-MM-DD HH:MM:SS format"
-        }
-      }
-    },
-    "PasswordChangeData": {
-      "type": "object",
-      "properties": {
-        "old_password": {
-          "type": "string"
-        },
-        "new_password": {
-          "type": "string"
+          "description": "Comment content"
         }
       }
     }
