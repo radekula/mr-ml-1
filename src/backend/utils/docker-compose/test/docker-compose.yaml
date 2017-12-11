@@ -42,3 +42,11 @@ flows-documents-test:
         - "flows-test:flows"
     ports:
         - "9084:8080"
+desktop-test:
+    image: localhost:5000/desktop:latest
+    links:
+        - "users-test:users"
+        - "documents-test:documents"
+        - "flows-documents-test:flows-documents"
+    ports:
+        - "9085:8080"

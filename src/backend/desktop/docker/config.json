@@ -6,7 +6,6 @@
         "users": "http://users:8080",
         "groups": "http://groups:8080",
         "documents": "http://documents:8080",
-        "flows": "http://flows:8080",
         "flows-documents": "http://flows-documents:8080",
         "comments": "http://comments:8080"
     }

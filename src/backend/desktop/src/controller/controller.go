@@ -3,15 +3,12 @@ package controller
 
 import (
     "strings"
-    "strconv"
     "encoding/json"
     "net/http"
     "regexp"
-    "gopkg.in/mgo.v2"
-    "gopkg.in/mgo.v2/bson"
     "../model"
-    "../libs"
-    "../db"
+    "../remote"
+    "fmt"
 )
 
 
@@ -31,7 +28,7 @@ func About(w http.ResponseWriter, r *http.Request) {
 
 func Documents(w http.ResponseWriter, r *http.Request) {
     re, err := regexp.CompilePOSIX("documents/[^/]*$")
-/*
+
     if err != nil {
         w.WriteHeader(http.StatusInternalServerError)
         return
@@ -43,29 +40,21 @@ func Documents(w http.ResponseWriter, r *http.Request) {
         w.WriteHeader(http.StatusBadRequest)
         return
     }
-    
+
     request := strings.Split(r.URL.Path, "/")
     token := request[2]
-    
-    _, ret := getUserByToken(db.GetCollection(), token)
 
-    if ret != 0 {
-        switch ret {
-            case 1:
-                w.WriteHeader(http.StatusForbidden)
-                break
-            default:
-                w.WriteHeader(http.StatusInternalServerError)
-                break
-        }
+    user, ret := remote.VerifyToken(token)
+    if ret != 200 {
+        w.WriteHeader(http.StatusForbidden)
         return
     }
 
     switch r.Method {
         case "GET":
-            users, total := getUsers(db.GetCollection(), r.URL.Query(), token)
+            documents := remote.GetUserDocuments(user.Login, token, r.URL.Query())
 
-            if total < 0 {
+            if documents.Total < 0 {
                 switch ret {
                     default:
                         w.WriteHeader(http.StatusInternalServerError)
@@ -74,15 +63,7 @@ func Documents(w http.ResponseWriter, r *http.Request) {
                 return
             }
 
-            return_data := struct {
-                Total   int                   `json:"total"`
-                Result  []model.BasicUserData `json:"result"`
-            } {
-                total,
-                users,
-            }
-
-            json_message, err_json := json.Marshal(return_data)
+            json_message, err_json := json.Marshal(documents)
             if err_json != nil {
                 w.WriteHeader(http.StatusInternalServerError)
                 return
@@ -90,16 +71,17 @@ func Documents(w http.ResponseWriter, r *http.Request) {
             w.Write(json_message)
             break
         default:
+            fmt.Println("Bad request")
             w.WriteHeader(http.StatusBadRequest)
             return
-    }*/
+    }
 }
 
 
 
 func Actions(w http.ResponseWriter, r *http.Request) {
     re, err := regexp.CompilePOSIX("actions/[^/]*$")
-/*
+
     if err != nil {
         w.WriteHeader(http.StatusInternalServerError)
         return
@@ -111,29 +93,21 @@ func Actions(w http.ResponseWriter, r *http.Request) {
         w.WriteHeader(http.StatusBadRequest)
         return
     }
-    
+
     request := strings.Split(r.URL.Path, "/")
     token := request[2]
-    
-    _, ret := getUserByToken(db.GetCollection(), token)
 
-    if ret != 0 {
-        switch ret {
-            case 1:
-                w.WriteHeader(http.StatusForbidden)
-                break
-            default:
-                w.WriteHeader(http.StatusInternalServerError)
-                break
-        }
+    user, ret := remote.VerifyToken(token)
+    if ret != 200 {
+        w.WriteHeader(http.StatusForbidden)
         return
     }
 
     switch r.Method {
         case "GET":
-            users, total := getUsers(db.GetCollection(), r.URL.Query(), token)
+            actions := remote.GetUserActions(user.Login, token, r.URL.Query())
 
-            if total < 0 {
+            if actions.Total < 0 {
                 switch ret {
                     default:
                         w.WriteHeader(http.StatusInternalServerError)
@@ -142,15 +116,7 @@ func Actions(w http.ResponseWriter, r *http.Request) {
                 return
             }
 
-            return_data := struct {
-                Total   int                   `json:"total"`
-                Result  []model.BasicUserData `json:"result"`
-            } {
-                total,
-                users,
-            }
-
-            json_message, err_json := json.Marshal(return_data)
+            json_message, err_json := json.Marshal(actions)
             if err_json != nil {
                 w.WriteHeader(http.StatusInternalServerError)
                 return
@@ -158,15 +124,16 @@ func Actions(w http.ResponseWriter, r *http.Request) {
             w.Write(json_message)
             break
         default:
+            fmt.Println("Bad request")
             w.WriteHeader(http.StatusBadRequest)
             return
-    }*/
+    }
 }
 
 
 func Comments(w http.ResponseWriter, r *http.Request) {
-    re, err := regexp.CompilePOSIX("comments/[^/]*$")
-/*
+/*    re, err := regexp.CompilePOSIX("comments/[^/]*$")
+
     if err != nil {
         w.WriteHeader(http.StatusInternalServerError)
         return

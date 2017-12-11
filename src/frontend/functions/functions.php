@@ -130,6 +130,9 @@ function callService($data, $config) {
         case "flows-documents":
             return callFlowsDocuments($data, $config);
             break;
+        case "desktop":
+            return callDesktop($data, $config);
+            break;
         default:
             render404($data, $config);
             break;

@@ -3,7 +3,6 @@ package main
 import (
     "fmt"
     "net/http"
-    "./app_init"
     "./controller"
     "./config"
     "strconv"
@@ -12,7 +11,6 @@ import (
 
 func main() {
     conf := config.GetConfig()
-    app_init.Init()
 
     http.HandleFunc("/", controller.About)
     http.HandleFunc("/documents/", controller.Documents)
