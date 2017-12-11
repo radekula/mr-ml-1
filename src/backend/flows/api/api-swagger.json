@@ -745,10 +745,20 @@
       "type": "object",
       "properties": {
         "id": {
-          "type": "string"
+          "type": "string",
+          "description": "Step ID"
+        },
+        "type": {
+          "type": "string",
+          "description": "Step type / Action type"
         },
         "flow": {
-          "type": "string"
+          "type": "string",
+          "description": "Flow ID"
+        },
+        "flow_name": {
+          "type": "string",
+          "description": "Flow name"
         }
       }
     }

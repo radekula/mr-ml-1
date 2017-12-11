@@ -249,7 +249,7 @@
           {
             "name": "search",
             "in": "query",
-            "description": "Search documents with given string (in name)",
+            "description": "Search documents with given string (in name) or id",
             "required": false,
             "type": "string"
           }

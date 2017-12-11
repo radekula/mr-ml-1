@@ -305,7 +305,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/StatusData"
+                "$ref": "#/definitions/ActionData"
               }
             }
           },
@@ -392,6 +392,36 @@
         "date": {
           "type": "string",
           "description": "Date of action. Timestamp in YYYY-MM-DD HH:MM:SS format"
+        }
+      }
+    },
+    "ActionData": {
+      "type": "object",
+      "properties": {
+        "document": {
+          "type": "string",
+          "description": "Document ID"
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of a document"
+        },
+        "flow": {
+          "type": "string",
+          "description": "Flow ID"
+        },
+        "flow_name": {
+          "type": "string",
+          "description": "Flow name"
+        },
+        "step": {
+          "type": "string",
+          "description": "Step ID"
+        },
+        "type": {
+          "type": "string",
+          "description": "Action type - one of three available",
+          "enum": ["sign", "view", "accept"]
         }
       }
     }

@@ -95,3 +95,26 @@ func GetUsersForStep(flow string, step string, token string) ([]string, int) {
     
     return users, 200
 }
+
+
+func GetUsersSteps(login string, token string) ([]model.UserStepData, int) {
+    var remoteSteps []model.UserStepData
+
+    // search for step data
+    config := config.GetConfig()
+
+    url := config.Remotes.Flows + "/user/" + login + "/steps/" + token 
+
+    resp, err := http.Get(url)
+    if err != nil {
+        return remoteSteps, 500
+    }
+
+    if resp.StatusCode != 200 {
+        return remoteSteps, resp.StatusCode
+    }
+
+    json.NewDecoder(resp.Body).Decode(&remoteSteps)
+ 
+    return remoteSteps, 200
+}

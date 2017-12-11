@@ -55,6 +55,7 @@ func getDocuments(c *mgo.Collection, params map[string][]string) ([]model.Docume
 
     if value, ok := params["search"]; ok {
         find_by = bson.M{"$or":[]bson.M{
+                  bson.M{"id":value[0]},
                   bson.M{"title":bson.RegEx{".*" + value[0] + ".*", ""}},
                   bson.M{"file_name":bson.RegEx{".*" + value[0] + ".*", ""}}}}
     }

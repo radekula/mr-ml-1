@@ -263,7 +263,7 @@
           "type": "string",
           "description": "Flow ID"
         },
-        "name": {
+        "flow_name": {
           "type": "string",
           "description": "Flow name"
         },
@@ -273,7 +273,8 @@
         },
         "type": {
           "type": "string",
-          "description": "Action type"
+          "description": "Action type - one of three available",
+          "enum": ["sign", "view", "accept"]
         }
       }
     },

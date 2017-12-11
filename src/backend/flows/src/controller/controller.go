@@ -209,20 +209,22 @@ func getSteps(c *mgo.Collection, flow string) ([]model.StepData, int) {
 
 
 
-func getUserSteps(c *mgo.Collection, login string, token string) ([]model.UserStep, int) {
+func getUserSteps(c *mgo.Collection, login string, token string) ([]model.UserStepData, int) {
     var search_data []model.DBStepData
-    var steps []model.UserStep
+    var steps []model.UserStepData
+    var flow model.DBFlowData
 
-    var stepsMap map[string]model.UserStep
-    stepsMap = make(map[string]model.UserStep)
+    var stepsMap map[string]model.UserStepData
+    stepsMap = make(map[string]model.UserStepData)
 
     // find steps where user is directly assigned
     c.Find(bson.M{"participants": login}).All(&search_data)
 
     for _, s := range search_data {
-        var step model.UserStep
+        var step model.UserStepData
 
         step.Id           = s.Id
+        step.Type         = s.Type
         step.Flow         = s.Flow
 
         stepsMap[step.Id] = step
@@ -238,9 +240,10 @@ func getUserSteps(c *mgo.Collection, login string, token string) ([]model.UserSt
         c.Find(bson.M{"participants": group}).All(&search_data)
 
         for _, s := range search_data {
-            var step model.UserStep
+            var step model.UserStepData
 
             step.Id           = s.Id
+            step.Type         = s.Type
             step.Flow         = s.Flow
 
             stepsMap[step.Id] = step
@@ -248,9 +251,12 @@ func getUserSteps(c *mgo.Collection, login string, token string) ([]model.UserSt
     }
 
     // Convert map back to slice
-    for key, _ := range stepsMap {
-        steps = append(steps, stepsMap[key])
-        fmt.Println(steps)
+    for _, step := range stepsMap {
+        // fill flow name
+        db.GetCollection().Find(bson.M{"id": step.Flow}).One(&flow)
+        step.FlowName = flow.Name
+
+        steps = append(steps, step)
     }
 
     return steps, len(steps) 
@@ -945,15 +951,7 @@ func UserSteps(w http.ResponseWriter, r *http.Request) {
                 return
             }
 
-            return_data := struct {
-                Total   int                  `json:"total"`
-                Result  []model.UserStep     `json:"result"`
-            } {
-                total,
-                steps,
-            }
-
-            json_message, err_json := json.Marshal(return_data)
+            json_message, err_json := json.Marshal(steps)
             if err_json != nil {
                 w.WriteHeader(http.StatusInternalServerError)
                 return

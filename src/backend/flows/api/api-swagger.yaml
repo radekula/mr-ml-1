@@ -574,5 +574,13 @@ definitions:
     properties:
       id:
         type: string
+        description: Step ID
+      type:
+        type: string
+        description: Step type / Action type
       flow:
         type: string
+        description: Flow ID
+      flow_name:
+        type: string
+        description: Flow name

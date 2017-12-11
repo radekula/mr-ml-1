@@ -17,6 +17,7 @@ func main() {
     http.HandleFunc("/status/", controller.Status)
     http.HandleFunc("/action/", controller.Action)
     http.HandleFunc("/force/", controller.Force)
+    http.HandleFunc("/user/", controller.UserActions)
 
     fmt.Println("Running server on port: " + strconv.Itoa(conf.Service.Port))
     http.ListenAndServe(":" + strconv.Itoa(conf.Service.Port), nil)

@@ -17,22 +17,21 @@ import (
 )
 
 
-func getActionFromStep(step model.StepData) (string) {
-    if step.Type == "accept_single" || step.Type == "accept_all" {
+func getActionFromStep(stepType string) (string) {
+    if stepType == "accept_single" || stepType == "accept_all" {
         return "accept"
     }
 
-    if step.Type == "view_single" || step.Type == "view_all" {
+    if stepType == "view_single" || stepType == "view_all" {
         return "view"
     }
 
-    if step.Type == "sign_single" || step.Type == "sign_all" {
+    if stepType == "sign_single" || stepType == "sign_all" {
         return "sign"
     }
 
     return "invalid_action"
 }
-
 
 
 func getStartStep(steps []model.StepData) (model.StepData, int) {
@@ -345,7 +344,7 @@ func actionPerform(c *mgo.Collection, document string, step string, user model.U
     var act model.DBHistoryAction
 
     act.Login  = user.Login
-    act.Action = getActionFromStep(flowStep)
+    act.Action = getActionFromStep(flowStep.Type)
     act.Date   = libs.CurrentTime()
 
     stepHistory.Actions = append(stepHistory.Actions, act)
@@ -474,6 +473,51 @@ func actionDelete(c *mgo.Collection, document string, step string, user model.Us
 func documentForce(c *mgo.Collection, document string, step string, user model.UserData) (int) {
 // TODO
     return 0
+}
+
+
+
+func getUserActions(c *mgo.Collection, login string, token string) ([]model.UserAction, int) {
+    var actions []model.UserAction
+
+    // get steps from flows definitions where user is assigned
+    steps, ret := remote.GetUsersSteps(login, token)
+    if ret != 200 {
+        return actions, -1
+    }
+
+    // for each step search document where current step is the same
+    for _, step := range steps {
+        var statusData model.DBStatusData
+        var action model.UserAction
+
+        // search if there is any document flow with this step as current
+        count, _ := c.Find(bson.M{"current_step": step.Id}).Count()
+        if count == 0 {
+            continue
+        }
+
+        c.Find(bson.M{"current_step": step.Id}).One(&statusData)
+
+        action.Document = statusData.Document
+        action.Flow = statusData.Flow
+        action.FlowName = step.FlowName
+        action.Step = step.Id
+        action.Type = getActionFromStep(step.Type)
+        
+        actions = append(actions, action)
+    }
+
+    // fill documents titles
+    for key, _ := range actions {
+        document, err := remote.GetDocumentInfo(actions[key].Document, token)
+        if err != 200 {
+            continue
+        }
+        actions[key].Title = document.Title
+    }
+
+    return actions, len(actions)
 }
 
 
@@ -763,6 +807,66 @@ func Force(w http.ResponseWriter, r *http.Request) {
                         break
                 }
             }
+            break
+        default:
+            fmt.Println("Bad request")
+            w.WriteHeader(http.StatusBadRequest)
+            break
+    }
+    return
+}
+
+
+
+func UserActions(w http.ResponseWriter, r *http.Request) {
+    re, err := regexp.CompilePOSIX("user/[^/]+/current_actions/[^/]+$")
+
+    if err != nil {
+        w.WriteHeader(http.StatusInternalServerError)
+        return
+    }
+
+    valid_request := re.FindString(r.URL.Path[1:])
+
+    if valid_request == "" {
+        w.WriteHeader(http.StatusBadRequest)
+        return
+    }
+
+    request := strings.Split(r.URL.Path, "/")
+    login   := request[2]
+    token   := request[4]
+
+    _, ret := remote.VerifyToken(token)
+    if ret != 200 {
+        w.WriteHeader(http.StatusForbidden)
+        return
+    }
+
+    switch r.Method {
+        case "GET":
+            actions, total := getUserActions(db.GetCollection(), login, token)
+
+            if total < 0 {
+                w.WriteHeader(http.StatusInternalServerError)
+                return
+            }
+
+            return_data := struct {
+                Total   int                  `json:"total"`
+                Result  []model.UserAction   `json:"result"`
+            } {
+                total,
+                actions,
+            }
+
+            json_message, err_json := json.Marshal(return_data)
+            if err_json != nil {
+                w.WriteHeader(http.StatusInternalServerError)
+                return
+            }
+
+            w.Write(json_message)
             break
         default:
             fmt.Println("Bad request")
