@@ -2,6 +2,8 @@ mongo-test:
     image: mongo
     volumes:
         - "/var/db-test:/data/db"
+    ports:
+        - "37017:27017"
 users-test:
     image: localhost:5000/users:latest
     links:
@@ -27,6 +29,7 @@ flows-test:
     links:
         - "mongo-test:flows-database-mongo"
         - "users-test:users"
+        - "groups-test:groups"
     ports:
         - "9083:8080"
 flows-documents-test:

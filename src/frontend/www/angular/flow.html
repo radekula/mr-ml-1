@@ -7,96 +7,79 @@
 	<article class="article">
 		<div class="breadcrumb">
 			<header class="breadcrumb-header">
-				<h1 class="breadcrumb-title">Przepływ</h1>
+				<h1 class="breadcrumb-title">{{data.name}}</h1>
 			</header><!-- .breadcrumb-header -->
 			<span class="breadcrumb-item">
 				<a class="breadcrumb-link" href="/#!/">Home</a>
 			</span><!-- .breadcrumb-item -->
+			<span class="breadcrumb-item">
+				<a class="breadcrumb-link" href="/#!flows">Przepływy</a>
+			</span><!-- .breadcrumb-item -->
 			<span class="breadcrumb-item breadcrumb-current">Przepływ</span>
 		</div><!-- .breadcrumb -->
-		<div class="content">
+		<div class="content" ng-controller="FlowController">
 			<form class="upload-form" name="uploadForm">
-				<label class="upload-label" for="title1">
-					<span class="upload-label-title upload-label-required">Param1:</span>
-					<input id="title1" class="input upload-input" type="text" autocomplete="off" required>
+				<label class="upload-label" for="js-flow-name">
+					<span class="upload-label-title upload-label-required">Nazwa:</span>
+					<input id="js-flow-name" class="input upload-input" type="text" value="{{data.name}}" autocomplete="off" required>
 				</label><!-- .upload-label -->
-				<label class="upload-label" for="title2">
-					<span class="upload-label-title upload-label-required">Param2:</span>
-					<input id="title2" class="input upload-input" type="text" autocomplete="off" required>
-				</label><!-- .upload-label -->
-				<label class="upload-label" for="title3">
-					<span class="upload-label-title upload-label-required">Param3:</span>
-					<input id="title3" class="input upload-input" type="text" autocomplete="off" required>
+				<label class="upload-label" for="js-flow-description">
+					<span class="upload-label-title">Opis:</span>
+					<textarea id="js-flow-description" class="input upload-input upload-textarea" autocomplete="off">{{data.description}}</textarea>
 				</label><!-- .upload-label -->
 				<p class="alert {{item.class}}" ng-repeat="item in notice">{{item.content}}</p>
 				<div class="container-button">
-					<button class="button" type="submit" ng-click="saveDocument($event)">Zapisz</button>
+					<button class="button" type="submit" ng-click="updateFlow($event)">Zapisz</button>
 					<div class="load" ng-show="loadPage"></div>
 				</div><!-- .container-button -->
 			</form><!-- .upload-form -->
-			
-			<div id="dialog" title="Dodaj krok">
+			<form id="dialog" class="dialog" title="Dodaj krok">
 				<input class="input upload-input" type="text" placeholder="Nazwa kroku">
-				<input class="input upload-input" type="text" placeholder="Login lub grupa">
-				<button class="button" type="submit" ng-click="saveDocument($event)">Zapisz</button>
-			</div>
+				<input id="js-step-participants" class="input upload-input" type="text" placeholder="Uczestnicy">
+				<textarea id="js-step-description" class="input upload-input upload-textarea" placeholder="Opis"></textarea>
+				<button class="button" type="button" ng-click="addStep($event)">Zapisz</button>
+			</form>
+			<form id="dialog-edit" class="dialog" title="Edytuj krok">
+				<input id="js-step-type" class="input upload-input" type="text" placeholder="Nazwa">
+				<input id="js-step-participants" class="input upload-input" type="text" placeholder="Uczestnicy">
+				<textarea id="js-step-description" class="input upload-input upload-textarea" placeholder="Opis"></textarea>
+				<button class="button" type="button" ng-click="updateStep($event)">Zapisz</button>
+			</form>
 			<script>
 				jQuery( document ).ready( function() {
-					$( "#dialog" ).dialog( {
-						height: 280,
+					dialog = $( "#dialog" ).dialog( {
+						autoOpen: false,
+						height: 472,
 						width: 500
 					} );
+					
+					$( "#create-step" ).button().on( "click", function() {
+						dialog.dialog( "open" );
+					});
 				} );
+					
 			</script>
 			<section class="steps">
-				<section class="steps-step">
-					<header class="steps-header">
-						<h3 class="steps-title">Krok 1</h3>
-					</header>
-					<nav class="steps-nav">
-						<a class="steps-link">
-							<i class="icon">&#xe80c;</i>
-						</a>
-						<a class="steps-link">
-							<i class="icon">&#xe802;</i>
-						</a>
-					</nav>
-				</section>
-				<button class="steps-add" type="button">
+				<button id="create-step" class="steps-add" type="button">
 					<i class="icon">&#xe810;</i>
 				</button>
-				<section class="steps-step">
-					<header class="steps-header">
-						<h3 class="steps-title">Krok 2</h3>
-					</header>
-					<nav class="steps-nav">
-						<a class="steps-link">
-							<i class="icon">&#xe80c;</i>
-						</a>
-						<a class="steps-link">
-							<i class="icon">&#xe802;</i>
-						</a>
-					</nav>
-				</section>
-				<button class="steps-add" type="button">
-					<i class="icon">&#xe810;</i>
-				</button>
-				<section class="steps-step">
-					<header class="steps-header">
-						<h3 class="steps-title">Krok 3</h3>
-					</header>
-					<nav class="steps-nav">
-						<a class="steps-link">
-							<i class="icon">&#xe80c;</i>
-						</a>
-						<a class="steps-link">
-							<i class="icon">&#xe802;</i>
-						</a>
-					</nav>
-				</section>
-				<button class="steps-add" type="button">
-					<i class="icon">&#xe810;</i>
-				</button>
+				<div id="sortable">
+					<section class="steps-step" ng-repeat="(key, value) in steps">
+						<div class="steps-inner" data-type="{{value.type}}" data-id="{{value.id}}">
+							<header class="steps-header">
+								<h3 class="steps-title">{{value.type}}</h3>
+							</header>
+							<nav class="steps-nav">
+								<a class="steps-link edit-step" data-id="{{value.id}}">
+									<i class="icon">&#xe80c;</i>
+								</a>
+								<a class="steps-link" ng-click="deleteStep($event)" data-id="{{value.id}}">
+									<i class="icon">&#xe802;</i>
+								</a>
+							</nav>
+						</div>
+					</section>
+				</div>
 			</section>
 		</div><!-- .content -->
 	</article><!-- .article -->

@@ -20,6 +20,7 @@
 		4.6 - 404 Page
 		4.7 - Desktop Page
 		4.8 - Flow Page
+		4.9 - Action Page
 */
 
 
@@ -795,6 +796,37 @@ ul {
 .documents-form>* {
     margin: 0 .9375em 0 0;
 }
+.documents-form>.button {
+	display: -webkit-box !important;
+	display: -webkit-flex !important;
+	display: -moz-box !important;
+	display: -ms-flexbox !important;
+	display: flex !important;
+	-webkit-box-align: center !important;
+	-webkit-align-items: center !important;
+	   -moz-box-align: center !important;
+	    -ms-flex-align: center !important;
+	        align-items: center !important;
+	text-decoration: none !important;
+}
+
+.documents-form>.button {
+    padding: 0 2.875em !important;
+    height: 2.8125em !important;
+    color: #fafafa !important;
+    background: #323945 !important;
+    font: 300 16px/normal Roboto, sans-serif !important;
+    border: none !important;
+    cursor: pointer !important;
+    -webkit-transition: background-color .3s !important;
+    -o-transition: background-color .3s !important;
+    -moz-transition: background-color .3s !important;
+    transition: background-color .3s !important;
+    -webkit-border-radius: 0 !important;
+       -moz-border-radius: 0 !important;
+            border-radius: 0 !important;
+}
+
 .documents-form>.load {
     margin: .40625em 0 0 .625em !important;
 }
@@ -1696,6 +1728,12 @@ ul {
 }
 
 .steps-step {
+	margin: 0 0 15px;
+	padding: 20px 50px;
+	background-color: #fff;
+}
+
+.steps-inner {
 	display: -webkit-box;
 	display: -webkit-flex;
 	display: -moz-box;
@@ -1706,9 +1744,6 @@ ul {
 	   -moz-box-align: center;
 	    -ms-flex-align: center;
 	        align-items: center;
-	margin: 0 0 15px;
-	padding: 20px 50px;
-	background-color: #fff;
 }
 
 .steps-header {
@@ -1759,18 +1794,18 @@ ul {
 }
 
 .steps-add {
-	display: table;
-	margin: 0 auto 15px;
-	padding: 0;
-	font-size: 35px;
-	background: none;
-	border: none;
-	cursor: pointer;
-	color: #e8ebf1;
-	-webkit-transition: .3s opacity;
-	-o-transition: .3s opacity;
-	-moz-transition: .3s opacity;
-	transition: .3s opacity;
+	display: table !important;
+	margin: 0 auto 15px !important;
+	padding: 0 !important;
+	font-size: 35px !important;
+	background: none !important;
+	border: none !important;
+	cursor: pointer !important;
+	color: #e8ebf1 !important;
+	-webkit-transition: .3s opacity !important;
+	-o-transition: .3s opacity !important;
+	-moz-transition: .3s opacity !important;
+	transition: .3s opacity !important;
 }
 
 .steps-add:hover {
@@ -1783,11 +1818,12 @@ ul {
 	color: green;
 }
 
-#dialog {
-	padding: 20px;
+.dialog {
+	padding: 20px !important;
 }
 
-#dialog > input {
+.dialog > input,
+.dialog > textarea {
 	margin: 0 0 25px;
 }
 
@@ -1797,5 +1833,98 @@ ul {
 
 .ui-dialog .ui-dialog-title {
 	font-weight: 300;
+	font-size: 22px;
+}
+
+
+/*
+**
+** 4.9 - Action Page
+**
+*/
+
+.action {
+	padding: 2.4375em 1.8125em;
+}
+
+.action .button {
+	display: -webkit-box;
+	display: -webkit-flex;
+	display: -moz-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-pack: center;
+	-webkit-justify-content: center;
+	   -moz-box-pack: center;
+	    -ms-flex-pack: center;
+	        justify-content: center;
+	-webkit-box-align: center;
+	-webkit-align-items: center;
+	   -moz-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+	text-decoration: none;
+}
+
+.action-header {
+	font-weight: 300;
+	font-size: 22px;
+	margin: 0 0 52px;
+}
+
+.action-title,
+.action-type {
+	margin: 0;
+	font: inherit;
+	color: #252a34;
+}
+
+.action-title {
+	margin: 0 0 26px;
+}
+
+.action-type {
+	font-size: 20px;
+}
+
+.action-nav {
+	display: -webkit-box;
+	display: -webkit-flex;
+	display: -moz-box;
+	display: -ms-flexbox;
+	display: flex;
+}
+
+.action-reaction {
+	margin-left: 150px;
+	display: -webkit-box;
+	display: -webkit-flex;
+	display: -moz-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	-webkit-flex-direction: column;
+	   -moz-box-orient: vertical;
+	   -moz-box-direction: normal;
+	    -ms-flex-direction: column;
+	        flex-direction: column;
+}
+
+.action-reaction > .button {
+	margin-bottom: 20px;
+	-webkit-box-pack: start;
+	-webkit-justify-content: flex-start;
+	   -moz-box-pack: start;
+	    -ms-flex-pack: start;
+	        justify-content: flex-start;
+}
+
+.action-reaction > .button:last-of-type {
+	margin-bottom: 0;
+}
+
+.action-reaction .icon {
+	margin-right: 20px;
 	font-size: 22px;
 }
