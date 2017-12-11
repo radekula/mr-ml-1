@@ -29,6 +29,7 @@ flows-test:
     links:
         - "mongo-test:flows-database-mongo"
         - "users-test:users"
+        - "groups-test:groups"
     ports:
         - "9083:8080"
 flows-documents-test:
