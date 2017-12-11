@@ -3,7 +3,7 @@ mongo-test:
     volumes:
         - "/var/db-test:/data/db"
     ports:
-        - "9089:27017"
+        - "37017:27017"
 users-test:
     image: localhost:5000/users:latest
     links:
