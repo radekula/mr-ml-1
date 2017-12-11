@@ -13,7 +13,7 @@ import (
     "../model"
     "../remote"
     "../db"
-//    "fmt"
+    "fmt"
 )
 
 
@@ -122,7 +122,6 @@ func getUserDocuments(c *mgo.Collection, login string, params map[string][]strin
     }
 
     find_by = bson.M{"owner": login}
-
     total, _ := c.Find(find_by).Count()
 
     if limit < 0 {
@@ -460,7 +459,7 @@ func UserDocuments(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    if remote.CheckUserExists(login, token) {
+    if !remote.CheckUserExists(login, token) {
         w.WriteHeader(http.StatusNotFound)
         return
     }
@@ -495,6 +494,7 @@ func UserDocuments(w http.ResponseWriter, r *http.Request) {
             w.WriteHeader(http.StatusBadRequest)
             break
         default:
+            fmt.Println("Bad request")
             w.WriteHeader(http.StatusBadRequest)
             return
     }
