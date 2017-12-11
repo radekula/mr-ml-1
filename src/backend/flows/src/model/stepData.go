@@ -12,3 +12,9 @@ type StepData struct {
 type StepId struct {
     Id string               `json:"id"`
 }
+
+
+type UserStep struct {
+    Id string               `json:"id"`
+    Flow string             `json:"id"`
+}

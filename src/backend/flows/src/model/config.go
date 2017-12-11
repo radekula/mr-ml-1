@@ -13,6 +13,7 @@ type ConfigDatabase struct {
 
 type ConfigRemotes struct {
     Users string                 `json:"users"`
+    Groups string                `json:"groups"`
 }
 
 type Config struct {

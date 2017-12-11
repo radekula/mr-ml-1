@@ -13,7 +13,7 @@ var once sync.Once
 func GetConfig() *model.Config {
     once.Do(func() {
         instance = &model.Config{}
-        
+
         raw, err := ioutil.ReadFile("/config.json")
         if err != nil {
             panic(err)

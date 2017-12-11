@@ -383,6 +383,39 @@ paths:
           description: Operation cannot be performed (invalid operation)
         '500':
           description: Internal server error
+  '/user/{login}/steps/{token}':
+    get:
+      tags:
+        - user steps
+      summary: Get user steps
+      description: Return steps where user is assigned
+      operationId: userStepsGet
+      produces:
+        - application/json
+      parameters:
+        - name: login
+          in: path
+          description: User login
+          required: true
+          type: string
+        - name: token
+          in: path
+          description: Token of user performing operation
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/UserStep'
+        '403':
+          description: Your not allowed to get steps data or your token expired
+        '404':
+          description: User not found
+        '500':
+          description: Internal server error
 definitions:
   FlowData:
     type: object
@@ -535,4 +568,11 @@ definitions:
     type: object
     properties:
       id:
+        type: string
+  UserStep:
+    type: object
+    properties:
+      id:
+        type: string
+      flow:
         type: string

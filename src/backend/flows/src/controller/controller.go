@@ -45,9 +45,9 @@ func getFlows(c *mgo.Collection, params map[string][]string) ([]model.FlowData, 
     if value, ok := params["search"]; ok {
         find_by = bson.M{"name":bson.RegEx{".*" + value[0] + ".*", ""}}
     }
-    
+
     total, _ := c.Find(find_by).Count()
-    
+
     if limit < 0 {
         limit = total
     }
@@ -109,7 +109,7 @@ func createFlow(c *mgo.Collection, id string, data model.FlowData) (int) {
     }
 
     var add_data model.DBFlowData
-    
+
     add_data.Id          = id
     add_data.Name        = data.Name
     add_data.Active      = data.Active
@@ -141,7 +141,7 @@ func createFlow(c *mgo.Collection, id string, data model.FlowData) (int) {
 
 func updateFlow(c *mgo.Collection, id string, data model.FlowData) (int) {
     org_data, err := getFlow(c, id)
-    
+
     if err != 0 {
         return 1
     }
@@ -174,7 +174,7 @@ func updateFlow(c *mgo.Collection, id string, data model.FlowData) (int) {
 
 func deleteFlow(c *mgo.Collection, id string) (int) {
     _, err := getFlow(c, id)
-    
+
     if err != 0 {
         return 1
     }
@@ -202,6 +202,54 @@ func getSteps(c *mgo.Collection, flow string) ([]model.StepData, int) {
         step.Description  = s.Description
 
         steps = append(steps, step)
+    }
+
+    return steps, 0 
+}
+
+
+
+func getUserSteps(c *mgo.Collection, login string, token string) ([]model.UserStep, int) {
+    var search_data []model.DBStepData
+    var steps []model.UserStep
+
+    var stepsMap map[string]model.UserStep
+    stepsMap = make(map[string]model.UserStep)
+
+    // find steps where user is directly assigned
+    c.Find(bson.M{"participants": login}).All(&search_data)
+
+    for _, s := range search_data {
+        var step model.UserStep
+
+        step.Id           = s.Id
+        step.Flow         = s.Flow
+
+        stepsMap[step.Id] = step
+    }
+
+    // find steps where user is assigned as group member
+    groups, err := remote.GetUserGroups(login, token)
+    if err != 200 {
+        return steps, -1
+    }
+
+    for _, group := range groups {
+        c.Find(bson.M{"participants": group}).All(&search_data)
+
+        for _, s := range search_data {
+            var step model.UserStep
+
+            step.Id           = s.Id
+            step.Flow         = s.Flow
+
+            stepsMap[step.Id] = step
+        }
+    }
+
+    // Convert map back to slice
+    for key, _ := range stepsMap {
+       steps = append(steps, stepsMap[key])
     }
 
     return steps, 0 
@@ -268,7 +316,7 @@ func createStep(c *mgo.Collection, flow string, id string, data model.StepData, 
         add_data.Prev         = data.Prev
         add_data.Participants = data.Participants
         add_data.Description  = data.Description
-        
+
         c.Insert(&add_data)
 
         // with split we always add archive step
@@ -278,7 +326,7 @@ func createStep(c *mgo.Collection, flow string, id string, data model.StepData, 
         archive.Flow         = flow
         archive.Type         = "archive"
         archive.Prev         = append(archive.Prev, add_data.Id)
-        
+
         c.Insert(&archive)
     } else {
         // we need to get all steps that points to same previous steps
@@ -292,7 +340,7 @@ func createStep(c *mgo.Collection, flow string, id string, data model.StepData, 
             if err != nil {
                 return -1
             }
-    
+
             for _, s := range search_data {
                 next_steps = append(next_steps, s)
             }
@@ -307,7 +355,7 @@ func createStep(c *mgo.Collection, flow string, id string, data model.StepData, 
         add_data.Prev         = data.Prev
         add_data.Participants = data.Participants
         add_data.Description  = data.Description
-        
+
         c.Insert(&add_data)
 
         // we update next steps with new previous step
@@ -321,14 +369,14 @@ func createStep(c *mgo.Collection, flow string, id string, data model.StepData, 
 
             c.Find(bson.M{"id": next_step.Id, "flow": flow}).Apply(change, &next_step)
         }
-        
+
         // we clean if there are more than one archive steps
         var search_data []model.DBStepData
         err := c.Find(bson.M{"flow": flow, "type": "archive", "prev": bson.M{"$in": []string{add_data.Id}}}).All(&search_data)
         if err != nil {
             return -1
         }
-        
+
         for idx, archive_step := range search_data {
             // one must always be there
             if idx == 0 {
@@ -398,11 +446,11 @@ func updateStep(c *mgo.Collection, flow string, id string, data model.StepData) 
     } else {
         // prev changed so we need to delete step and add again in different place
         ret := deleteStep(c, flow, id)
-        
+
         if ret != 0 {
             return ret
         }
-        
+
         ret2 := createStep(c, flow, id, data, false)
         if ret2 != 0 {
             return ret2
@@ -490,7 +538,7 @@ func flowHandler(w http.ResponseWriter, r *http.Request) {
             break
         case "POST":
             var data model.FlowData
-            
+
             err := json.NewDecoder(r.Body).Decode(&data)
             if err != nil {
                 w.WriteHeader(http.StatusBadRequest)
@@ -515,7 +563,7 @@ func flowHandler(w http.ResponseWriter, r *http.Request) {
             break
         case "PUT":
             var data model.FlowData
-            
+
             err := json.NewDecoder(r.Body).Decode(&data)
             if err != nil {
                 w.WriteHeader(http.StatusBadRequest)
@@ -601,7 +649,7 @@ func stepHandler(w http.ResponseWriter, r *http.Request) {
             break
         case "POST":
             var data model.StepData
-            
+
             err := json.NewDecoder(r.Body).Decode(&data)
             if err != nil {
                 w.WriteHeader(http.StatusBadRequest)
@@ -857,5 +905,64 @@ func Flow(w http.ResponseWriter, r *http.Request) {
         stepsHandler(w, r);
     }
 
+    return
+}
+
+
+
+func UserSteps(w http.ResponseWriter, r *http.Request) {
+    re, err := regexp.CompilePOSIX("user/[^/]*/steps/[^/]*$")
+
+    if err != nil {
+        w.WriteHeader(http.StatusInternalServerError)
+        return
+    }
+
+    valid_request := re.FindString(r.URL.Path[1:])
+
+    if valid_request == "" {
+        w.WriteHeader(http.StatusBadRequest)
+        return
+    }
+
+    request := strings.Split(r.URL.Path, "/")
+    login   := request[2]
+    token   := request[4]
+
+    _, ret := remote.VerifyToken(token)
+    if ret != 200 {
+        w.WriteHeader(http.StatusForbidden)
+        return
+    }
+
+    switch r.Method {
+        case "GET":
+            steps, total := getUserSteps(db.GetCollection(), login, token)
+
+            if total < 0 {
+                w.WriteHeader(http.StatusInternalServerError)
+                return
+            }
+
+            return_data := struct {
+                Total   int                  `json:"total"`
+                Result  []model.UserStep     `json:"result"`
+            } {
+                total,
+                steps,
+            }
+
+            json_message, err_json := json.Marshal(return_data)
+            if err_json != nil {
+                w.WriteHeader(http.StatusInternalServerError)
+                return
+            }
+
+            w.Write(json_message)
+            break
+        default:
+            w.WriteHeader(http.StatusBadRequest)
+            break
+    }
     return
 }
