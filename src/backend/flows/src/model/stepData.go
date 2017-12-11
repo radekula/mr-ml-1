@@ -16,5 +16,5 @@ type StepId struct {
 
 type UserStep struct {
     Id string               `json:"id"`
-    Flow string             `json:"id"`
+    Flow string             `json:"flow"`
 }

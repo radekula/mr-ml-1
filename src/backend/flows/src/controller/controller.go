@@ -13,7 +13,7 @@ import (
     "../model"
     "../remote"
     "../db"
-//    "fmt"
+    "fmt"
 )
 
 
@@ -249,10 +249,11 @@ func getUserSteps(c *mgo.Collection, login string, token string) ([]model.UserSt
 
     // Convert map back to slice
     for key, _ := range stepsMap {
-       steps = append(steps, stepsMap[key])
+        steps = append(steps, stepsMap[key])
+        fmt.Println(steps)
     }
 
-    return steps, 0 
+    return steps, len(steps) 
 }
 
 
@@ -937,7 +938,7 @@ func UserSteps(w http.ResponseWriter, r *http.Request) {
 
     switch r.Method {
         case "GET":
-            steps, total := getUserSteps(db.GetCollection(), login, token)
+            steps, total := getUserSteps(db.GetCollectionSteps(), login, token)
 
             if total < 0 {
                 w.WriteHeader(http.StatusInternalServerError)
@@ -961,6 +962,7 @@ func UserSteps(w http.ResponseWriter, r *http.Request) {
             w.Write(json_message)
             break
         default:
+            fmt.Println("Bad request")
             w.WriteHeader(http.StatusBadRequest)
             break
     }
