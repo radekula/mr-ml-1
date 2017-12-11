@@ -31,12 +31,12 @@ func getDocuments(c *mgo.Collection, params map[string][]string) ([]model.Docume
             "owner":1,
             "metadata":1,
             "thumbnail":1}
-    
+
     find_by := bson.M{}
     sort_by := "file_name"
     limit := -1
     offset := 0
-    
+
     if value, ok := params["limit"]; ok {
         m_limit, err := strconv.Atoi(value[0])
         if (err != nil ) {
@@ -55,12 +55,12 @@ func getDocuments(c *mgo.Collection, params map[string][]string) ([]model.Docume
 
     if value, ok := params["search"]; ok {
         find_by = bson.M{"$or":[]bson.M{
-                bson.M{"title":bson.RegEx{".*" + value[0] + ".*", ""}},
-                bson.M{"file_name":bson.RegEx{".*" + value[0] + ".*", ""}}}}
+                  bson.M{"title":bson.RegEx{".*" + value[0] + ".*", ""}},
+                  bson.M{"file_name":bson.RegEx{".*" + value[0] + ".*", ""}}}}
     }
-    
+
     total, _ := c.Find(find_by).Count()
-    
+
     if limit < 0 {
         limit = total
     }
@@ -69,7 +69,71 @@ func getDocuments(c *mgo.Collection, params map[string][]string) ([]model.Docume
 
     for _, d := range search_data {
         var doc model.DocumentLite
-        
+
+        doc.Id          = d.Id
+        doc.Title       = d.Title
+        doc.FileName    = d.FileName
+        doc.CreateDate  = d.CreateDate
+        doc.Description = d.Description
+        doc.Owner       = d.Owner
+        doc.Metadata    = d.Metadata
+
+        documents = append(documents, doc)
+    }
+
+    return documents, total
+}
+
+
+
+func getUserDocuments(c *mgo.Collection, login string, params map[string][]string) ([]model.DocumentLite, int) {
+    var search_data []model.DBDocument
+    var documents []model.DocumentLite
+
+    select_fields := bson.M{
+            "id":1, 
+            "title":1, 
+            "file_name":1, 
+            "create_date":1, 
+            "description":1,
+            "owner":1,
+            "metadata":1,
+            "thumbnail":1}
+
+    find_by := bson.M{}
+    sort_by := "file_name"
+    limit := -1
+    offset := 0
+
+    if value, ok := params["limit"]; ok {
+        m_limit, err := strconv.Atoi(value[0])
+        if (err != nil ) {
+            return documents, -1
+        }
+        limit = m_limit
+    }
+
+    if value, ok := params["offset"]; ok {
+        m_offset, err := strconv.Atoi(value[0])
+        if (err != nil ) {
+            return documents, -1
+        }
+        offset = m_offset
+    }
+
+    find_by = bson.M{"owner": login}
+
+    total, _ := c.Find(find_by).Count()
+
+    if limit < 0 {
+        limit = total
+    }
+
+    c.Find(find_by).Select(select_fields).Sort(sort_by).Skip(offset).Limit(limit).All(&search_data)
+
+    for _, d := range search_data {
+        var doc model.DocumentLite
+
         doc.Id          = d.Id
         doc.Title       = d.Title
         doc.FileName    = d.FileName
@@ -83,6 +147,7 @@ func getDocuments(c *mgo.Collection, params map[string][]string) ([]model.Docume
     
     return documents, total
 }
+
 
 
 func getDocument(c *mgo.Collection, id string) (model.Document, int) {
@@ -369,3 +434,68 @@ func Documents(w http.ResponseWriter, r *http.Request) {
     }
 }
 
+
+func UserDocuments(w http.ResponseWriter, r *http.Request) {
+    re, err := regexp.CompilePOSIX("user/[^/]+/documents/[^/]+$")
+
+    if err != nil {
+        w.WriteHeader(http.StatusInternalServerError)
+        return
+    }
+
+    valid_request := re.FindString(r.URL.Path[1:])
+
+    if valid_request == "" {
+        w.WriteHeader(http.StatusBadRequest)
+        return
+    }
+
+    request := strings.Split(r.URL.Path, "/")
+    login   := request[2]
+    token   := request[4]
+
+    _, ret := remote.VerifyToken(token)
+    if ret != 200 {
+        w.WriteHeader(http.StatusForbidden)
+        return
+    }
+
+    if remote.CheckUserExists(login, token) {
+        w.WriteHeader(http.StatusNotFound)
+        return
+    }
+
+    switch r.Method {
+        case "GET":
+            documents, total := getUserDocuments(db.GetCollection(), login, r.URL.Query())
+
+            if total < 0 {
+                w.WriteHeader(http.StatusInternalServerError)
+                return
+            }
+
+            return_data := struct {
+                Total   int                  `json:"total"`
+                Result  []model.DocumentLite `json:"result"`
+            } {
+                total,
+                documents,
+            }
+
+            json_message, err_json := json.Marshal(return_data)
+            if err_json != nil {
+                w.WriteHeader(http.StatusInternalServerError)
+                return
+            }
+
+            w.Write(json_message)
+            break
+        case "POST":
+            // Search documents.
+            w.WriteHeader(http.StatusBadRequest)
+            break
+        default:
+            w.WriteHeader(http.StatusBadRequest)
+            return
+    }
+}
