@@ -415,13 +415,21 @@ ul {
     top: 0;
     left: 50%;
     padding: .2307692307692308em .3846153846153846em;
-    font-size: 13px;
+    min-width: 25px;
+	font-size: 13px;
+	text-align: center;
     background-color: #df0024;
     -webkit-transform: translate(-5%, -45%);
     -moz-transform: translate(-5%, -45%);
     -ms-transform: translate(-5%, -45%);
     -o-transform: translate(-5%, -45%);
     transform: translate(-5%, -45%);
+	-webkit-box-sizing: border-box;
+	   -moz-box-sizing: border-box;
+	        box-sizing: border-box;
+}
+.header-menu-count[data-count="0"] {
+	background-color: #3f4651;
 }
 .header-menu-item ul {
     position: absolute;
@@ -1635,6 +1643,10 @@ ul {
 	width: 100%;
 }
 
+.box-table-more {
+	display: none;
+}
+
 .box-table tr {
 	background-color: #fff;
 	height: 50px;
@@ -1667,6 +1679,11 @@ ul {
 .box-table a {
 	display: table;
 	margin: 0 auto;
+	text-decoration: none;
+}
+
+.box-table a:hover {
+	text-decoration: none;
 }
 
 .box-table .icon {
@@ -1684,6 +1701,10 @@ ul {
     -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
 }
 
+.box .box-info > td {
+	text-align: center;
+}
+
 .box-more {
 	margin: -2px 1px 0 0;
 	float: right;
@@ -1698,14 +1719,19 @@ ul {
 	text-align: center;
 	font-size: 29px;
 	background-color: #fff;
-	-webkit-border-radius: 0 0 5px 5px;
-	   -moz-border-radius: 0 0 5px 5px;
-	        border-radius: 0 0 5px 5px;
-	color: #999;
+	color: #323945;
 	-webkit-transition: .3s opacity;
 	-o-transition: .3s opacity;
 	-moz-transition: .3s opacity;
 	transition: .3s opacity;
+}
+
+.box-more.on {
+	-webkit-transform: rotate(180deg);
+	   -moz-transform: rotate(180deg);
+	    -ms-transform: rotate(180deg);
+	     -o-transform: rotate(180deg);
+	        transform: rotate(180deg);
 }
 
 .box-more > .icon:hover {
