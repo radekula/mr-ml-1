@@ -6,17 +6,17 @@
 			<i class="icon">&#xe808;</i>
 		</button>
 	</form><!-- .search -->
-	<nav class="header-menu">
+	<nav class="header-menu" ng-controller="NavController">
 		<a class="header-menu-item" href="/#!/">
 			<div class="header-menu-inner">
 				<i class="icon">&#xe804;</i>
-				<span class="header-menu-count">10</span>
+				<span data-count="{{number_messages}}" class="header-menu-count">{{number_messages}}</span>
 			</div><!-- .header-menu-inner -->
 		</a><!-- .header-menu-item -->
 		<a class="header-menu-item" href="/#!/">
 			<div class="header-menu-inner">
 				<i class="icon icon-bell">&#xf0f3;</i>
-				<span class="header-menu-count">0</span>
+				<span data-count="{{number_actions}}" class="header-menu-count">{{number_actions}}</span>
 			</div><!-- .header-menu-inner -->
 		</a><!-- .header-menu-item -->
 		<ul class="header-menu-item">
