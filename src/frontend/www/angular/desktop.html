@@ -11,7 +11,7 @@
 			</header><!-- .breadcrumb-header -->
 			<span class="breadcrumb-item breadcrumb-current">Home</span>
 		</div><!-- .breadcrumb -->
-		<div class="content">
+		<div class="content" ng-controller="PulpitController">
 			<section class="box">
 				<header class="box-header">
 					<h3 class="box-title">Akcje:</h3>
@@ -23,48 +23,35 @@
 						<th>Autor</th>
 						<th></th>
 					</tr>
-					<tr>
-						<td>Akceptacja</td>
-						<td class="box-date">2017-12-03</td>
-						<td class="box-author">admin</td>
+					<tr ng-repeat="(key, value) in actions.result|limitTo:4">
+						<td>{{value.title}}</td>
+						<td class="box-date"></td>
+						<td class="box-author"></td>
 						<td>
-							<a>
+							<a href="/#!/document/{{value.document}}">
 								<i class="icon">&#xf14c;</i>
 							</a>
 						</td>
 					</tr>
-					<tr>
-						<td>Podpis</td>
-						<td class="box-date">2017-12-03</td>
-						<td class="box-author">admin</td>
-						<td>
-							<a>
-								<i class="icon">&#xf14c;</i>
-							</a>
-						</td>
-					</tr>
-					<tr>
-						<td>Akceptacja</td>
-						<td class="box-date">2017-12-03</td>
-						<td class="box-author">admin</td>
-						<td>
-							<a>
-								<i class="icon">&#xf14c;</i>
-							</a>
-						</td>
-					</tr>
-					<tr>
-						<td>Podpis</td>
-						<td class="box-date">2017-12-03</td>
-						<td class="box-author">admin</td>
-						<td>
-							<a>
-								<i class="icon">&#xf14c;</i>
-							</a>
-						</td>
+					<tr class="box-info" ng-show="emptyActions">
+						<td colspan="4">Brak akcji.</td>
 					</tr>
 				</table>
-				<a class="box-more">
+				<div class="box-table-more">
+					<table class="box-table">
+						<tr ng-repeat="(key, value) in actions.result|limitTo:100:4">
+							<td>{{value.title}}</td>
+							<td class="box-date"></td>
+							<td class="box-author"></td>
+							<td>
+								<a href="/#!/document/{{value.document}}">
+									<i class="icon">&#xf14c;</i>
+								</a>
+							</td>
+						</tr>
+					</table>
+				</div>
+				<a class="box-more js-box-more" ng-show="actions.total >= 4">
 					<i class="icon">&#xe80e;</i>
 				</a>
 			</section>
@@ -79,48 +66,35 @@
 						<th>Autor</th>
 						<th></th>
 					</tr>
-					<tr>
-						<td>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</td>
-						<td class="box-date">2017-12-03</td>
-						<td class="box-author">admin</td>
+					<tr ng-repeat="(key, value) in comments.result|limitTo:4">
+						<td>{{value.content}}</td>
+						<td class="box-date"></td>
+						<td class="box-author">{{value.author}}</td>
 						<td>
-							<a>
+							<a href="/#!/document/{{value.document}}">
 								<i class="icon">&#xf14c;</i>
 							</a>
 						</td>
 					</tr>
-					<tr>
-						<td>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</td>
-						<td class="box-date">2017-12-03</td>
-						<td class="box-author">admin</td>
-						<td>
-							<a>
-								<i class="icon">&#xf14c;</i>
-							</a>
-						</td>
-					</tr>
-					<tr>
-						<td>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</td>
-						<td class="box-date">2017-12-03</td>
-						<td class="box-author">admin</td>
-						<td>
-							<a>
-								<i class="icon">&#xf14c;</i>
-							</a>
-						</td>
-					</tr>
-					<tr>
-						<td>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</td>
-						<td class="box-date">2017-12-03</td>
-						<td class="box-author">admin</td>
-						<td>
-							<a>
-								<i class="icon">&#xf14c;</i>
-							</a>
-						</td>
+					<tr class="box-info" ng-show="emptyComments">
+						<td colspan="4">Brak komentarzy.</td>
 					</tr>
 				</table>
-				<a class="box-more">
+				<div class="box-table-more">
+					<table class="box-table">
+						<tr ng-repeat="(key, value) in comments.result|limitTo:100:4">
+							<td>{{value.content}}</td>
+							<td class="box-date"></td>
+							<td class="box-author">{{value.author}}</td>
+							<td>
+								<a href="/#!/document/{{value.document}}">
+									<i class="icon">&#xf14c;</i>
+								</a>
+							</td>
+						</tr>
+					</table>
+				</div>
+				<a class="box-more js-box-more" ng-show="comments.total >= 4">
 					<i class="icon">&#xe80e;</i>
 				</a>
 			</section>
@@ -134,44 +108,33 @@
 						<th>Data</th>
 						<th></th>
 					</tr>
-					<tr>
-						<td>Dokument 1</td>
-						<td class="box-date">2017-12-03</td>
+					<tr ng-repeat="(key, value) in documents.result|limitTo:4">
+						<td>{{value.title}}</td>
+						<td class="box-date">{{value.create_date}}</td>
 						<td>
-							<a>
+							<a href="/#!/document/{{value.id}}">
 								<i class="icon">&#xf14c;</i>
 							</a>
 						</td>
 					</tr>
-					<tr>
-						<td>Dokument 2</td>
-						<td class="box-date">2017-12-03</td>
-						<td>
-							<a>
-								<i class="icon">&#xf14c;</i>
-							</a>
-						</td>
-					</tr>
-					<tr>
-						<td>Dokument 3</td>
-						<td class="box-date">2017-12-03</td>
-						<td>
-							<a>
-								<i class="icon">&#xf14c;</i>
-							</a>
-						</td>
-					</tr>
-					<tr>
-						<td>Dokument 4</td>
-						<td class="box-date">2017-12-03</td>
-						<td>
-							<a>
-								<i class="icon">&#xf14c;</i>
-							</a>
-						</td>
+					<tr class="box-info" ng-show="emptyDocuments">
+						<td colspan="4">Brak dokumentów.</td>
 					</tr>
 				</table>
-				<a class="box-more">
+				<div class="box-table-more">
+					<table class="box-table">
+						<tr ng-repeat="(key, value) in documents.result|limitTo:100:4">
+							<td>{{value.title}}</td>
+							<td class="box-date">{{value.create_date}}</td>
+							<td>
+								<a href="/#!/document/{{value.id}}">
+									<i class="icon">&#xf14c;</i>
+								</a>
+							</td>
+						</tr>
+					</table>
+				</div>
+				<a class="box-more js-box-more" ng-show="documents.total >= 4">
 					<i class="icon">&#xe80e;</i>
 				</a>
 			</section>
