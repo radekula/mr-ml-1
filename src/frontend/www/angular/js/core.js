@@ -186,6 +186,152 @@ app.controller("SearchController", function($scope, $http, $location) {
 });
 
 /*
+ ** Nav in header
+ */
+app.controller("NavController", function($scope, $http, $location) {
+	$scope.number_messages = 0;
+	$scope.number_actions = 0;
+	
+	$http.get(
+		"/service/desktop/comments"
+	).then(
+		function(response) { // Success
+			if (response.status == 200) {
+				if( response.data.total ) {
+					$scope.number_messages = response.data.total;
+				}
+				else {
+					$scope.number_messages = 0;
+				}
+			}
+		},
+		function(response) { // Error
+			if (response.status == 400) {
+				alert("Błędne żądanie.");
+			} else if (response.status == 403) {
+				alert("Nieprawidłowy lub wygasły token.");
+			} else if (response.status == 500) {
+				alert("Wewnętrzny błąd serwera.");
+			}
+		}
+	);
+	
+	$http.get(
+		"/service/desktop/actions"
+	).then(
+		function(response) { // Success
+			if (response.status == 200) {
+				if( response.data.total ) {
+					$scope.number_actions = response.data.total;
+				}
+				else {
+					$scope.number_actions = 0;
+				}
+			}
+		},
+		function(response) { // Error
+			if (response.status == 400) {
+				alert("Błędne żądanie.");
+			} else if (response.status == 403) {
+				alert("Nieprawidłowy lub wygasły token.");
+			} else if (response.status == 500) {
+				alert("Wewnętrzny błąd serwera.");
+			}
+		}
+	);
+});
+
+app.controller("PulpitController", function($scope, $http, $location) {
+	$scope.documents = [];
+	$scope.actions = [];
+	$scope.comments = [];
+	$scope.notice = [];
+	$scope.emptyActions = false;
+	$scope.emptyDocuments = false;
+	$scope.emptyComments = false;
+	
+	jQuery( document ).ready( function() {
+		jQuery( ".js-box-more" ).on( "click", function() {
+			thisObject = jQuery( this );
+			thisObject.toggleClass( "on", "" );
+			thisObject.prev( ".box-table-more" ).slideToggle( "slow" );
+		} );
+	} );
+	
+	$http.get(
+		"/service/desktop/actions"
+	).then(
+		function(response) { // Success
+			if (response.status == 200) {
+				if( !response.data.total || response.data.total == 0 ) {
+					$scope.emptyActions = true;
+				}
+				if( response.data ) {
+					$scope.actions = response.data;
+				}
+			}
+		},
+		function(response) { // Error
+			if (response.status == 400) {
+				alert("Błędne żądanie.");
+			} else if (response.status == 403) {
+				alert("Nieprawidłowy lub wygasły token.");
+			} else if (response.status == 500) {
+				alert("Wewnętrzny błąd serwera.");
+			}
+		}
+	);
+	
+	$http.get(
+		"/service/desktop/documents"
+	).then(
+		function(response) { // Success
+			if (response.status == 200) {
+				if( !response.data.total || response.data.total == 0 ) {
+					$scope.emptyDocuments = true;
+				}
+				if( response.data ) {
+					$scope.documents = response.data;
+				}
+			}
+		},
+		function(response) { // Error
+			if (response.status == 400) {
+				alert("Błędne żądanie.");
+			} else if (response.status == 403) {
+				alert("Nieprawidłowy lub wygasły token.");
+			} else if (response.status == 500) {
+				alert("Wewnętrzny błąd serwera.");
+			}
+		}
+	);
+	
+	$http.get(
+		"/service/desktop/comments"
+	).then(
+		function(response) { // Success
+			if (response.status == 200) {
+				if( !response.data.total || response.data.total == 0 ) {
+					$scope.emptyComments = true;
+				}
+				if( response.data ) {
+					$scope.comments = response.data;
+				}
+			}
+		},
+		function(response) { // Error
+			if (response.status == 400) {
+				alert("Błędne żądanie.");
+			} else if (response.status == 403) {
+				alert("Nieprawidłowy lub wygasły token.");
+			} else if (response.status == 500) {
+				alert("Wewnętrzny błąd serwera.");
+			}
+		}
+	);
+});
+
+/*
  ** Datepicker - jQuery UI
  */
 app.directive("datepicker", function() {
