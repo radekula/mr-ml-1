@@ -1,26 +1,27 @@
 package config
 
 import (
-    "io/ioutil"
-    "encoding/json"
-    "../model"
-    "sync"
+	"encoding/json"
+	"io/ioutil"
+	"sync"
+
+	"../model"
 )
 
 var instance *model.Config
 var once sync.Once
 
 func GetConfig() *model.Config {
-    once.Do(func() {
-        instance = &model.Config{}
-        
-        raw, err := ioutil.ReadFile("/config.json")
-        if err != nil {
-            panic(err)
-        }
+	once.Do(func() {
+		instance = &model.Config{}
 
-        json.Unmarshal(raw, instance)
-    })
+		raw, err := ioutil.ReadFile("config.json")
+		if err != nil {
+			panic(err)
+		}
 
-    return instance
+		json.Unmarshal(raw, instance)
+	})
+
+	return instance
 }
