@@ -32,6 +32,14 @@ flows-test:
         - "groups-test:groups"
     ports:
         - "9083:8080"
+signing-test:
+    image: localhost:5000/signing:latest
+    links:
+        - "mongo-test:signing-database-mongo"
+        - "users-test:users"
+        - "documents-test:documents"
+    ports:
+        - "9086:8080"
 flows-documents-test:
     image: localhost:5000/flows-documents:latest
     links:
@@ -40,6 +48,7 @@ flows-documents-test:
         - "documents-test:documents"
         - "groups-test:groups"
         - "flows-test:flows"
+        - "signing-test:signing"
     ports:
         - "9084:8080"
 desktop-test:
