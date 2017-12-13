@@ -132,7 +132,7 @@ func Actions(w http.ResponseWriter, r *http.Request) {
 
 
 func Comments(w http.ResponseWriter, r *http.Request) {
-/*    re, err := regexp.CompilePOSIX("comments/[^/]*$")
+    re, err := regexp.CompilePOSIX("comments/[^/]*$")
 
     if err != nil {
         w.WriteHeader(http.StatusInternalServerError)
@@ -145,29 +145,21 @@ func Comments(w http.ResponseWriter, r *http.Request) {
         w.WriteHeader(http.StatusBadRequest)
         return
     }
-    
+
     request := strings.Split(r.URL.Path, "/")
     token := request[2]
-    
-    _, ret := getUserByToken(db.GetCollection(), token)
 
-    if ret != 0 {
-        switch ret {
-            case 1:
-                w.WriteHeader(http.StatusForbidden)
-                break
-            default:
-                w.WriteHeader(http.StatusInternalServerError)
-                break
-        }
+    user, ret := remote.VerifyToken(token)
+    if ret != 200 {
+        w.WriteHeader(http.StatusForbidden)
         return
     }
 
     switch r.Method {
         case "GET":
-            users, total := getUsers(db.GetCollection(), r.URL.Query(), token)
+            comments := remote.GetUserComments(user.Login, token, r.URL.Query())
 
-            if total < 0 {
+            if comments.Total < 0 {
                 switch ret {
                     default:
                         w.WriteHeader(http.StatusInternalServerError)
@@ -176,15 +168,7 @@ func Comments(w http.ResponseWriter, r *http.Request) {
                 return
             }
 
-            return_data := struct {
-                Total   int                   `json:"total"`
-                Result  []model.BasicUserData `json:"result"`
-            } {
-                total,
-                users,
-            }
-
-            json_message, err_json := json.Marshal(return_data)
+            json_message, err_json := json.Marshal(comments)
             if err_json != nil {
                 w.WriteHeader(http.StatusInternalServerError)
                 return
@@ -192,7 +176,8 @@ func Comments(w http.ResponseWriter, r *http.Request) {
             w.Write(json_message)
             break
         default:
+            fmt.Println("Bad request")
             w.WriteHeader(http.StatusBadRequest)
             return
-    }*/
+    }
 }

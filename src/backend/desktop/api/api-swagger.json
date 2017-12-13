@@ -293,6 +293,10 @@
           "type": "string",
           "description": "Comment content"
         }
+        "create_date": {
+          "type": "string",
+          "description": "Timestamp in YYYY-MM-DD HH:MM:SS format"
+        }
       }
     }
   }

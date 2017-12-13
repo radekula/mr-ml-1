@@ -1,31 +1,74 @@
 package remote
-/*
+
 import (
-    "encoding/json"
     "net/http"
-    "../model"
+    "encoding/json"
+    "strconv"
     "../config"
+    "../model"
 )
 
 
-func VerifyToken(token string) (model.VerifyData, int) {
-    var verify_data model.VerifyData
-    
-    config := config.GetConfig()
-    
-    url := config.Remotes.Users + "/verify/" + token 
+func GetUserComments(login string, token string, params map[string][]string) (model.UserComments) {
+    var comments model.UserComments
+    var remotes []model.RemoteCommentData
 
-    resp, err := http.Get(url)
-    if err != nil {
-        return verify_data, 500
+    config := config.GetConfig()
+
+    limit := -1
+    offset := -1
+
+    if value, ok := params["limit"]; ok {
+        m_limit, err := strconv.Atoi(value[0])
+        if (err != nil ) {
+            return comments
+        }
+        limit = m_limit
+    }
+
+    if value, ok := params["offset"]; ok {
+        m_offset, err := strconv.Atoi(value[0])
+        if (err != nil ) {
+            return comments
+        }
+        offset = m_offset
+    }
+
+    url := config.Remotes.Comments + "/comments/" + token + "?userId=" + login
+
+    resp, err2 := http.Get(url)
+    if err2 != nil {
+        return comments
     }
 
     if resp.StatusCode != 200 {
-        return verify_data, resp.StatusCode
+        return comments
     }
 
-    json.NewDecoder(resp.Body).Decode(&verify_data)
-    
-    return verify_data, 200
+    json.NewDecoder(resp.Body).Decode(&remotes)
+
+    comments.Total = len(remotes)
+
+    row := 0
+    for _, remote := range remotes {
+        if row > offset {
+            if limit > -1 {
+                if row >= limit {
+                    break
+                }
+            }
+
+            var comment model.CommentData
+
+            comment.Document   = remote.Document
+            comment.Author     = remote.Author
+            comment.Content    = remote.Content
+            comment.CreateDate = remote.CreateDate
+
+            comments.Result = append(comments.Result, comment)
+        }
+        row = row + 1
+    }
+
+    return comments
 }
-*/
