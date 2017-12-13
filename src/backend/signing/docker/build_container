@@ -1,0 +1,4 @@
+#!/bin/bash
+
+./build
+docker build -t signing -t signing:latest -t localhost:5000/signing:latest .

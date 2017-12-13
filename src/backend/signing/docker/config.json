@@ -1,0 +1,15 @@
+{
+    "service": {
+        "port": 8080
+    },
+    "database": {
+        "host": "signing-database-mongo",
+        "name": "signingDatabase",
+        "collection": "signatures"
+        "collection_keys": "userKeys"
+    },
+    "remotes": {
+        "users": "http://users:8080",
+        "documents": "http://docuemnts:8080"
+    }
+}
