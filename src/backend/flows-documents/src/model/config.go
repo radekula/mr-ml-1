@@ -16,6 +16,7 @@ type ConfigRemotes struct {
     Groups string                `json:"groups"`
     Documents string             `json:"documents"`
     Flows string                 `json:"flows"`
+    Signing string               `json:"signing"`
 }
 
 type Config struct {

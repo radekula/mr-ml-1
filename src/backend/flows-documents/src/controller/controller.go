@@ -348,6 +348,10 @@ func actionPerform(c *mgo.Collection, document string, step string, user model.U
     act.Date   = libs.CurrentTime()
 
     stepHistory.Actions = append(stepHistory.Actions, act)
+    
+    if act.Action == "sign" {
+        _ = remote.Sign(document, user.Token)
+    }
 
     // check if action if enough for next step
     if checkActionToNextStep(stepHistory.Actions, flowStep.Type, users) == true {
@@ -451,6 +455,10 @@ func actionDelete(c *mgo.Collection, document string, step string, user model.Us
         for _, a := range search_data.History[idx].Actions {
             if a.Login != user.Login {
                 act = append(act, a)
+            } else {
+                if a.Action == "sign" {
+                    _ = remote.Unsign(document, user.Token)
+                }
             }
         }
 
