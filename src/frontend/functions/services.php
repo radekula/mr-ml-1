@@ -189,10 +189,10 @@ function callFlowsDocuments($data, $config) {
             $remoteUrl .= '/' . $data['params'][2] . '/' . $data['token'];
             break;
         case "action":
-            $remoteUrl .= '/' . $data['params'][2] . '/' . $data['params'][3] . $data['token'];
+            $remoteUrl .= '/' . $data['params'][2] . '/' . $data['params'][3] . '/' . $data['token'];
             break;
         case "force":
-            $remoteUrl .= '/' . $data['params'][2] . '/' . $data['params'][3] . $data['token'];
+            $remoteUrl .= '/' . $data['params'][2] . '/' . $data['params'][3] . '/' . $data['token'];
             break;
     }
 
@@ -222,6 +222,49 @@ function callDesktop($data, $config) {
     $method = $data['method'];
 
     $remoteUrl .= '/' . $data['token'];
+
+    if(isset($data['params_get'])) {
+        $getParams = [];
+        
+        foreach($data['params_get'] as $key => $value) {
+            $getParams[] = $key . '=' . $value;
+        }
+        $remoteParams = implode('&', $getParams);
+    };
+
+    if(!empty($remoteParams)) {
+        $remoteUrl .= '?' . $remoteParams;
+    }
+
+    $ret = remoteCall($remoteUrl, $method, $data['body']);
+    return $ret;
+}
+
+
+/*
+ * Call signing service
+ */
+function callSigning($data, $config) {
+    $remoteUrl = $config['service']['signing'] . '/' . $data['params'][1];
+    $method = $data['method'];
+
+    switch($data['params'][1]) {
+        case "user":
+            $remoteUrl .= '/' . $data['params'][2] . '/keys/' . $data['token'];
+            break;
+        case "document":
+            $remoteUrl .= '/' . $data['params'][2] . '/' . $data['token'];
+            break;
+        case "sign":
+            $remoteUrl .= '/' . $data['params'][2] . '/' . $data['token'];
+            break;
+        case "unsign":
+            $remoteUrl .= '/' . $data['params'][2] . '/' . $data['token'];
+            break;
+        case "verify":
+            $remoteUrl .= '/' . $data['params'][2] . '/' . $data['params'][3] . '/' . $data['token'];
+            break;
+    }
 
     if(isset($data['params_get'])) {
         $getParams = [];

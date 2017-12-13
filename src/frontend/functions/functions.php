@@ -133,6 +133,9 @@ function callService($data, $config) {
         case "desktop":
             return callDesktop($data, $config);
             break;
+        case "signing":
+            return callSigning($data, $config);
+            break;
         default:
             render404($data, $config);
             break;
