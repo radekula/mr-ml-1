@@ -26,8 +26,8 @@ func GetCollection() *mgo.Collection {
     return collection
 }
 
-func GetCollectionSteps() *mgo.Collection {
-    onceKeyss.Do(func() {
+func GetCollectionKeys() *mgo.Collection {
+    onceKeys.Do(func() {
         conf := config.GetConfig()
 
         session, err := mgo.Dial(conf.Database.Host)

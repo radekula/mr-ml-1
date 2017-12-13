@@ -27,7 +27,3 @@ type DocumentLite struct {
     Metadata []DocumentMetadata `json:"metadata"`
     Thumbnail string `json:"thumbnail"`
 }
-
-type DocumentId struct {
-    Id string `json:"id"`
-}
