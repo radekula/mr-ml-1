@@ -1581,6 +1581,7 @@ app.controller("GroupsController", function($route, $scope, $http, $routeParams,
 	$scope.search = $routeParams.search && $routeParams.search != "null" ? decodeURI($routeParams.search) : "";
     var groupsName = null;
     var groupsDescription = null;
+	$scope.readonly_bool = true;
 
     // Set date
     nowDate = new Date();
@@ -1632,37 +1633,29 @@ app.controller("GroupsController", function($route, $scope, $http, $routeParams,
             $scope.loadPage = false;
         }
     );
-
+	
     // Click edit group
     $scope.editGroup = function($event) {
         $event.preventDefault();
-        $event.currentTarget.style.display = "none";
-
-        dataID = $event.currentTarget.getAttribute("data-id");
-
-        groupsName = document.getElementById("js-groups-name-" + dataID);
-        groupsName.readOnly = false;
-
-        groupsDescription = document.getElementById("js-groups-description-" + dataID);
-        groupsDescription.readOnly = false;
-
-        document.getElementsByClassName("js-groups-save-" + dataID)[0].style.display = "block";
+		data_id = $event.currentTarget.getAttribute("data-id");
+		$scope['readonly_bool_'+data_id] = true;
     }
 
     // Update group
     $scope.saveGroup = function($event) {
         $event.preventDefault();
-        $scope.loadPage = true;
-        $event.currentTarget.style.display = "none";
-		
-        name = groupsName.value;
-        description = groupsDescription.value;
+		$scope.loadPage = true;
+		currentTarget = $event.currentTarget;
+		data_id = currentTarget.getAttribute("data-id");
+		$scope['readonly_bool_'+data_id] = false;
+		name = currentTarget.getAttribute("data-name");
+		description = jQuery("#js-groups-description-"+data_id).val();
         group_data = {
-            "active": true,
-            "create_date": $scope.date,
-            "creator": $scope.login,
-            "description": description ? description : ""
-        }
+			"active": true,
+			"create_date": $scope.date,
+			"creator": $scope.login,
+			"description": description ? description : ""
+		}
 		
         if (name != "") {
             $http.put(
@@ -1671,9 +1664,6 @@ app.controller("GroupsController", function($route, $scope, $http, $routeParams,
             ).then(
                 function(response) { // Success
                     if (response.status == 200) {
-                        groupsName.readOnly = true;
-                        groupsDescription.readOnly = true;
-                        document.getElementsByClassName("js-groups-edit-" + dataID)[0].style.display = "block";
                         alert("Grupa została zaktualizowana.");
                     }
 
