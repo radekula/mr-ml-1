@@ -6,3 +6,4 @@ src/backend/groups/docker/go/
 src/backend/groups/docker/groups
 src/backend/users/docker/go/
 src/backend/users/docker/users
+src/backend/.vscode/launch.json
