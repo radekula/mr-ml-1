@@ -80,6 +80,7 @@ function remoteCall($url, $method, $body) {
     if($method == 'POST' || $method == 'PUT') {
         $options = array(
             CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_CUSTOMREQUEST => $method,
             CURLOPT_HTTPHEADER => array( 'Content-type: application/json' ),
             CURLOPT_POSTFIELDS => $body,
             CURLOPT_HEADER => 0
