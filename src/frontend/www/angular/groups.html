@@ -54,20 +54,20 @@
 						<tr ng-repeat="group in groups">
 							<td>{{$index+1}}</td>
 							<td>
-								<input id="js-groups-name-{{$index+1}}" class="input groups-input" type="text" value="{{group.name}}" readonly>
+								<input id="js-groups-name-{{$index+1}}" class="input groups-input" type="text" value="{{group.name}}" ng-readonly="true">
 							</td>
 							<td>
-								<input id="js-groups-description-{{$index+1}}" class="input groups-input" type="text" value="{{group.description}}" readonly>
+								<input id="js-groups-description-{{$index+1}}" class="input groups-input" type="text" value="{{group.description}}" ng-readonly="!readonly_bool_{{$index+1}}">
 							</td>
 							<td>{{group.creator}}</td>
 							<td>{{group.create_date}}</td>
 							<td class="documents-menu">
 								<nav class="documents-actions">
-									<a style="display: none;" class="groups-actions-link js-groups-save-{{$index+1}}" ng-click="saveGroup($event)" data-id="{{$index+1}}" data-name="{{group.name}}">
-										<i class="icon">&#xe809;</i>
-									</a><!-- .groups-actions-link -->
-									<a class="groups-actions-link js-groups-edit-{{$index+1}} js-groups-edit-{{$index+1}}" ng-click="editGroup($event)" data-id="{{$index+1}}" data-name="{{group.name}}">
+									<a class="groups-actions-link js-groups-edit-{{$index+1}} js-groups-edit-{{$index+1}}" ng-click="editGroup($event)" data-id="{{$index+1}}" data-name="{{group.name}}" ng-show="!readonly_bool_{{$index+1}}">
 										<i class="icon">&#xe80c;</i>
+									</a><!-- .groups-actions-link -->
+									<a class="groups-actions-link js-groups-save-{{$index+1}}" ng-click="saveGroup($event)" data-id="{{$index+1}}" data-name="{{group.name}}" ng-show="readonly_bool_{{$index+1}}">
+										<i class="icon">&#xe809;</i>
 									</a><!-- .groups-actions-link -->
 									<a class="groups-actions-link" ng-click="showGroup($event)" data-name="{{group.name}}">
 										<i class="icon">&#xe80b;</i>
