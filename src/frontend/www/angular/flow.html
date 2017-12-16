@@ -34,7 +34,7 @@
 				</div><!-- .container-button -->
 			</form><!-- .upload-form -->
 			<form id="dialog" class="dialog" title="Dodaj krok">
-				<input class="input upload-input" type="text" placeholder="Nazwa kroku">
+				<input class="input upload-input" type="text" placeholder="Nazwa kroku" ng-model="step_name">
 				<input id="js-step-participants" class="input upload-input" type="text" placeholder="Uczestnicy">
 				<textarea id="js-step-description" class="input upload-input upload-textarea" placeholder="Opis"></textarea>
 				<button class="button" type="button" ng-click="addStep($event)">Zapisz</button>
@@ -65,11 +65,11 @@
 				</button>
 				<div id="sortable">
 					<section class="steps-step" ng-repeat="(key, value) in steps">
-						<div class="steps-inner" data-type="{{value.type}}" data-id="{{value.id}}">
+						<div class="steps-inner" data-type="{{value.type}}" data-id="{{value.id}}"  data-prev="{{value.prev}}">
 							<header class="steps-header">
 								<h3 class="steps-title">{{value.type}}</h3>
 							</header>
-							<nav class="steps-nav">
+							<nav class="steps-nav" ng-show="$index > 0 && $index < steps.length - 1">
 								<a class="steps-link edit-step" data-id="{{value.id}}">
 									<i class="icon">&#xe80c;</i>
 								</a>
