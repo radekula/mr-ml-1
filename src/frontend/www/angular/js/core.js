@@ -1,5 +1,15 @@
 var app = angular.module("ngDMS", ["ngRoute", "ngCookies"]);
 
+function getToday() {
+    nowDate = new Date();
+    day = nowDate.getDate();
+    day = day < 10 ? "0" + day : day;
+    month = nowDate.getMonth() + 1;
+    month = month < 10 ? "0" + month : month;
+    year = nowDate.getFullYear();
+    return year + "-" + month + "-" + day;
+}
+
 /*
  ** Routing
  */
@@ -519,60 +529,65 @@ app.controller("FlowsController", function($scope, $route, $routeParams, $http, 
         } else {
 			$scope.loc = "/#!flows/";
 		}
-		
-		$scope.filter = function($event) {
-			$event.preventDefault();
-			phrase = document.getElementsByClassName( "flows-phrase" )[0].value;
-			
-			if( phrase !== "" ) {
-				$location.path("/flows/" + phrase + "/1");
-			} else {
-				$location.path("/flows/");
-			}
-		}
-		
+        
+        $scope.filter = function($event) {
+            $event.preventDefault();
+            phrase = document.getElementsByClassName( "flows-phrase" )[0].value;
+            phrase = jQuery( "#flows-phrase" ).val();
+            
+            if( phrase !== "" ) {
+                $location.path("/flows/" + phrase + "/1");
+            } else {
+                $location.path("/flows/");
+            }
+        }
+        
         function getPagination() {
             $scope.pages = [];
-
+            
             if ($scope.currentPage - 1 < $scope.numberOfPages) {
-				i = $scope.currentPage;
+                i = $scope.currentPage;
                 max = i + 3;
-				diff = max - $scope.numberOfPages;
-				
-				if( diff > 0 ) {
-					i = ( i - diff ) > 1 ? ( i - diff ) : 1;
-				}
-				
+                diff = max - $scope.numberOfPages;
+                
+                if( diff > 0 ) {
+                    i = ( i - diff ) > 1 ? ( i - diff ) : 1;
+                }
+                
                 for (i; i <= max; i++) {
                     if (i > $scope.numberOfPages) break;
                     $scope.pages.push(i);
                 }
             }
         }
-		
+        
         $http.get(
             "/service/flows/flows?limit=" + $scope.limit + "&offset=" + $scope.offset + "&search=" + $scope.phrase
         ).then(
             function(response) { // Success
                 if (response.status == 200) {
                     if( response.data.result !== null ) {
-						$scope.flows = response.data.result;
-						$scope.numberOfPages = Math.ceil( response.data.total / $scope.limit );
-						getPagination();
-					} else {
-						$scope.notice.push( {
-							"content": "Nie znaleziono przepływów.",
-							"class": "alert-danger"
-						} );
-					}
-					
+                        $scope.flows = response.data.result;
+                        $scope.numberOfPages = Math.ceil( response.data.total / $scope.limit );
+                        getPagination();
+                    } else {
+                        $scope.notice.push( {
+                            "content": "Nie znaleziono przepływów.",
+                            "class": "alert-danger"
+                        } );
+                    }
                     $scope.loadPage = false;
                 }
             },
             function(response) { // Error
-                if (response.status == 404) {
+                if (response.status == 400) {
                     $scope.notice.push = {
-                        "content": "Nie znaleziono przepływów.",
+                        "content": "Błędne żądanie.",
+                        "class": "alert-danger"
+                    };
+                } else if (response.status == 403) {
+                    $scope.notice.push = {
+                        "content": "Nieprawidłowy lub wygasły token.",
                         "class": "alert-danger"
                     };
                 } else if (response.status == 500) {
@@ -581,112 +596,89 @@ app.controller("FlowsController", function($scope, $route, $routeParams, $http, 
                         "class": "alert-danger"
                     };
                 }
-
                 $scope.loadPage = false;
             }
         );
-		
-		// Delete the flow
-		$scope.deleteFlow = function($event) {
-			$event.preventDefault();
-
-			if (confirm("Czy na pewno usunąć wskazany przepływ?")) {
-				$scope.loadPage = true;
-				flowId = $event.currentTarget.getAttribute("data-id");
-
-				$http.delete(
-					"/service/flows/flow/" + flowId
-				).then(
-					function(response) { // Success
-						if (response.status == 200) {
-							$route.reload();
-							alert("Przepływ został usunięty.");
-						}
-
-						$scope.loadPage = false;
-					},
-					function(response) { // Error
-						if (response.status == 404) {
-							alert("Nie znaleziono przepływu.");
-						} else if (response.status == 403) {
-							alert("Nieprawidłowy lub wygasły token.");
-						} else if (response.status == 500) {
-							alert("Wewnętrzny błąd serwera.");
-						}
-
-						$scope.loadPage = false;
-					}
-				);
-			}
-		}
-		
-		$scope.addFlow = function($event) {
-			$event.preventDefault();
-			$scope.login = $cookies.get("login");
-			name = document.getElementById("js-flow-name").value;
-			description = document.getElementById("js-flow-description").value;
-			
-			// Set date
-			nowDate = new Date();
-			day = nowDate.getDate();
-			day = day < 10 ? "0" + day : day;
-			month = nowDate.getMonth() + 1;
-			month = month < 10 ? "0" + month : month;
-			year = nowDate.getFullYear();
-			$scope.date = year + "-" + month + "-" + day;
-			
-			flow_data = {
-			  "name": name ? name : "",
-			  "active": true,
-			  "owner": $scope.login,
-			  "create_date": $scope.date,
-			  "description": description ? description : ""
-			}
-			
-			if( flow_data["name"] == "" ) {
-				alert( "Błędna nazwa przepływu." );
-			} else {
-				$http.post(
-					"/service/flows/flow/generate",
-					JSON.stringify(flow_data)
-				).then(
-					function(response) { // Success
-						if (response.status == 200) {
-							$route.reload();
-							alert("Przepływ został dodany.");
-						}
-					},
-					function(response) { // Error
-						alert( response.status );
-						if (response.status == 400) {
-							$scope.notice.push = {
-								"content": "Błędne żądanie.",
-								"class": "alert-danger"
-							};
-						} else if (response.status == 403) {
-							$scope.notice.push = {
-								"content": "Nieprawidłowy lub wygasły token.",
-								"class": "alert-danger"
-							};
-						} else if (response.status == 409) {
-							$scope.notice.push = {
-								"content": "Istnieje przepływ o podanej nazwie.",
-								"class": "alert-danger"
-							};
-						} else if (response.status == 500) {
-							$scope.notice.push = {
-								"content": "Błąd wewnętrzny serwera.",
-								"class": "alert-danger"
-							};
-						}
-
-						$scope.loadPage = false;
-					}
-				);
-			}
-		}
+        
+        // Delete the flow
+        $scope.deleteFlow = function($event) {
+            $event.preventDefault();
+            
+            if (confirm("Czy na pewno usunąć wskazany przepływ?")) {
+                $scope.loadPage = true;
+                flow_id = $event.currentTarget.getAttribute("data-id");
+                
+                $http.delete(
+                    "/service/flows/flow/" + flow_id
+                ).then(
+                    function(response) { // Success
+                        if (response.status == 200) {
+                            $route.reload();
+                            alert("Przepływ został usunięty.");
+                        }
+                        $scope.loadPage = false;
+                    },
+                    function(response) { // Error
+                        if (response.status ==  403) {
+                            alert("Nieprawidłowy lub wygasły token.");
+                        } else if (response.status == 404) {
+                            alert("Nie znaleziono przepływu.");
+                        } else if (response.status == 500) {
+                            alert("Wewnętrzny błąd serwera.");
+                        }
+                        $scope.loadPage = false;
+                    }
+                );
+            }
+        }
+        
+        // Add the flow
+        $scope.addFlow = function($event) {
+            $event.preventDefault();
+            $scope.login = $cookies.get("login");
+            $scope.date = getToday();
+            
+            name = document.getElementById("js-flow-name").value;
+            description = document.getElementById("js-flow-description").value;
+            flow_data = {
+                "name": name ? name : "",
+                "active": true,
+                "owner": $scope.login ? $scope.login : "",
+                "create_date": $scope.date ? $scope.date : "",
+                "description": description ? description : ""
+            }
+            
+            if( flow_data["name"] == "" ) {
+                alert( "Błędna nazwa przepływu." );
+            } else {
+                $http.post(
+                    "/service/flows/flow/generate",
+                    JSON.stringify(flow_data)
+                ).then(
+                    function(response) { // Success
+                        if (response.status == 200) {
+                            $route.reload();
+                            alert("Przepływ został dodany.");
+                        }
+                    },
+                    function(response) { // Error
+                        if (response.status == 400) {
+                            alert("Błędne żądanie");
+                        } else if(response.status == 403) {
+                            alert("Nieprawidłowy lub wygasły token.");
+                        } else if(response.status == 409) {
+                            alert("Istnieje przepływ o podanym id.");
+                        } else if(response.status == 500) {
+                            alert("Błąd wewnętrzny serwera.");
+                        }
+                        $scope.loadPage = false;
+                    }
+                );
+            }
+        }
     }
 });
+
 
 /*
  ** FlowController
@@ -759,17 +751,17 @@ app.controller("FlowController", function($scope, $route, $routeParams, $http, $
 		}
 		
 		function updateOrderSteps(self_id, prev_id, type) {
-			step_data = {
-			  "type": type,
-			  "prev": [prev_id],
-			  "participants": [
-				"string"
-			  ],
+            step_data = {
+              "type": type,
+			  "prev": ["1255daef-2f67-4c4e-8cd2-a2ed546ea8ac", "4df98c8c-f9c8-4af0-90c1-fec547b59c5a" ],
+			  "participants": [],
 			  "description": "string"
 			}
-			
+            
+            $scope.token = $cookies.get("token");
+            
 			$http.put(
-				"/service/flows/flow/" + $scope.id + "/step/" + self_id,
+				"/service/flows/flow/" + $scope.id + "/step/bee92ab9-338a-4562-981c-4de3bae1fa15/" + $scope.token,
 				JSON.stringify(step_data)
 			).then(
 				function(response) { // Success
@@ -803,14 +795,15 @@ app.controller("FlowController", function($scope, $route, $routeParams, $http, $
 				}
 			);
 		}
-		
+        
+        updateOrderSteps("0a6cd776-9058-48d3-b4de-9ff64a7146f3", "b72e42a4-ad7e-4d19-af0a-ec484a6af396", "dddd");
+        
 		$http.get(
 			"/service/flows/flow/" + $scope.id
 		).then(
 			function(response) { // Success
 				if (response.status == 200) {
 					$scope.data = response.data;
-					
 					// $scope.loadPage = false;
 				}
 			},
@@ -842,8 +835,23 @@ app.controller("FlowController", function($scope, $route, $routeParams, $http, $
 		).then(
 			function(response) { // Success
 				if (response.status == 200) {
-					$scope.steps = response.data;
-					
+                    tab = [];
+                    tab.push(response.data[0]);
+                    id = response.data[0].id;
+                    
+                    i = response.data.length - 1;
+                    while( tab.length != response.data.length ) {
+                        if( response.data[i].prev == id ) {
+                            tab.push(response.data[i]);
+                            id = response.data[i].id;
+                        }
+                        i--;
+                        if( i == 0 ) {
+                            i = response.data.length - 1;
+                        }
+                    }
+                    
+					$scope.steps = tab;
 					// $scope.loadPage = false;
 				}
 			},
@@ -939,55 +947,40 @@ app.controller("FlowController", function($scope, $route, $routeParams, $http, $
 		}
 		
 		$scope.addStep = function($event) {
-			$event.preventDefault();
-			
-			step_data = {
-			  "type": "testowy",
-			  "prev": [
-				"064bd64e-975f-4cb1-ba3a-07fd2e05f372"
-			  ],
+            $event.preventDefault();
+            
+            prev_id = $scope.steps.length > 1 ? $scope.steps[$scope.steps.length-2].id : null;
+            
+            step_data = {
+			  "type": $scope.step_name,
+			  "prev": [prev_id],
 			  "participants": [],
 			  "description": "opis"
 			}
-			
-			$http.post(
-				"/service/flows/flow/" + $scope.id + "/step/generate",
-				JSON.stringify(step_data)
-			).then(
-				function(response) { // Success
-					if (response.status == 200) {
-						$route.reload();
-						alert("Krok został dodany.");
-					}
-				},
-				function(response) { // Error
-					alert( response.status );
+            
+            $http.post(
+                "/service/flows/flow/" + $scope.id + "/step/generate",
+                JSON.stringify(step_data)
+            ).then(
+                function(response) { // Success
+                    if (response.status == 200) {
+                        $route.reload();
+                        alert("Krok został dodany.");
+                    }
+                },
+                function(response) { // Error
 					if (response.status == 400) {
-						$scope.notice.push = {
-							"content": "Błędne żądanie.",
-							"class": "alert-danger"
-						};
+                        alert("Błędne żądanie.");
 					} else if (response.status == 403) {
-						$scope.notice.push = {
-							"content": "Nieprawidłowy lub wygasły token.",
-							"class": "alert-danger"
-						};
+                        alert("Nieprawidłowy lub wygasły token.");
 					} else if (response.status == 409) {
-						$scope.notice.push = {
-							"content": "Operation cannot be performed (invalid operation). Step ID already exists or invalid previous steps or change to invalid type.",
-							"class": "alert-danger"
-						};
+                        alert("Operation cannot be performed (invalid operation). Step ID already exists or invalid previous steps or change to invalid type.");
 					} else if (response.status == 500) {
-						$scope.notice.push = {
-							"content": "Błąd wewnętrzny serwera.",
-							"class": "alert-danger"
-						};
+                        alert("Błąd wewnętrzny serwera.");
 					}
-
-					$scope.loadPage = false;
-				}
-			);
-		}
+                }
+            );
+        }
 		
 		$scope.deleteStep = function($event) {
 			$event.preventDefault();
@@ -1569,56 +1562,50 @@ app.controller("UserController", function($scope, $cookies, $http, $routeParams)
     }
 });
 
+
 /*
- ** Groups Controller
+ ** Groups Controller - zrobione
  */
 app.controller("GroupsController", function($route, $scope, $http, $routeParams, $cookies, $location) {
-	$scope.groups = [];
-	$scope.notice = [];
+    $scope.groups = [];
+    $scope.notice = [];
     $scope.login = $cookies.get("login");
-    $scope.token = $cookies.get("token");
+    $scope.date = getToday();
     $scope.loadPage = true;
-	$scope.search = $routeParams.search && $routeParams.search != "null" ? decodeURI($routeParams.search) : "";
-    var groupsName = null;
-    var groupsDescription = null;
-	$scope.readonly_bool = true;
-
-    // Set date
-    nowDate = new Date();
-    day = nowDate.getDate();
-    day = day < 10 ? "0" + day : day;
-    month = nowDate.getMonth() + 1;
-    month = month < 10 ? "0" + month : month;
-    year = nowDate.getFullYear();
-    $scope.date = year + "-" + month + "-" + day;
-	
-	$scope.filter = function($event) {
-		$event.preventDefault();
-		search = document.getElementsByClassName( "documents-phrase" )[0].value;
-		
-		if( search !== "" ) {
-			$location.path("/groups/" + search);
-		} else {
-			$location.path("/groups/");
-		}
-	}
-
+    $scope.search = $routeParams.search && $routeParams.search != "null" ? decodeURI($routeParams.search) : "";
+    $scope.search_query = $routeParams.search && $routeParams.search != "null" ? decodeURI($routeParams.search).replace(/ /g, "_") : "";
+    
+    $scope.filter = function($event) {
+        $event.preventDefault();
+        search = jQuery("#groups-phrase").val();
+        search = encodeURI(search);
+        
+        if( search !== "" ) {
+            $location.path("/groups/" + search);
+        } else {
+            $location.path("/groups/");
+        }
+    }
+    
+    $scope.filterName = function(name){
+        return name.replace(/_/g, " ");
+    }
+    
     // Get all group
     $http.get(
-        "/service/groups/groups?" + "search=" + $scope.search
+        "/service/groups/groups?" + "search=" + $scope.search_query
     ).then(
         function(response) { // Success
             if (response.status == 200) {
-				if( response.data.result === null ) {
-					$scope.notice.push( {
-						"content": "Brak zdefiniowanych grup.",
-						"class": "alert-danger"
-					} );
-				} else {
-					$scope.groups = response.data.result;
-				}
+                if( response.data.result != null ) {
+                    $scope.groups = response.data.result;
+                } else {
+                    $scope.notice.push( {
+                        "content": "Brak zdefiniowanych grup.",
+                        "class": "alert-danger"
+                    } );
+                }
             }
-
             $scope.loadPage = false;
         },
         function(response) { // Error
@@ -1629,137 +1616,38 @@ app.controller("GroupsController", function($route, $scope, $http, $routeParams,
             } else if (response.status == 500) {
                 alert("Błąd wewnętrzny serwera.");
             }
-
             $scope.loadPage = false;
         }
     );
-	
-    // Click edit group
-    $scope.editGroup = function($event) {
-        $event.preventDefault();
-		data_id = $event.currentTarget.getAttribute("data-id");
-		$scope['readonly_bool_'+data_id] = true;
-    }
-
-    // Update group
-    $scope.saveGroup = function($event) {
-        $event.preventDefault();
-		$scope.loadPage = true;
-		currentTarget = $event.currentTarget;
-		data_id = currentTarget.getAttribute("data-id");
-		$scope['readonly_bool_'+data_id] = false;
-		name = currentTarget.getAttribute("data-name");
-		description = jQuery("#js-groups-description-"+data_id).val();
-        group_data = {
-			"active": true,
-			"create_date": $scope.date,
-			"creator": $scope.login,
-			"description": description ? description : ""
-		}
-		
-        if (name != "") {
-            $http.put(
-                "/service/groups/group/" + name,
-                JSON.stringify(group_data)
-            ).then(
-                function(response) { // Success
-                    if (response.status == 200) {
-                        alert("Grupa została zaktualizowana.");
-                    }
-
-                    $scope.loadPage = false;
-                },
-                function(response) { // Error
-                    if (response.status == 400) {
-                        alert("Błędne żądanie.");
-                    } else if (response.status == 403) {
-                        alert("Nieprawidłowy lub wygasły token.");
-                    } else if (response.status == 404) {
-                        alert("Nie znaleziono grupy.");
-                    } else if (response.status == 500) {
-                        alert("Błąd wewnętrzny serwera.");
-                    }
-
-                    $scope.loadPage = false;
-                }
-            );
-        }
-    }
-
-    // Delete group
-    $scope.deleteGroup = function($event) {
-        $event.preventDefault();
-        $scope.loadPage = true;
-        dataID = $event.currentTarget.getAttribute("data-id");
-        groupsName = document.getElementById("js-groups-name-" + dataID).value;
-		
-        if (confirm("Czy na pewno usunąć wskazaną pozycję?")) {
-            $http.delete(
-                "/service/groups/group/" + groupsName
-            ).then(
-                function(response) { // Success
-                    if (response.status == 200) {
-                        if (dataID - 1 == 0) {
-                            left = [];
-                            right = $scope.groups.splice(dataID, $scope.groups.length);
-                        } else {
-                            left = $scope.groups.splice(0, dataID - 1);
-                            right = $scope.groups.splice(dataID - 1, $scope.groups.length);
-                        }
-
-                        $scope.groups = left.concat(right);
-                        alert("Grupa została usunięta.");
-						
-						$route.reload();
-                    }
-
-                    $scope.loadPage = false;
-                },
-                function(response) { // Error
-                    if (response.status == 403) {
-                        alert("Nieprawidłowy lub wygasły token.");
-                    } else if (response.status == 404) {
-                        alert("Nie znaleziono grupy.");
-                    } else if (response.status == 500) {
-                        alert("Błąd wewnętrzny serwera.");
-                    }
-
-                    $scope.loadPage = false;
-                }
-            );
-        }
-    }
-
+    
     // Create group
     $scope.addGroup = function($event) {
         $event.preventDefault();
         $scope.loadPage = true;
-        name = document.getElementById("js-groups-name").value;
-        description = document.getElementById("js-groups-description").value;
+        
+        name = jQuery("#js-groups-name").val().replace(/ /g, "_");
+        description = jQuery("#js-groups-description").val();
         group_data = {
             "active": true,
-            "create_date": $scope.date,
-            "creator": $scope.login,
+            "create_date": $scope.date ? $scope.date : "",
+            "creator": $scope.login ? $scope.login : "",
             "description": description ? description : ""
         }
-		
+        
         if (name != "") {
             $http.post(
-                "/service/groups/group/" + encodeURIComponent(name),
+                "/service/groups/group/" + name,
                 JSON.stringify(group_data)
             ).then(
                 function(response) { // Success
                     if (response.status == 200) {
                         group_data.name = name;
                         $scope.groups.push(group_data);
-
-                        document.getElementById("js-groups-name").value = "";
-                        document.getElementById("js-groups-description").value = "";
+                        jQuery("#js-groups-name").val("");
+                        jQuery("#js-groups-description").val("");
                         alert("Grupa została dodana.");
-						
-						$route.reload();
+                        $route.reload();
                     }
-
                     $scope.loadPage = false;
                 },
                 function(response) { // Error
@@ -1772,7 +1660,6 @@ app.controller("GroupsController", function($route, $scope, $http, $routeParams,
                     } else if (response.status == 500) {
                         alert("Błąd wewnętrzny serwera.");
                     }
-
                     $scope.loadPage = false;
                 }
             );
@@ -1781,71 +1668,149 @@ app.controller("GroupsController", function($route, $scope, $http, $routeParams,
             $scope.loadPage = false;
         }
     }
-
-    // Redirect to users list
-    $scope.showGroup = function($event) {
+    
+    // Edit group
+    $scope.editGroup = function($event) {
         $event.preventDefault();
-        name = $event.currentTarget.getAttribute("data-name");
-        $location.path("/members/" + name);
+        data_id = $event.currentTarget.getAttribute("data-id");
+        $scope['readonly_bool_'+data_id] = true;
+    }
+    
+    // Update group
+    $scope.saveGroup = function($event) {
+        $event.preventDefault();
+        $scope.loadPage = true;
+        
+        currentTarget = $event.currentTarget;
+        data_id = currentTarget.getAttribute("data-id");
+        $scope['readonly_bool_'+data_id] = false;
+        
+        name = currentTarget.getAttribute("data-name");
+        description = jQuery("#js-groups-description-"+data_id).val();
+        group_data = {
+            "active": true,
+            "create_date": $scope.date ? $scope.date : "",
+            "creator": $scope.login ? $scope.login : "",
+            "description": description ? description : ""
+        }
+        
+        $http.put(
+            "/service/groups/group/" + name,
+            JSON.stringify(group_data)
+        ).then(
+            function(response) { // Success
+                if (response.status == 200) {
+                    alert("Grupa została zaktualizowana.");
+                }
+                $scope.loadPage = false;
+            },
+            function(response) { // Error
+                if (response.status == 400) {
+                    alert("Błędne żądanie.");
+                } else if (response.status == 403) {
+                    alert("Nieprawidłowy lub wygasły token.");
+                } else if (response.status == 404) {
+                    alert("Nie znaleziono grupy.");
+                } else if (response.status == 500) {
+                    alert("Błąd wewnętrzny serwera.");
+                }
+                $scope.loadPage = false;
+            }
+        );
+    }
+    
+    // Delete group
+    $scope.deleteGroup = function($event) {
+        $event.preventDefault();
+        $scope.loadPage = true;
+        
+        currentTarget = $event.currentTarget;
+        data_id = currentTarget.getAttribute("data-id");
+        name = currentTarget.getAttribute("data-name");
+        
+        if (confirm("Czy na pewno usunąć wskazaną pozycję?")) {
+            $http.delete(
+                "/service/groups/group/" + name
+            ).then(
+                function(response) { // Success
+                    if (response.status == 200) {
+                        if (data_id - 1 == 0) {
+                            left = [];
+                            right = $scope.groups.splice(data_id, $scope.groups.length);
+                        } else {
+                            left = $scope.groups.splice(0, data_id - 1);
+                            right = $scope.groups.splice(data_id - 1, $scope.groups.length);
+                        }
+                        $scope.groups = left.concat(right);
+                        alert("Grupa została usunięta.");
+                        $route.reload();
+                    }
+                    $scope.loadPage = false;
+                },
+                function(response) { // Error
+                    if (response.status == 403) {
+                        alert("Nieprawidłowy lub wygasły token.");
+                    } else if (response.status == 404) {
+                        alert("Nie znaleziono grupy.");
+                    } else if (response.status == 500) {
+                        alert("Błąd wewnętrzny serwera.");
+                    }
+                    $scope.loadPage = false;
+                }
+            );
+        }
     }
 });
+
 
 /*
  ** MembersController
  */
 app.controller("MembersController", function($route, $scope, $http, $routeParams, $cookies, $location) {
-    if (isNaN($routeParams.group) &&
-        $routeParams.group != undefined
-    ) {
-        $scope.group = $routeParams.group;
-    }
-
-	$scope.notice = [];
-    $scope.users = [];
-	$scope.users_prompt = [];
     $scope.loadPage = true;
-    $scope.token = $cookies.get("token");
-	
+    $scope.group = $routeParams.group;
+    $scope.group_name = $routeParams.group.replace(/_/g," ");
+    $scope.notice = [];
+    $scope.users = null;
+    $scope.users_prompt = [];
+    
     // Get all users
     $http.get(
         "/service/groups/members/get/" + $scope.group
     ).then(
         function(response) { // Success
             if (response.status == 200) {
-				if( response.data === "null" ) {
-					$scope.notice.push( {
-						"content": "Brak użytkowników przypisanych do grupy.",
-						"class": "alert-danger"
-					} );
-				} else {
-					$scope.users = response.data;
-				}
+                if(response.data != "null") {
+                    $scope.users = response.data;
+                } else {
+                    $scope.notice.push( {
+                        "content": "Brak użytkowników przypisanych do grupy.",
+                        "class": "alert-danger"
+                    } );
+                }
             }
-
             $scope.loadPage = false;
         },
         function(response) { // Error
             if (response.status == 403) {
                 alert("Nieprawidłowy lub wygasły token.");
-            }
-
-            if (response.status == 404) {
+            } else if (response.status == 404) {
                 alert("Grupa nieznaleziona.");
             } else if (response.status == 500) {
                 alert("Błąd wewnętrzny serwera.");
             }
-
             $scope.loadPage = false;
         }
     );
-	
+    
     // Add user to group
     $scope.addUser = function($event) {
         $event.preventDefault();
         $scope.loadPage = true;
-        login = document.getElementById("js-members-login").value;
-		users = [login];
-
+        
+        login = jQuery("#js-members-login").val();
+        users = [login];
+        
         if (users[0] != "") {
             $http.post(
                 "/service/groups/members/add/" + $scope.group,
@@ -1853,19 +1818,10 @@ app.controller("MembersController", function($route, $scope, $http, $routeParams
             ).then(
                 function(response) { // Success
                     if (response.status == 200) {
-                        count_users = users.length;
-
-                        if (count_users > 1) {
-                            alert("Użytkownicy zostali dodani do grupy.");
-                        } else {
-                            alert("Użytkownik został dodany do grupy.");
-                        }
-
-                        document.getElementById("js-members-login").value = "";
-						
-						$route.reload();
+                        alert("Użytkownik został dodany do grupy.");
+                        jQuery("#js-members-login").val("");
+                        $route.reload();
                     }
-
                     $scope.loadPage = false;
                 },
                 function(response) { // Error
@@ -1878,7 +1834,6 @@ app.controller("MembersController", function($route, $scope, $http, $routeParams
                     } else if (response.status == 500) {
                         alert("Błąd wewnętrzny serwera.");
                     }
-
                     $scope.loadPage = false;
                 }
             );
@@ -1887,15 +1842,17 @@ app.controller("MembersController", function($route, $scope, $http, $routeParams
             $scope.loadPage = false;
         }
     }
-
+    
     // Delete user to group
     $scope.deleteUser = function($event) {
         $event.preventDefault();
         $scope.loadPage = true;
-        dataID = $event.currentTarget.getAttribute("data-id");
-        dataLogin = $event.currentTarget.getAttribute("data-name");
-        users = [dataLogin];
-
+        
+        currentTarget = $event.currentTarget;
+        data_id = currentTarget.getAttribute("data-id");
+        login = currentTarget.getAttribute("data-name");
+        users = [login];
+        
         if (confirm("Czy na pewno usunąć użytkownika z grupy?")) {
             $http.post(
                 "/service/groups/members/remove/" + $scope.group,
@@ -1903,20 +1860,17 @@ app.controller("MembersController", function($route, $scope, $http, $routeParams
             ).then(
                 function(response) { // Success
                     if (response.status == 200) {
-                        if (dataID - 1 == 0) {
+                        if (data_id - 1 == 0) {
                             left = [];
-                            right = $scope.users.splice(dataID, $scope.users.length);
+                            right = $scope.users.splice(data_id, $scope.users.length);
                         } else {
-                            left = $scope.users.splice(0, dataID - 1);
-                            right = $scope.users.splice(dataID - 1, $scope.users.length);
+                            left = $scope.users.splice(0, data_id - 1);
+                            right = $scope.users.splice(data_id - 1, $scope.users.length);
                         }
-
                         $scope.users = left.concat(right);
                         alert("Użytkownik został usunięty z grupy.");
-						
-						$route.reload();
+                        $route.reload();
                     }
-
                     $scope.loadPage = false;
                 },
                 function(response) { // Error
@@ -1929,13 +1883,13 @@ app.controller("MembersController", function($route, $scope, $http, $routeParams
                     } else if (response.status == 500) {
                         alert("Błąd wewnętrzny serwera.");
                     }
-
                     $scope.loadPage = false;
                 }
             );
         }
     }
 });
+
 
 /*
  ** SearchUserController
