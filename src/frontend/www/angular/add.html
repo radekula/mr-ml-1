@@ -22,19 +22,10 @@
 					<input id="file" class="upload-input-file" type="file" ng-model="file" onchange="openFile(event)">
 					<p class="button">Wybierz plik</p>
 				</label><!-- .upload-label -->
-				<label class="upload-label" for="thumbnail">
-					<span class="upload-label-title">Miniaturka:</span>
-					<input id="thumbnail" class="upload-input-thumbnail" type="file" ng-model="thumbnail">
-				</label><!-- .upload-label -->
-				<label class="upload-label" for="owner" ng-controller="SearchUserController">
-					<span class="upload-label-title upload-label-required">Właściciel:</span>
-					<input id="owner" class="input upload-input js-get-login" type="text" ng-model="owner" ng-keyup="searchUser($event)" autocomplete="off" required>
-					<ul id="js-users-prompt" class="users-prompt">
-						<li ng-repeat="(key, value) in users_prompt" ng-click="selectUser($event)" data-name="{{value.login}}">
-							<a>{{value.login}}</a>
-						</li>
-					</ul>
-				</label><!-- .upload-label -->
+                <label class="upload-label" for="owner">
+                    <span class="upload-label-title upload-label-required">Właściciel:</span>
+                    <input id="owner" class="input upload-input" type="text" ng-model="owner" required>
+                </label><!-- .upload-label -->
 				<label class="upload-label" for="flow">
 					<span class="upload-label-title upload-label-required">Przepływ:</span>
 					<input id="flow" class="input upload-input js-get-flow" type="text" autocomplete="off" required>
