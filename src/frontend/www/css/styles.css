@@ -1757,6 +1757,7 @@ ul {
 	margin: 0 0 15px;
 	padding: 20px 50px;
 	background-color: #fff;
+    cursor: pointer;
 }
 
 .steps-inner {
@@ -1849,6 +1850,7 @@ ul {
 }
 
 .dialog > input,
+.dialog > select,
 .dialog > textarea {
 	margin: 0 0 25px;
 }
