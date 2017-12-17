@@ -192,7 +192,7 @@ app.controller("SearchController", function($scope, $http, $location) {
 app.controller("NavController", function($scope, $http, $location, $cookies) {
 	$scope.number_messages = 0;
 	$scope.number_actions = 0;
-	
+    
 	$http.get(
 		"/service/desktop/comments"
 	).then(
@@ -240,20 +240,6 @@ app.controller("NavController", function($scope, $http, $location, $cookies) {
 			}
 		}
 	);
-    
-    // Get user steps
-    // $scope.login = $cookies.get("login");
-    
-	// $http.get(
-		// "/service/flows/user/" + $scope.login + "/steps"
-	// ).then(
-		// function(response) { // Success
-            // alert(JSON.stringify(response.data));
-		// },
-		// function(response) { // Error
-            // alert(response.status);
-		// }
-	// );
 });
 
 app.controller("PulpitController", function($scope, $http, $location) {
@@ -1261,8 +1247,42 @@ app.controller("DocumentController", function($scope, $routeParams, $http, $cook
 app.controller("StatusController", function($scope, $routeParams, $http, $cookies, $location) {
     if ($routeParams.page) {
         documentId = $routeParams.page;
-        $scope.flow_info = {};
+        $scope.flow_info = true;
         $scope.notice = false;
+        $scope.steps = {};
+        $scope.document_name = "";
+        
+        $http.get( // Get document by id
+            "/service/documents/document/" + documentId
+        ).then(
+            function(response) { // Success
+                if (response.status == 200) {
+                    $scope.document_name = response.data.title;
+                }
+            },
+            function(response) { // Error
+                if(response.status == 404) {
+                    $scope.document_name = "Nie znaleziono dokumentu";
+                }
+            }
+        );
+        
+        // _document_id = "c17ae9b7-bd07-40f3-b496-d934d27073b2";
+        // _step_id = "832b77f4-5ef1-4654-a34d-96dbfd61d5ef";
+        
+        // $http.put( // Get flow steps by flow ID
+            // "/service/flows-documents/action/" + _document_id + "/" + _step_id
+        // ).then(
+            // function(response) { // Success
+                // if (response.status == 200) {
+                    // alert(response.status);
+                // }
+            // },
+            // function(response) { // Error
+                // alert(response.status);
+            // }
+        // );
+        
         
         $http.get( // Get information about document status in flow
             "/service/flows-documents/status/" + documentId
@@ -1270,7 +1290,27 @@ app.controller("StatusController", function($scope, $routeParams, $http, $cookie
             function(response) { // Success
                 if (response.status == 200) {
                     $scope.flow_info = response.data;
-                    // alert(JSON.stringify($scope.flow_info));
+                    $scope.flow_info_flow = response.data.flow;
+                    
+                    $http.get( // Get flow steps by flow ID
+                        "/service/flows/flow/" + $scope.flow_info_flow + "/steps"
+                    ).then(
+                        function(response) { // Success
+                            if (response.status == 200) {
+                                steps_length = response.data.length;
+                                
+                                for(i = 0; i < steps_length; i++) {
+                                    id = response.data[i].id;
+                                    type = response.data[i].type;
+                                    $scope.steps[id] = type;
+                                }
+                                
+                                // alert(JSON.stringify($scope.steps["a9c96553-3ab3-4d73-8bfe-3b2a89b9bb4a"]));
+                            }
+                        },
+                        function(response) { // Error
+                        }
+                    );
                 }
             },
             function(response) { // Error
