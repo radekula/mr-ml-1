@@ -115,6 +115,6 @@ func GetUsersSteps(login string, token string) ([]model.UserStepData, int) {
     }
 
     json.NewDecoder(resp.Body).Decode(&remoteSteps)
- 
+
     return remoteSteps, 200
 }

@@ -155,7 +155,8 @@ func getDocument(c *mgo.Collection, id string) (model.Document, int) {
     var search_data model.DBDocument
 
     count, _ := c.Find(bson.M{"id": id}).Count()
-    if count != 1 {
+
+    if count < 1 {
         return document, 1
     }
 
@@ -253,7 +254,7 @@ func updateDocument(c *mgo.Collection, data model.Document) (int) {
 
 func deleteDocument(c *mgo.Collection, id string) (int) {
     count, _ := c.Find(bson.M{"id": id}).Count()
-    if count != 1 {
+    if count < 1 {
         return 1
     }
 

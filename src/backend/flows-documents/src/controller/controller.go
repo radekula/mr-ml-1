@@ -500,12 +500,12 @@ func getUserActions(c *mgo.Collection, login string, token string) ([]model.User
         var action model.UserAction
 
         // search if there is any document flow with this step as current
-        count, _ := c.Find(bson.M{"current_step": step.Id}).Count()
+        count, _ := c.Find(bson.M{"current_steps": step.Id}).Count()
         if count == 0 {
             continue
         }
 
-        c.Find(bson.M{"current_step": step.Id}).One(&statusData)
+        c.Find(bson.M{"current_steps": step.Id}).One(&statusData)
 
         action.Document = statusData.Document
         action.Flow = statusData.Flow
