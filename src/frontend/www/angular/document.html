@@ -31,13 +31,21 @@
 						<span class="upload-label-title upload-label-required">Tytuł:</span>
 						<input id="title" class="input upload-input" type="text" ng-model="title" required>
 					</label><!-- .upload-label -->
-					<label class="upload-label" for="owner">
+					<label id="owner-container" class="upload-label" for="owner">
 						<span class="upload-label-title upload-label-required">Właściciel:</span>
 						<input id="owner" class="input upload-input" type="text" ng-model="owner" required>
 					</label><!-- .upload-label -->
 					<label class="upload-label" for="description">
 						<span class="upload-label-title">Opis:</span>
 						<textarea id="description" class="input upload-input upload-textarea" type="text" ng-model="description"></textarea>
+					</label><!-- .upload-label -->
+					<label class="upload-label">
+						<span class="upload-label-title">Przepływ:</span>
+						<input class="input upload-input" type="text" ng-model="document_flow" readonly>
+					</label><!-- .upload-label -->
+					<label class="upload-label">
+						<span class="upload-label-title">Status:</span>
+						<input class="input upload-input" type="text" ng-model="document_sign ? 'podpisany' : 'niepodpisany'" readonly>
 					</label><!-- .upload-label -->
 					<label class="upload-label">
 						<span class="upload-label-title">Data dodania:</span>

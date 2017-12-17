@@ -17,31 +17,16 @@
 			</span><!-- .breadcrumb-item -->
 			<span class="breadcrumb-item breadcrumb-current">Status</span>
 		</div><!-- .breadcrumb -->
-		<div class="content">
+		<div class="content" ng-controller="StatusController">
 			<section class="steps">
-				<section class="steps-step">
+				<section class="steps-step" ng-repeat="item in flow_info.history">
 					<div class="steps-inner">
 						<header class="steps-header">
-							<h3 class="steps-title">Krok 1</h3>
+							<h3 class="steps-title">{{item.step}}</h3>
 						</header>
 						<i class="icon steps-status">&#xe811;</i>
 					</div>
-				</section>
-				<section class="steps-step">
-					<div class="steps-inner">
-						<header class="steps-header">
-							<h3 class="steps-title">Krok 2</h3>
-						</header>
-						<i class="icon steps-status">&#xe811;</i>
-					</div>
-				</section>
-				<section class="steps-step">
-					<div class="steps-inner">
-						<header class="steps-header">
-							<h3 class="steps-title">Krok 3</h3>
-						</header>
-					</div>
-				</section>
+                </section>
 			</section>
 		</div><!-- .content -->
 	</article><!-- .article -->
