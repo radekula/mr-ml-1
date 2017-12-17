@@ -1776,9 +1776,12 @@ ul {
 
 .steps-step {
 	margin: 0 0 15px;
-	padding: 20px 50px;
-	background-color: #fff;
     cursor: pointer;
+}
+
+.page-status .steps-step {
+    cursor: default;
+    color: #323945;
 }
 
 .steps-inner {
@@ -1792,6 +1795,12 @@ ul {
 	   -moz-box-align: center;
 	    -ms-flex-align: center;
 	        align-items: center;
+	background-color: #fff;
+	padding: 20px 50px;
+}
+
+.page-status .steps-inner {
+    margin-bottom: 5px;
 }
 
 .steps-header {
