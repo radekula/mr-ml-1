@@ -182,6 +182,9 @@ function callFlowsDocuments($data, $config) {
     $method = $data['method'];
 
     switch($data['params'][1]) {
+        case "user":
+            $remoteUrl .= '/' . $data['params'][2] . '/' . $data['params'][3] . '/' . $data['token'];
+            break;
         case "start":
             $remoteUrl .= '/' . $data['token'];
             break;
