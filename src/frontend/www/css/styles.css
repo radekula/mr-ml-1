@@ -1026,6 +1026,27 @@ ul {
 **
 */
 
+.ui-widget.ui-widget-content,
+.ui-menu .ui-menu-item-wrapper,
+.ui-menu .ui-menu-item-wrapper:hover {
+    border-color: transparent;
+}
+
+.ui-widget.ui-widget-content,
+.ui-menu .ui-menu-item-wrapper {
+    color: #3f4651;
+}
+
+.ui-menu .ui-menu-item-wrapper,
+.ui-menu .ui-menu-item-wrapper:hover {
+    font-weight: 300;
+}
+
+.ui-menu .ui-menu-item-wrapper:hover {
+    color: #fff;
+    background: #3f4651;
+}
+
 .upload-form {
     padding: 40px;
     width: 50%;
