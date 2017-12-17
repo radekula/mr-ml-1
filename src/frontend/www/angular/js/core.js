@@ -37,9 +37,10 @@ app.config(function($routeProvider, $locationProvider) {
         templateUrl: "/www/angular/flow.html",
         controller: "FlowController"
     });
-    $routeProvider.when("/status", {
+    $routeProvider.when("/status/:page", {
         title: "Status",
         templateUrl: "/www/angular/status.html",
+        controller: "StatusController"
     });
     $routeProvider.when("/action", {
         title: "Akcja na dokumencie",
@@ -188,7 +189,7 @@ app.controller("SearchController", function($scope, $http, $location) {
 /*
  ** Nav in header
  */
-app.controller("NavController", function($scope, $http, $location) {
+app.controller("NavController", function($scope, $http, $location, $cookies) {
 	$scope.number_messages = 0;
 	$scope.number_actions = 0;
 	
@@ -239,6 +240,20 @@ app.controller("NavController", function($scope, $http, $location) {
 			}
 		}
 	);
+    
+    // Get user steps
+    // $scope.login = $cookies.get("login");
+    
+	// $http.get(
+		// "/service/flows/user/" + $scope.login + "/steps"
+	// ).then(
+		// function(response) { // Success
+            // alert(JSON.stringify(response.data));
+		// },
+		// function(response) { // Error
+            // alert(response.status);
+		// }
+	// );
 });
 
 app.controller("PulpitController", function($scope, $http, $location) {
@@ -1153,6 +1168,9 @@ app.controller("DocumentsController", function($scope, $routeParams, $http, $tim
 app.controller("DocumentController", function($scope, $routeParams, $http, $cookies, $location) {
     if ($routeParams.page) {
         documentId = $routeParams.page;
+        $scope.login = $cookies.get("login");
+        $scope.document_sign = false;
+        $scope.document_flow = "";
 
         $http.get( // Get document
             "/service/documents/document/" + documentId
@@ -1163,7 +1181,7 @@ app.controller("DocumentController", function($scope, $routeParams, $http, $cook
                     $scope.file_name = response.data.file_name;
                     $scope.title = response.data.title;
                     $scope.create_date = response.data.create_date;
-                    $scope.owner = response.data.owner.join(";");
+                    $scope.owner = response.data.owner.join(", ");
                     $scope.description = response.data.description;
                     $scope.data = response.data.data;
                     document.getElementById("file-name").innerHTML = response.data.file_name;
@@ -1180,6 +1198,85 @@ app.controller("DocumentController", function($scope, $routeParams, $http, $cook
                 }
             }
         );
+        
+        // $http.put( // Sign document
+            // "/service/signing/sign/" + documentId
+        // ).then(
+            // function(response) { // Success
+                // if (response.status == 200) {
+                    // alert(response.status);
+                // }
+            // },
+            // function(response) { // Error
+                    // alert(response.status);
+            // }
+        // );
+
+        $http.get( // Verify if document in signed by user by performing real verification (not cached)
+            "/service/signing/verify/" + documentId + "/" + $scope.login
+        ).then(
+            function(response) { // Success
+                if (response.status == 200) {
+                    $scope.document_sign = true;
+                }
+            },
+            function(response) { // Error
+                // $scope.document_sign = false;
+            }
+        );
+        
+        $http.get( // Get information about document status in flow
+            "/service/flows-documents/status/" + documentId
+        ).then(
+            function(response) { // Success
+                if (response.status == 200) {
+                    flow_id = response.data.flow;
+                    
+                    $http.get( // Get basic information about flow
+                        "/service/flows/flow/" + flow_id
+                    ).then(
+                        function(response) { // Success
+                            if (response.status == 200) {
+                                $scope.document_flow = response.data.name;
+                            }
+                        },
+                        function(response) { // Error
+                            alert(response.status);
+                        }
+                    );
+                }
+            },
+            function(response) { // Error
+                alert(response.status);
+            }
+        );
+    } else {
+        $location.path("/404");
+    }
+});
+
+/*
+ ** Status Controller
+ */
+app.controller("StatusController", function($scope, $routeParams, $http, $cookies, $location) {
+    if ($routeParams.page) {
+        documentId = $routeParams.page;
+        $scope.flow_info = {};
+        $scope.notice = false;
+        
+        $http.get( // Get information about document status in flow
+            "/service/flows-documents/status/" + documentId
+        ).then(
+            function(response) { // Success
+                if (response.status == 200) {
+                    $scope.flow_info = response.data;
+                    // alert(JSON.stringify($scope.flow_info));
+                }
+            },
+            function(response) { // Error
+                $scope.notice = true;
+            }
+        );
     } else {
         $location.path("/404");
     }
@@ -1190,6 +1287,9 @@ app.controller("DocumentController", function($scope, $routeParams, $http, $cook
  */
 app.controller("UploadController", function($scope, $http, $cookies, $location, $interval) {
     $scope.token = $cookies.get("token");
+    var availableTags = [];
+    var availableTags2 = [];
+    var flows_id = [];
     
     openFile = function(event) {
         var input = event.target;
@@ -1198,6 +1298,90 @@ app.controller("UploadController", function($scope, $http, $cookies, $location, 
             document.getElementById("file-name").innerHTML = files[0].name;
         }
     }
+    
+    function split( val ) {
+        return val.split( /,\s*/ );
+    }
+    
+    function extractLast( term ) {
+        return split( term ).pop();
+    }
+    
+    // Get list of users
+    $http.get(
+        "/service/users/users",
+    ).then(
+        function(response) { // Success
+            if (response.status == 200) {
+                tmp = response.data.result;
+                tmp_length = tmp.length;
+                
+                for(i = 0; i < tmp_length; i++ ) {
+                    availableTags.push(tmp[i].login);
+                }
+                
+                jQuery(document).ready(function(){
+                    jQuery( "#owner" ).on( "keydown", function(event) {
+                        if( event.keyCode === $.ui.keyCode.TAB &&
+                            jQuery( this ).autocomplete( "instance" ).menu.active
+                        ) {
+                            event.preventDefault();
+                        }
+                    } ).autocomplete( {
+                        minLength: 3,
+                        source: function( request, response ) {
+                            response(
+                                jQuery.ui.autocomplete.filter(
+                                    availableTags,
+                                    extractLast(request.term)
+                                )
+                            );
+                        },
+                        focus: function() {
+                            return false;
+                        },
+                        select: function(event,ui) {
+                            var terms = split( this.value );
+                            terms.pop();
+                            terms.push( ui.item.value );
+                            terms.push( "" );
+                            this.value = terms.join( ", " );
+                            return false;
+                        }
+                    } );
+                    
+                    var ui_id_1 = jQuery("#ui-id-1").detach();
+                    jQuery("#owner-container").append(ui_id_1);
+                } );
+            }
+        },
+        function(response) { // Error
+        }
+    );
+    
+    // Get list of flows
+    $http.get(
+        "/service/flows/flows",
+    ).then(
+        function(response) { // Success
+            if (response.status == 200) {
+                tmp = response.data.result;
+                tmp_length = tmp.length;
+                
+                for(i = 0; i < tmp_length; i++ ) {
+                    availableTags2.push(tmp[i].name);
+                }
+                
+                jQuery(document).ready(function(){
+                    jQuery( "#flow" ).autocomplete({
+                      source: availableTags2
+                    });
+                } );
+            }
+        },
+        function(response) { // Error
+        }
+    );
 
     // Save a document
     $scope.saveDocument = function($event) {
@@ -1290,7 +1474,7 @@ app.controller("UploadController", function($scope, $http, $cookies, $location, 
 
                         // Set owners of a document
                         i = 0;
-                        owners = $scope.owner ? $scope.owner.split(";") : [];
+                        owners = $scope.owner ? $scope.owner.split(", ") : [];
                         countOwners = owners.length;
                         for (i; i < countOwners; i++) {
                             owner = owners[i].trim();
@@ -1318,6 +1502,39 @@ app.controller("UploadController", function($scope, $http, $cookies, $location, 
                                             "class": "alert-success"
                                         });
                                     }
+                                    
+                                    _flow_document = {
+                                        "document": response.data.id,
+                                        "flow": ""
+                                    }
+                                    
+                                    flow_name = document.getElementById("flow").value ? document.getElementById("flow").value : "";
+                                    
+                                    // Get list of flows
+                                    $http.get(
+                                        "/service/flows/flows?limit=1&search=" + flow_name,
+                                    ).then(
+                                        function(response) { // Success
+                                            if (response.status == 200) {
+                                                _flow_document["flow"] = response.data.result[0].id;
+                                                
+                                                // Start a flow for a document
+                                                $http.post(
+                                                    "/service/flows-documents/start",
+                                                    JSON.stringify(_flow_document)
+                                                ).then(
+                                                    function(response) { // Success
+                                                        if (response.status == 200) {
+                                                        }
+                                                    },
+                                                    function(response) { // Error
+                                                    }
+                                                );
+                                            }
+                                        },
+                                        function(response) { // Error
+                                        }
+                                    );
 
                                     $scope.loadPage = false;
                                 },
@@ -1409,10 +1626,26 @@ app.controller("UserController", function($scope, $cookies, $http, $routeParams)
     $scope.first_name = "";
     $scope.last_name = "";
     $scope.email = "";
+    $scope.public_key = "";
+    $scope.private_key = "";
 
     var login = $cookies.get("login");
     var token = $cookies.get("token");
-
+    
+    // Get public key
+    $http.get(
+        "/service/signing/user/" + login + "/keys"
+    ).then(
+        function(response) { // Success
+            if (response.status == 200) {
+                $scope.public_key = response.data.public_key;
+            }
+        },
+        function(response) { // Error
+            alert(response.status == 403);
+        }
+    );
+    
     // Get information about of the user
     $http.get(
         "/service/users/user"
@@ -1514,6 +1747,25 @@ app.controller("UserController", function($scope, $cookies, $http, $routeParams)
                     }
 
                     $scope.loadPage = false;
+                }
+            );
+            
+            _keys = {
+                "public_key": $scope.public_key ? $scope.public_key : "",
+                "private_key": $scope.private_key ? $scope.private_key : ""
+            }
+            
+            // Update/add keys
+            $http.put(
+                "/service/signing/user/" + login + "/keys",
+                JSON.stringify(_keys)
+            ).then(
+                function(response) { // Success
+                    if (response.status == 200) {
+                    }
+                },
+                function(response) { // Error
+                    alert(response.status == 403);
                 }
             );
         } else {
