@@ -6,8 +6,7 @@
 	<nav class="menu" ng-controller="menu" ng-include="'/www/angular/menu.html'"></nav>
 	<article class="article">
 		<div class="breadcrumb">
-			<header class="breadcrumb-header">
-				<h1 class="breadcrumb-title">Nazwa dokumentu</h1>
+			<header class="breadcrumb-header">{{document_name}}</h1>
 			</header><!-- .breadcrumb-header -->
 			<span class="breadcrumb-item">
 				<a class="breadcrumb-link" href="/#!/">Home</a>
@@ -18,16 +17,45 @@
 			<span class="breadcrumb-item breadcrumb-current">Status</span>
 		</div><!-- .breadcrumb -->
 		<div class="content" ng-controller="StatusController">
-			<section class="steps">
+			<section class="steps" ng-show="flow_info ? true : false">
 				<section class="steps-step" ng-repeat="item in flow_info.history">
 					<div class="steps-inner">
 						<header class="steps-header">
-							<h3 class="steps-title">{{item.step}}</h3>
+							<h3 class="steps-title">{{steps[item.step]}}</h3>
 						</header>
-						<i class="icon steps-status">&#xe811;</i>
+                        <p></p>
+						<i class="icon steps-status" ng-show="item.actions ? true : false">&#xe811;</i>
 					</div>
+                    <style>
+                        .actions {
+                            width: 100%;
+                        border: 1px solid #fff;
+                        border-collapse: collapse;
+                            
+                        }
+                        
+                        .actions td,
+                        .actions th {
+                        padding: 10px 20px;
+                        width: 33.33333333333333%;
+                        border: 1px solid #fff;
+                        color: #323945;
+                        }
+                        .actions th {
+                            font-weight: 400;
+                            text-align: left;
+                        }
+                    </style>
+                    <table class="actions" ng-show="item.actions ? true: false">
+                        <tr class="actions-item" ng-repeat="action in item.actions">
+                            <td>{{action.login}}</td>
+                            <td>{{action.action}}</td>
+                            <td>{{action.date}}</td>
+                        </tr>
+                    </table>
                 </section>
 			</section>
+            <p class="steps" ng-show="flow_info ? false : true">Nie zdefiniowano przepływu dla dokumentu.</p>
 		</div><!-- .content -->
 	</article><!-- .article -->
 </main><!-- .main -->
