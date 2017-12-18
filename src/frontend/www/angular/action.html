@@ -14,18 +14,31 @@
 			</span><!-- .breadcrumb-item -->
 			<span class="breadcrumb-item breadcrumb-current">Akcja na dokumencie</span>
 		</div><!-- .breadcrumb -->
-		<div class="content">
+		<div class="content" ng-controller="ActionController">
 			<section class="action">
 				<header class="action-header">
-					<h2 class="action-title">Nazwa dokumentu</h2>
-					<p class="action-type">Typ kroku</p>
+					<div>
+                        <p>Nazwa dokumentu:</p>
+                        <p>{{data.document.title}}</p>
+                    </div>
+					<div>
+                        <p>Opis dokumentu:</p>
+                        <p>{{data.document.description}}</p>
+                    </div>
+					<div>
+                        <p>Typ kroku:</p>
+                        <p>{{data.step.type}}</p>
+                    </div>
 				</header>
 				<nav class="action-nav">
-					<a class="button action-link">Otwórz dokument</a>
+					<a href="/#!/document/{{data.document.id}}" target="_blank" class="button action-link">Otwórz dokument</a>
 					<div class="action-reaction">
-						<a class="button action-link"><i class="icon">&#xe814;</i> Oznacz jako przeczytany</a>
-						<a class="button action-link"><i class="icon">&#xe813;</i> Podpisz jako użytkownik</a>
-						<a class="button action-link"><i class="icon">&#xe812;</i> Przekaż</a>
+						<a class="button action-link" ng-click="doAction($event)">
+                            <i class="icon">&#xe814;</i> {{data.action.name}}
+                        </a>
+						<!-- <a class="button action-link"><i class="icon">&#xe813;</i> Podpisz jako użytkownik</a> -->
+						<!-- <a class="button action-link"><i class="icon">&#xe812;</i> Przekaż</a> -->
+						<!-- <a class="button action-link"><i class="icon">&#xe812;</i> Oznacz jako przeczytany</a> -->
 					</div>
 				</nav>
 			</section>
