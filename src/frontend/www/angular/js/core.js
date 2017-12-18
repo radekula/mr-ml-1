@@ -42,9 +42,10 @@ app.config(function($routeProvider, $locationProvider) {
         templateUrl: "/www/angular/status.html",
         controller: "StatusController"
     });
-    $routeProvider.when("/action", {
+    $routeProvider.when("/action/:step_type/:document_id/:step_id", {
         title: "Akcja na dokumencie",
         templateUrl: "/www/angular/action.html",
+        controller: "ActionController"
     });
     $routeProvider.when("/documents", {
         title: "Lista dokumentów",
@@ -218,7 +219,7 @@ app.controller("NavController", function($scope, $http, $location, $cookies) {
 	);
 	
 	$http.get(
-		"/service/desktop/actions"
+		"/service/flows-documents/user/admin/current_actions"
 	).then(
 		function(response) { // Success
 			if (response.status == 200) {
@@ -231,13 +232,7 @@ app.controller("NavController", function($scope, $http, $location, $cookies) {
 			}
 		},
 		function(response) { // Error
-			if (response.status == 400) {
-				alert("Błędne żądanie.");
-			} else if (response.status == 403) {
-				alert("Nieprawidłowy lub wygasły token.");
-			} else if (response.status == 500) {
-				alert("Wewnętrzny błąd serwera.");
-			}
+            alert(response.status);
 		}
 	);
 });
@@ -260,7 +255,7 @@ app.controller("PulpitController", function($scope, $http, $location) {
 	} );
 	
 	$http.get(
-		"/service/desktop/actions"
+		"/service/flows-documents/user/admin/current_actions"
 	).then(
 		function(response) { // Success
 			if (response.status == 200) {
@@ -1321,6 +1316,68 @@ app.controller("StatusController", function($scope, $routeParams, $http, $cookie
         $location.path("/404");
     }
 });
+
+
+/*
+ ** Action Controller
+ */
+app.controller("ActionController", function($scope, $routeParams, $http, $cookies, $location) {
+    $scope.data = {
+        document : {
+            id : $routeParams.document_id,
+            title : "",
+            description : ""
+        },
+        step : {
+            id : $routeParams.step_id,
+            type : $routeParams.step_type
+        },
+        action : {
+            name : ""
+        }
+    }
+    
+    function setActionData(data) {
+        switch(data.step.type) {
+            case "accept":
+                data.action.name = "Zaakceptuj dokument";
+            break;
+        }
+    }
+    setActionData($scope.data);
+    
+    $http.get( // Get document by id
+        "/service/documents/document/" + $scope.data.document.id
+    ).then(
+        function(response) { // Success
+            if (response.status == 200) {
+                if(response.data) {
+                    $scope.data.document.title = response.data.title;
+                    $scope.data.document.description = response.data.description;
+                }
+            }
+        },
+        function(response) { // Error
+        }
+    );
+    
+    $scope.doAction = function($event) {
+        $event.preventDefault();
+        
+        $http.put( // Perform a user action for a step
+            "/service/flows-documents/action/" + $scope.data.document.id + "/" + $scope.data.step.id
+        ).then(
+            function(response) { // Success
+                if (response.status == 200) {
+                    $location.path("/");
+                    alert("Akcja została wykonana.");
+                }
+            },
+            function(response) { // Error
+            }
+        );
+    }
+} );
 
 /*
  ** Upload Controller
