@@ -11,7 +11,7 @@
 			</header><!-- .breadcrumb-header -->
 			<span class="breadcrumb-item breadcrumb-current">Home</span>
 		</div><!-- .breadcrumb -->
-		<div class="content" ng-controller="PulpitController">
+		<div class="content" ng-controller="DesktopController">
 			<section class="box">
 				<header class="box-header">
 					<h3 class="box-title">Akcje:</h3>
@@ -22,7 +22,7 @@
 						<th>Typ kroku</th>
 						<th></th>
 					</tr>
-					<tr ng-repeat="(key, value) in actions.result|limitTo:4">
+					<tr ng-repeat="(key, value) in data.actions.result|limitTo:4">
 						<td>
                             <a style="display: inline;" href="/#!/flow/{{value.flow}}">{{value.flow_name}}</a>
                         </td>
@@ -39,7 +39,7 @@
 				</table>
 				<div class="box-table-more">
 					<table class="box-table">
-						<tr ng-repeat="(key, value) in actions.result|limitTo:100:4">
+						<tr ng-repeat="(key, value) in data.actions.result|limitTo:100:4">
 							<td>{{value.title}}</td>
 							<td class="box-date"></td>
 							<td class="box-author"></td>
@@ -51,7 +51,7 @@
 						</tr>
 					</table>
 				</div>
-				<a class="box-more js-box-more" ng-show="actions.total >= 4">
+				<a class="box-more js-box-more" ng-show="data.actions.total >= 4">
 					<i class="icon">&#xe80e;</i>
 				</a>
 			</section>
@@ -66,7 +66,7 @@
 						<th>Autor</th>
 						<th></th>
 					</tr>
-					<tr ng-repeat="(key, value) in comments.result|limitTo:4">
+					<tr ng-repeat="(key, value) in data.comments.result|limitTo:4">
 						<td>{{value.content}}</td>
 						<td class="box-date"></td>
 						<td class="box-author">{{value.author}}</td>
@@ -82,7 +82,7 @@
 				</table>
 				<div class="box-table-more">
 					<table class="box-table">
-						<tr ng-repeat="(key, value) in comments.result|limitTo:100:4">
+						<tr ng-repeat="(key, value) in data.comments.result|limitTo:100:4">
 							<td>{{value.content}}</td>
 							<td class="box-date"></td>
 							<td class="box-author">{{value.author}}</td>
@@ -94,7 +94,7 @@
 						</tr>
 					</table>
 				</div>
-				<a class="box-more js-box-more" ng-show="comments.total >= 4">
+				<a class="box-more js-box-more" ng-show="data.comments.total >= 4">
 					<i class="icon">&#xe80e;</i>
 				</a>
 			</section>
@@ -108,7 +108,7 @@
 						<th>Data</th>
 						<th></th>
 					</tr>
-					<tr ng-repeat="(key, value) in documents.result|limitTo:4">
+					<tr ng-repeat="(key, value) in data.documents.result|limitTo:4">
 						<td>{{value.title}}</td>
 						<td class="box-date">{{value.create_date}}</td>
 						<td>
@@ -123,7 +123,7 @@
 				</table>
 				<div class="box-table-more">
 					<table class="box-table">
-						<tr ng-repeat="(key, value) in documents.result|limitTo:100:4">
+						<tr ng-repeat="(key, value) in data.documents.result|limitTo:100:4">
 							<td>{{value.title}}</td>
 							<td class="box-date">{{value.create_date}}</td>
 							<td>
@@ -134,7 +134,7 @@
 						</tr>
 					</table>
 				</div>
-				<a class="box-more js-box-more" ng-show="documents.total >= 4">
+				<a class="box-more js-box-more" ng-show="data.documents.total >= 4">
 					<i class="icon">&#xe80e;</i>
 				</a>
 			</section>

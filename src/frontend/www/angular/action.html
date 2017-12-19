@@ -18,7 +18,7 @@
 			<section class="action">
 				<header class="action-header">
 					<div>
-                        <p>Nazwa dokumentu:</p>
+                        <p>Tytuł:</p>
                         <p>{{data.document.title}}</p>
                     </div>
 					<div>
@@ -33,12 +33,20 @@
 				<nav class="action-nav">
 					<a href="/#!/document/{{data.document.id}}" target="_blank" class="button action-link">Otwórz dokument</a>
 					<div class="action-reaction">
-						<a class="button action-link" ng-click="doAction($event)">
-                            <i class="icon">&#xe814;</i> {{data.action.name}}
-                        </a>
-						<!-- <a class="button action-link"><i class="icon">&#xe813;</i> Podpisz jako użytkownik</a> -->
-						<!-- <a class="button action-link"><i class="icon">&#xe812;</i> Przekaż</a> -->
-						<!-- <a class="button action-link"><i class="icon">&#xe812;</i> Oznacz jako przeczytany</a> -->
+						<button class="button action-link" ng-click="doAction($event)">
+                            <span ng-if="data.step.type == 'accept'">
+                                <i class="icon">&#xe814;</i> Zaakceptuj dokument
+                            </span>
+                            <span ng-if="data.step.type == 'accept2'">
+                                <i class="icon">&#xe813;</i> Podpisz jako użytkownik
+                            </span>
+                            <span ng-if="data.step.type == 'accept3'">
+                                <i class="icon">&#xe812;</i> Przekaż
+                            </span>
+                            <span ng-if="data.step.type == 'accept3'">
+                                <i class="icon">&#xe812;</i> Oznacz jako przeczytany
+                            </span>
+                        </button>
 					</div>
 				</nav>
 			</section>

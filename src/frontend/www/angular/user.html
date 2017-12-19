@@ -18,54 +18,48 @@
 			<form class="upload-form" name="userForm" ng-model="userForm">
 				<label class="upload-label" for="first-name">
 					<span class="upload-label-title upload-label-required">Imię:</span>
-					<input id="first-name" class="input upload-input" type="text" ng-model="first_name" required>
+					<input id="first-name" class="input upload-input" type="text" ng-model="data.user.first_name" required>
 				</label><!-- .upload-label -->
 				<label class="upload-label" for="last-name">
 					<span class="upload-label-title upload-label-required">Nazwisko:</span>
-					<input id="last-name" class="input upload-input" type="text" ng-model="last_name" required>
+					<input id="last-name" class="input upload-input" type="text" ng-model="data.user.last_name" required>
 				</label><!-- .upload-label -->
 				<label class="upload-label" for="email">
 					<span class="upload-label-title upload-label-required">E-mail:</span>
-					<input id="email" class="input upload-input" type="text" ng-model="email">
+					<input id="email" class="input upload-input" type="text" ng-model="data.user.email">
 				</label><!-- .upload-label -->
 				<label class="upload-label" for="password">
 					<span class="upload-label-title">Nowe hasło:</span>
-					<input id="password" class="input upload-input" type="text" ng-model="password">
+					<input id="password" class="input upload-input" type="text" ng-model="data.password.new_password">
 				</label><!-- .upload-label -->
-				<label class="upload-label" for="repeat_password">
-					<span class="upload-label-title">Powtórz hasło:</span>
-					<input id="password" class="input upload-input" type="text" ng-model="repeat_password">
+				<label class="upload-label" for="old_password">
+					<span class="upload-label-title">Obecne hasło:</span>
+					<input id="old_password" class="input upload-input" type="text" ng-model="data.password.old_password">
 				</label><!-- .upload-label -->
 				<label class="upload-label" for="key-public">
 					<span class="upload-label-title upload-label-required">Klucz publiczny:</span>
-					<textarea id="key-public" class="input upload-input upload-textarea" ng-model="public_key"></textarea>
+					<textarea id="key-public" class="input upload-input upload-textarea" ng-model="data.keys.public_key"></textarea>
 				</label><!-- .upload-label -->
 				<label class="upload-label" for="key-private">
 					<span class="upload-label-title">Klucz prywatny:</span>
-					<textarea id="key-private" class="input upload-input upload-textarea"></textarea>
+					<textarea id="key-private" class="input upload-input upload-textarea"  ng-model="data.keys.private_key"></textarea>
 				</label><!-- .upload-label -->
 				<label class="upload-label">
 					<span class="upload-label-title">Typ <br>konta:</span>
-					<input class="input upload-input" type="text" ng-model="type" required readonly>
+					<input class="input upload-input" type="text" ng-model="data.user.type" required readonly>
 				</label><!-- .upload-label -->
 				<label class="upload-label">
 					<span class="upload-label-title">Status:</span>
-					<input class="input upload-input" type="text" ng-model="active" required readonly>
+					<input class="input upload-input" type="text" value="{{data.user.active == true ? 'Aktywny' : 'Nieaktywny'}}" required readonly>
 				</label><!-- .upload-label -->
 				<label class="upload-label">
 					<span class="upload-label-title">Ostatnie <br>logowanie:</span>
-					<input class="input upload-input" type="text" ng-model="last_login" required readonly>
+					<input class="input upload-input" type="text" ng-model="data.user.last_login" required readonly>
 				</label><!-- .upload-label -->
 				<label class="upload-label">
 					<span class="upload-label-title">Ostatnio <br>aktywny:</span>
-					<input class="input upload-input" type="text" ng-model="last_active" required readonly>
+					<input class="input upload-input" type="text" ng-model="data.user.last_active" required readonly>
 				</label><!-- .upload-label -->
-				<label class="upload-label">
-					<span class="upload-label-title">Grupy:</span>
-					<ul class="user-groups">
-						<li class="user-groups-item" ng-repeat="group in groups">{{group.name}}</li>
-					</ul>
-				</label>
 				<p class="alert {{item.class}}" ng-repeat="item in notice">{{item.content}}</p>
 				<div class="container-button">
 					<button class="button" type="submit" ng-click="saveUser($event)">Zapisz</button>

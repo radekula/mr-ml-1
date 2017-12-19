@@ -17,11 +17,7 @@
             </div><!-- .breadcrumb -->
             <div class="content" ng-controller="ActionsController">
                 <form class="documents-form">
-                    <input class="input documents-input documents-phrase" name="phrase" type="text" placeholder="Fraza" ng-model="phrase">
-                    <label class="documents-form-label">
-						<i class="icon">&#xe806;</i>
-						<input class="input documents-input documents-datepicker js-documents-datepicker" name="date" type="text" placeholder="Data" ng-model="date" datepicker>
-					</label><!-- .documents-form-label -->
+                    <input class="input documents-input documents-phrase" name="phrase" type="text" placeholder="Fraza" ng-model="data.phrase">
 					<button class="button" type="submit" ng-click="filter($event)">Szukaj</button>
 					<div class="load" ng-show="loadPage"></div>
                 </form><!-- .documents-form -->
@@ -36,7 +32,7 @@
                         </tr>
                     </thead>
                     <tbody>
-						<tr ng-repeat="(key, value) in documents">
+						<tr ng-repeat="(key, value) in data.documents.result">
 							<td>{{$index + offset + 1}}</td>
 							<td>{{value.title}}</td>
 							<td>{{value.create_date}}</td>
@@ -69,13 +65,13 @@
 				<nav class="documents-pagination">
 					<ul class="documents-pagination-list">
 						<li class="documents-pagination-prev">
-							<a href="{{loc}}{{currentPage - 1}}" class="button" ng-show="currentPage > 1">Poprzednia</a>
+							<a href="/#!/documents/{{data.currentPage - 1}}" class="button" ng-show="data.currentPage > 1">Poprzednia</a>
 						</li><!-- .documents-pagination-prev -->
-						<li class="documents-pagination-links" ng-repeat="page in pages">
-							<a href="{{loc}}{{page}}" ng-class="page == currentPage ? 'current' : ''">{{page}}</a>
+						<li class="documents-pagination-links" ng-repeat="page in data.pages">
+							<a href="/#!/documents/{{page}}" ng-class="page == data.currentPage ? 'current' : ''">{{page}}</a>
 						</li><!-- .documents-pagination-links -->
 						<li class="documents-pagination-next">
-							<a href="{{loc}}{{currentPage + 1}}" class="button" ng-show="currentPage < numberOfPages">Następna</a>
+							<a href="/#!/documents/{{data.currentPage * 1 + 1}}" class="button" ng-show="data.currentPage < data.numberOfPages">Następna</a>
 						</li><!-- .documents-pagination-next -->
 					</ul><!-- .documents-pagination-list -->
 				</nav><!-- .documents-pagination -->

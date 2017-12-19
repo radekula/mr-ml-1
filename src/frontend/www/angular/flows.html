@@ -1,4 +1,4 @@
-<div class="page-documents" ng-controller="FlowsController">
+<div class="page-documents">
 	<header class="header" ng-include="'/www/angular/header.html'"></header>
     <main class="main">
 		<button class="menu-toggle" type="button" ng-click="menuToggle()" ng-class="{'toggled-on' : toggle}">
@@ -15,10 +15,10 @@
 				</span><!-- .breadcrumb-item -->
 				<span class="breadcrumb-item breadcrumb-current">Przepływy</span>
             </div><!-- .breadcrumb -->
-            <div class="content" ng-controller="ActionsController">
+            <div class="content" ng-controller="FlowsController">
 				<form id="dialog" class="dialog" title="Dodaj przepływ">
-					<input id="js-flow-name" class="input upload-input" type="text" placeholder="Nazwa" required>
-					<textarea id="js-flow-description" class="input upload-input upload-textarea" placeholder="Opis"></textarea>
+					<input id="js-flow-name" class="input upload-input" type="text" placeholder="Nazwa" ng-model="name" required>
+					<textarea id="js-flow-description" class="input upload-input upload-textarea" ng-model="description" placeholder="Opis"></textarea>
 					<button class="button" type="submit" ng-click="addFlow($event)">Zapisz</button>
 				</form>
 				<script>
@@ -35,7 +35,7 @@
 					} );
 				</script>
                 <form class="documents-form">
-                    <input class="input documents-input flows-phrase" name="phrase" type="text" placeholder="Fraza" ng-model="phrase">
+                    <input class="input documents-input flows-phrase" name="phrase" type="text" placeholder="Fraza" ng-model="data.phrase">
 					<button class="button" type="submit" ng-click="filter($event)">Szukaj</button>
 					<a id="create-user" class="button">Dodaj przepływ</a>
 					<div class="load" ng-show="loadPage"></div>
@@ -51,7 +51,7 @@
                         </tr>
                     </thead>
                     <tbody>
-						<tr ng-repeat="(key, value) in flows">
+						<tr ng-repeat="(key, value) in data.flows.result">
 							<td>{{$index + offset + 1}}</td>
 							<td>{{value.name}}</td>
 							<td>{{value.create_date}}</td>
@@ -77,13 +77,13 @@
 				<nav class="documents-pagination">
 					<ul class="documents-pagination-list">
 						<li class="documents-pagination-prev">
-							<a href="{{loc}}{{currentPage - 1}}" class="button" ng-show="currentPage > 1">Poprzednia</a>
+							<a href="/#!/flows/{{data.currentPage - 1}}" class="button" ng-show="data.currentPage > 1">Poprzednia</a>
 						</li><!-- .documents-pagination-prev -->
-						<li class="documents-pagination-links" ng-repeat="page in pages">
-							<a href="{{loc}}{{page}}" ng-class="page == currentPage ? 'current' : ''">{{page}}</a>
+						<li class="documents-pagination-links" ng-repeat="page in data.pages">
+							<a href="/#!/flows/{{page}}" ng-class="page == data.currentPage ? 'current' : ''">{{page}}</a>
 						</li><!-- .documents-pagination-links -->
 						<li class="documents-pagination-next">
-							<a href="{{loc}}{{currentPage + 1}}" class="button" ng-show="currentPage < numberOfPages">Następna</a>
+							<a href="/#!/flows/{{data.currentPage * 1 + 1}}" class="button" ng-show="data.currentPage < data.numberOfPages">Następna</a>
 						</li><!-- .documents-pagination-next -->
 					</ul><!-- .documents-pagination-list -->
 				</nav><!-- .documents-pagination -->
