@@ -1,21 +1,26 @@
 <a class="menu-item" href="/#!/" title="Pulpit" ng-class="{'menu-current': path === '/'}">
-	<i class="icon icon-menu">&#xe80d;</i>
-	<span class="menu-title">Pulpit</span>
-</a><!-- .menu-item -->
+    <i class="icon icon-menu">&#xe80d;</i>
+    <span class="menu-title">Pulpit</span>
+</a>
+<!-- .menu-item -->
 <a class="menu-item" href="/#!add" title="Dodaj dokument" ng-class="{'menu-current': path === '/add'}">
-	<i class="icon icon-menu">&#xe803;</i>
-	<span class="menu-title">Dodaj dokument</span>
-</a><!-- .menu-item -->
-<a class="menu-item" href="/#!documents" title="Lista dokumentów" ng-class="{'menu-current': path === '/documents'}">
-	<i class="icon icon-menu">&#xf0f6;</i>
-	<span class="menu-title">Lista dokumentów</span>
-</a><!-- .menu-item -->
-<a class="menu-item" href="/#!flows" title="Przepływy" ng-class="{'menu-current': path === '/flows'}">
-	<i class="icon icon-menu">&#xf126;</i>
-	<span class="menu-title">Przepływy</span>
-</a><!-- .menu-item -->
+    <i class="icon icon-menu">&#xe803;</i>
+    <span class="menu-title">Dodaj dokument</span>
+</a>
+<!-- .menu-item -->
+<a class="menu-item" href="/#!documents" title="Lista dokumentów" ng-class="getMenuItemClass('/documents')">
+    <i class="icon icon-menu">&#xf0f6;</i>
+    <span class="menu-title">Lista dokumentów</span>
+</a>
+<!-- .menu-item -->
+<a class="menu-item" href="/#!flows" title="Przepływy" ng-class="getMenuItemClass('/flows')">
+    <i class="icon icon-menu">&#xf126;</i>
+    <span class="menu-title">Przepływy</span>
+</a>
+<!-- .menu-item -->
 <a class="menu-item" href="/#!groups" title="Grupy użytkowników" ng-class="{'menu-current': path === '/groups'}">
-	<i class="icon icon-menu">&#xe80a;</i>
-	<span class="menu-title">Grupy użytkowników</span>
-</a><!-- .menu-item -->
+    <i class="icon icon-menu">&#xe80a;</i>
+    <span class="menu-title">Grupy użytkowników</span>
+</a>
+<!-- .menu-item -->
 <p class="processing" ng-if="load > 0">Przetwarzanie danych...</p>
