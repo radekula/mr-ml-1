@@ -1986,3 +1986,47 @@ ul {
 	margin-right: 20px;
 	font-size: 22px;
 }
+
+.errors {
+    position: fixed;
+    top: 100px;
+    right: 20px;
+    z-index: 1000;
+    margin: 0;
+    padding: 10px;
+    width: 350px;
+}
+
+.errors > li {
+    opacity: 0;
+    margin-bottom: 15px;
+    animation-name: alert;
+    animation-duration: 2s;
+    animation-fill-mode: forwards;
+}
+
+@keyframes alert {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.errors > li > span {
+    display: block;
+    padding: 15px;
+}
+
+.errors > li > .error {
+    color: #a94442;
+    background-color: #f2dede;
+    border: 1px solid #ebccd1;
+}
+
+.errors > li > .success {
+    color: #3c763d;
+    background-color: #dff0d8;
+    border: 1px solid #d6e9c6;
+}
