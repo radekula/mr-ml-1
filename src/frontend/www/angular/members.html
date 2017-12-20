@@ -22,9 +22,9 @@
             <span class="breadcrumb-item breadcrumb-current">{{data.group_name}}</span>
         </div>
         <!-- .breadcrumb -->
-        <div class="content">
+        <div class="content" ng-controller="GetUserController">
             <form id="js-dialog-new" class="dialog" title="Przypisz użytkownika">
-                <input class="input upload-input" placeholder="Nazwa użytkownika" type="text" ng-model="data.new_user" required>
+                <input id="owner" class="input upload-input" placeholder="Nazwa użytkownika" type="text" required ng-model="data.new_user">
                 <button class="button" type="button" ng-click="saveUser($event)">Zapisz</button>
             </form>
             <!-- .dialog -->
