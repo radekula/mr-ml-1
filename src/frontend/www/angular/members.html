@@ -16,14 +16,14 @@
             </span>
             <!-- .breadcrumb-item -->
             <span class="breadcrumb-item">
-					<a class="breadcrumb-link" href="/#!/groups">Grupy użytkowników</a>
-				</span>
+                <a class="breadcrumb-link" href="/#!/groups">Grupy użytkowników</a>
+            </span>
             <!-- .breadcrumb-item -->
             <span class="breadcrumb-item breadcrumb-current">{{data.group_name}}</span>
         </div>
         <!-- .breadcrumb -->
-        <div class="content" ng-controller="GetUserController">
-            <form id="js-dialog-new" class="dialog" title="Przypisz użytkownika">
+        <div class="content">
+            <form id="js-dialog-new" class="dialog" title="Przypisz użytkownika" ng-controller="GetUserController">
                 <input id="owner" class="input upload-input" placeholder="Nazwa użytkownika" type="text" required ng-model="data.new_user">
                 <button class="button" type="button" ng-click="saveUser($event)">Zapisz</button>
             </form>
