@@ -594,7 +594,7 @@ app.controller("ActionController", function($scope, $routeParams, $http, $locati
 
 
 /*
- ** Get users
+ ** Get users (multiple)
  */
 app.controller("GetUsersController", function($scope, $http, $cookies, $location, $interval) {
     var result = [];
@@ -646,6 +646,52 @@ app.controller("GetUsersController", function($scope, $http, $cookies, $location
                         var ui_id_1 = jQuery("#ui-id-1").detach();
                         jQuery("#owner-container").append(ui_id_1);
                     });
+                }
+            }
+            $scope.load--;
+        },
+        function(response) { // Error
+            if(response.status == 400) {
+                $scope.addErrors("error", "Błędne żądanie podczas próby pobrania listy użytkowników.");
+            } else if(response.status == 403) {
+                $scope.addErrors("error", "Nie można pobrać listy użytkowników (nieprawidłowy lub wygasły token).");
+            } else if(response.status == 500) {
+                $scope.addErrors("error", "Błąd wewnętrzny serwera podczas próby pobrania listy użytkowników.");
+            } else {
+                $scope.addErrors("error", "Nieoczekiwany błąd podczas próby pobrania listy użytkowników.");
+            }
+            $scope.load--;
+        }
+    );
+});
+
+
+/*
+ ** Get users (single)
+ */
+app.controller("GetUserController", function($scope, $http, $cookies, $location, $interval) {
+    var result = [];
+    
+    $scope.load++;
+    $http.get( // Get list of users
+        "/service/users/users",
+    ).then(
+        function(response) { // Success
+            if (response.status == 200) {
+                if(typeof response.data == "object") {
+                    tmp = response.data.result;
+                    tmp_length = tmp.length;
+                    
+                    for(i = 0; i < tmp_length; i++ ) {
+                        result.push(tmp[i].login);
+                    }
+                    
+                    jQuery(document).ready(function(){
+                        jQuery( "#owner" ).autocomplete({
+                            minLength: 3,
+                            source: result
+                        });
+                    } );
                 }
             }
             $scope.load--;
