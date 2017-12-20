@@ -1,58 +1,68 @@
-<div class="page-documents">
-	<header class="header" ng-include="'/www/angular/header.html'"></header>
-    <main class="main">
-		<button class="menu-toggle" type="button" ng-click="menuToggle()" ng-class="{'toggled-on' : toggle}">
-			<span></span>
-		</button><!-- .menu-toggle -->
-		<nav class="menu" ng-controller="menu" ng-include="'/www/angular/menu.html'"></nav>
-        <article class="article">
-            <div class="breadcrumb">
-                <header class="breadcrumb-header">
-					<h1 class="breadcrumb-title">{{data.group_name}}</h1>
-				</header><!-- .breadcrumb-header -->
-				<span class="breadcrumb-item">
-					<a class="breadcrumb-link" href="/#!/">Home</a>
-				</span><!-- .breadcrumb-item -->
-				<span class="breadcrumb-item">
+<header class="header" ng-include="'/www/angular/header.html'"></header>
+<main class="main">
+    <button class="menu-toggle" type="button" ng-click="menuToggle()" ng-class="{'toggled-on' : toggle}">
+        <span></span>
+    </button>
+    <!-- .menu-toggle -->
+    <nav class="menu" ng-controller="menu" ng-include="'/www/angular/menu.html'"></nav>
+    <article class="article">
+        <div class="breadcrumb">
+            <header class="breadcrumb-header">
+                <h1 class="breadcrumb-title">{{data.group_name}}</h1>
+            </header>
+            <!-- .breadcrumb-header -->
+            <span class="breadcrumb-item">
+                <a class="breadcrumb-link" href="/#!/">Home</a>
+            </span>
+            <!-- .breadcrumb-item -->
+            <span class="breadcrumb-item">
 					<a class="breadcrumb-link" href="/#!/groups">Grupy użytkowników</a>
-				</span><!-- .breadcrumb-item -->
-				<span class="breadcrumb-item breadcrumb-current">{{data.group_name}}</span>
-            </div><!-- .breadcrumb -->
-            <div class="content">
-				<form id="js-dialog-new" class="dialog" title="Przypisz użytkownika">
-					<input id="js-groups-name" class="input upload-input" type="text" placeholder="Nazwa użytkownika" ng-model="data.new_user" required>
-					<button class="button" type="submit" ng-click="saveUser($event)">Zapisz</button>
-				</form>
-                <form class="documents-form">
-					<a id="create-group" class="button" ng-click="addUser($event)">Przypisz użytkownika</a>
-					<div class="load" ng-show="loadPage"></div>
-                </form><!-- .documents-form -->
-                <table class="groups-table members-table">
-                    <thead>
-                        <tr>
-                            <th>Numer</th>
-                            <th>Użytkownik</th>
-                            <th>Akcje</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-						<tr ng-repeat="(key, value) in data.members">
-							<td>{{$index+1}}</td>
-							<td>{{value}}</td>
-							<td class="documents-menu">
-								<nav class="documents-actions">
-									<a class="groups-actions-link" ng-click="deleteUser($event)" data-id="{{$index+1}}" data-name="{{value}}">
-										<i class="icon">&#xe802;</i>
-									</a><!-- .groups-actions-link -->
-								</nav><!-- .documents-actions -->
-							</td>
-						</tr>
-						<tr ng-repeat="item in notice">
-							<td colspan="3">{{item.content}}</td>
-						</tr>
-					</tbody>
-                </table><!-- .documents-table -->
-            </div><!-- .content -->
-        </article><!-- .article -->
-    </main><!-- .main -->
-</div><!-- .page-documents -->
+				</span>
+            <!-- .breadcrumb-item -->
+            <span class="breadcrumb-item breadcrumb-current">{{data.group_name}}</span>
+        </div>
+        <!-- .breadcrumb -->
+        <div class="content">
+            <form id="js-dialog-new" class="dialog" title="Przypisz użytkownika">
+                <input class="input upload-input" placeholder="Nazwa użytkownika" type="text" ng-model="data.new_user" required>
+                <button class="button" type="button" ng-click="saveUser($event)">Zapisz</button>
+            </form>
+            <!-- .dialog -->
+            <form class="documents-form">
+                <button id="create-group" class="button" type="button" ng-click="addUser($event)">Przypisz użytkownika</button>
+            </form>
+            <!-- .documents-form -->
+            <table class="groups-table members-table">
+                <thead>
+                    <tr>
+                        <th>Numer</th>
+                        <th>Użytkownik</th>
+                        <th>Akcje</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="(key, value) in data.members">
+                        <td>{{$index+1}}</td>
+                        <td>{{value}}</td>
+                        <td class="documents-menu">
+                            <nav class="documents-actions">
+                                <a class="groups-actions-link" ng-click="deleteUser($event)" data-id="{{$index+1}}" data-name="{{value}}">
+                                    <i class="icon">&#xe802;</i>
+                                </a>
+                                <!-- .groups-actions-link -->
+                            </nav>
+                            <!-- .documents-actions -->
+                        </td>
+                    </tr>
+                    <tr ng-repeat="item in notice">
+                        <td colspan="3">{{item.content}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <!-- .documents-table -->
+        </div>
+        <!-- .content -->
+    </article>
+    <!-- .article -->
+</main>
+<!-- .main -->
