@@ -1,74 +1,84 @@
-<div class="page-documents">
-	<header class="header" ng-include="'/www/angular/header.html'"></header>
-    <main class="main">
-		<button class="menu-toggle" type="button" ng-click="menuToggle()" ng-class="{'toggled-on' : toggle}">
-			<span></span>
-		</button><!-- .menu-toggle -->
-		<nav class="menu" ng-controller="menu" ng-include="'/www/angular/menu.html'"></nav>
-        <article class="article">
-            <div class="breadcrumb">
-                <header class="breadcrumb-header">
-					<h1 class="breadcrumb-title">Grupy użytkowników</h1>
-				</header><!-- .breadcrumb-header -->
-				<span class="breadcrumb-item">
-					<a class="breadcrumb-link" href="/#!/">Home</a>
-				</span><!-- .breadcrumb-item -->
-				<span class="breadcrumb-item breadcrumb-current">Grupy użytkowników</span>
-            </div><!-- .breadcrumb -->
-            <div class="content">
-				<form id="js-dialog-new" class="dialog" title="Dodaj grupę">
-					<input id="js-groups-name" class="input upload-input" type="text" placeholder="Nazwa" ng-model="data.new_group.name" required>
-					<textarea id="js-groups-description" class="input upload-input upload-textarea" ng-model="data.new_group.description" placeholder="Opis"></textarea>
-					<button class="button" type="submit" ng-click="addGroup($event)">Zapisz</button>
-				</form>
-				<form id="js-dialog-edit" class="dialog" title="Edytuj grupę">
-					<textarea id="js-groups-description" class="input upload-input upload-textarea" ng-model="data.edit_group.description" placeholder="Opis"></textarea>
-					<button class="button" type="submit" ng-click="saveGroup($event)">Zapisz</button>
-				</form>
-                <form class="documents-form">
-                    <input class="input documents-input documents-phrase" name="search" type="text" placeholder="Nazwa grupy" ng-model="search">
-					<button class="button" type="submit" ng-click="filter($event)">Szukaj</button>
-					<a id="create-group" class="button" ng-click="createGroup($event)">Dodaj grupę</a>
-					<div class="load" ng-show="loadPage"></div>
-                </form><!-- .documents-form -->
-                <table class="groups-table">
-                    <thead>
-                        <tr>
-                            <th>Numer</th>
-                            <th>Nazwa</th>
-                            <th>Opis</th>
-                            <th>Twórca</th>
-                            <th>Data utworzenia</th>
-                            <th>Akcje</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-						<tr ng-repeat="group in data.groups.result">
-							<td>{{$index+1}}</td>
-							<td>{{group.name}}</td>
-							<td>{{group.description}}</td>
-							<td>{{group.creator}}</td>
-							<td>{{group.create_date}}</td>
-							<td class="documents-menu">
-								<nav class="documents-actions">
-									<a class="groups-actions-link js-groups-edit-{{$index+1}} js-groups-edit-{{$index+1}}" ng-click="editGroup($event)" data-name="{{group.name}}" data-description="{{group.description}}">
-										<i class="icon">&#xe80c;</i>
-									</a><!-- .groups-actions-link -->
-									<a class="groups-actions-link" href="/#!/members/{{group.name}}">
-										<i class="icon">&#xe80b;</i>
-									</a><!-- .groups-actions-link -->
-									<a class="groups-actions-link" ng-click="deleteGroup($event)" data-id="{{$index+1}}" data-name="{{group.name}}">
-										<i class="icon">&#xe802;</i>
-									</a><!-- .groups-actions-link -->
-								</nav><!-- .documents-actions -->
-							</td>
-						</tr>
-						<tr ng-repeat="item in notice">
-							<td colspan="6">{{item.content}}</td>
-						</tr>
-					</tbody>
-                </table><!-- .documents-table -->
-            </div><!-- .content -->
-        </article><!-- .article -->
-    </main><!-- .main -->
-</div><!-- .page-documents -->
+<header class="header" ng-include="'/www/angular/header.html'"></header>
+<main class="main">
+    <button class="menu-toggle" type="button" ng-click="menuToggle()" ng-class="{'toggled-on' : toggle}">
+        <span></span>
+    </button>
+    <!-- .menu-toggle -->
+    <nav class="menu" ng-controller="menu" ng-include="'/www/angular/menu.html'"></nav>
+    <article class="article">
+        <div class="breadcrumb">
+            <header class="breadcrumb-header">
+                <h1 class="breadcrumb-title">Grupy użytkowników</h1>
+            </header>
+            <!-- .breadcrumb-header -->
+            <span class="breadcrumb-item">
+                <a class="breadcrumb-link" href="/#!/">Home</a>
+            </span>
+            <!-- .breadcrumb-item -->
+            <span class="breadcrumb-item breadcrumb-current">Grupy użytkowników</span>
+        </div>
+        <!-- .breadcrumb -->
+        <div class="content">
+            <form id="js-dialog-new" class="dialog" title="Dodaj grupę">
+                <input class="input upload-input" placeholder="Nazwa" type="text" ng-model="data.new_group.name" required>
+                <textarea class="input upload-input upload-textarea" placeholder="Opis" ng-model="data.new_group.description"></textarea>
+                <button class="button" type="button" ng-click="addGroup($event)">Zapisz</button>
+            </form>
+            <!-- .dialog -->
+            <form id="js-dialog-edit" class="dialog" title="Edytuj grupę">
+                <textarea class="input upload-input upload-textarea" ng-model="data.edit_group.description" placeholder="Opis"></textarea>
+                <button class="button" type="button" ng-click="saveGroup($event)">Zapisz</button>
+            </form>
+            <!-- .dialog -->
+            <form class="documents-form">
+                <input class="input documents-input" placeholder="Nazwa grupy" type="text" ng-model="search">
+                <button class="button" type="button" ng-click="filter($event)">Szukaj</button>
+                <button class="button" ng-click="createGroup($event)">Dodaj grupę</button>
+            </form>
+            <!-- .documents-form -->
+            <table class="groups-table">
+                <thead>
+                    <tr>
+                        <th>Numer</th>
+                        <th>Nazwa</th>
+                        <th>Opis</th>
+                        <th>Twórca</th>
+                        <th>Akcje</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="group in data.groups.result">
+                        <td>{{$index+1}}</td>
+                        <td>{{group.name}}</td>
+                        <td>{{group.description}}</td>
+                        <td>{{group.creator}}</td>
+                        <td class="documents-menu">
+                            <nav class="documents-actions">
+                                <a class="groups-actions-link js-groups-edit-{{$index+1}} js-groups-edit-{{$index+1}}" ng-click="editGroup($event)" data-name="{{group.name}}" data-description="{{group.description}}">
+                                    <i class="icon">&#xe80c;</i>
+                                </a>
+                                <!-- .groups-actions-link -->
+                                <a class="groups-actions-link" href="/#!/members/{{group.name}}">
+                                    <i class="icon">&#xe80b;</i>
+                                </a>
+                                <!-- .groups-actions-link -->
+                                <a class="groups-actions-link" ng-click="deleteGroup($event)" data-id="{{$index+1}}" data-name="{{group.name}}">
+                                    <i class="icon">&#xe802;</i>
+                                </a>
+                                <!-- .groups-actions-link -->
+                            </nav>
+                            <!-- .documents-actions -->
+                        </td>
+                    </tr>
+                    <tr ng-repeat="item in notice">
+                        <td colspan="5">{{item.content}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <!-- .documents-table -->
+        </div>
+        <!-- .content -->
+    </article>
+    <!-- .article -->
+</main>
+<!-- .main -->
