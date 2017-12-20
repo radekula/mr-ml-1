@@ -1,43 +1,53 @@
 <div class="header-outer">
-	<a class="brand" href="/#!/" title="Document Management System"></a>
-	<form class="search" ng-controller="SearchController">
-		<input class="search-input" type="text" placeholder="Fraza" ng-model="search_phrase">
-		<button class="search-button" type="submit" ng-click="search($event)">
-			<i class="icon">&#xe808;</i>
-		</button>
-	</form><!-- .search -->
-	<nav class="header-menu" ng-controller="DesktopController">
-		<a class="header-menu-item" href="/#!/">
-			<div class="header-menu-inner">
-				<i class="icon">&#xe804;</i>
-				<span data-count="{{data.comments.total}}" class="header-menu-count">{{data.comments.total}}</span>
-			</div><!-- .header-menu-inner -->
-		</a><!-- .header-menu-item -->
-		<a class="header-menu-item" href="/#!/">
-			<div class="header-menu-inner">
-				<i class="icon icon-bell">&#xf0f3;</i>
-				<span data-count="{{data.actions.total}}" class="header-menu-count">{{data.actions.total}}</span>
-			</div><!-- .header-menu-inner -->
-		</a><!-- .header-menu-item -->
-		<ul class="header-menu-item">
-			<li>
-				<div class="header-menu-inner">
-					<i class="icon icon-user">&#xe801;</i>
-				</div><!-- .header-menu-inner -->
-				<ul>
-					<li>
-						<a href="/#!user">Profil</a>
-					</li>
-					<li>
-						<a href="/logout">Wyloguj się</a>
-					</li>
-				</ul>
-			</li>
-		</ul><!-- .header-menu-item -->
-	</nav><!-- .header-menu -->
-</div><!-- .header-outer -->
+    <a class="brand" href="/#!/" title="Document Management System"></a>
+    <form class="search" ng-controller="SearchController">
+        <input class="search-input" placeholder="Fraza" type="text" ng-model="search_phrase">
+        <button class="search-button" type="submit" ng-click="search($event)">
+            <i class="icon">&#xe808;</i>
+        </button>
+    </form>
+    <!-- .search -->
+    <nav class="header-menu" ng-controller="DesktopController">
+        <a class="header-menu-item" href="/#!/">
+            <div class="header-menu-inner">
+                <i class="icon">&#xe804;</i>
+                <span data-count="{{data.comments.total}}" class="header-menu-count">{{data.comments.total}}</span>
+            </div>
+            <!-- .header-menu-inner -->
+        </a>
+        <!-- .header-menu-item -->
+        <a class="header-menu-item" href="/#!/">
+            <div class="header-menu-inner">
+                <i class="icon icon-bell">&#xf0f3;</i>
+                <span data-count="{{data.actions.total}}" class="header-menu-count">{{data.actions.total}}</span>
+            </div>
+            <!-- .header-menu-inner -->
+        </a>
+        <!-- .header-menu-item -->
+        <ul class="header-menu-item">
+            <li>
+                <div class="header-menu-inner">
+                    <i class="icon icon-user">&#xe801;</i>
+                </div>
+                <!-- .header-menu-inner -->
+                <ul>
+                    <li>
+                        <a href="/#!user">Profil</a>
+                    </li>
+                    <li>
+                        <a href="/logout">Wyloguj się</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <!-- .header-menu-item -->
+    </nav>
+    <!-- .header-menu -->
+</div>
+<!-- .header-outer -->
 <ul id="js-errors" class="errors">
     <li ng-repeat="error in errors">
         <span class="{{error.class}}">{{error.value}}</span>
     </li>
 </ul>
+<!-- .errors -->
