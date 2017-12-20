@@ -170,6 +170,7 @@ app.controller("ngDMSBody", ["$scope", "$cookies", "$location", "$timeout", func
     $scope.login = $cookies.get("login");
     $scope.toggle = $cookies.get("menu-toggle") ? true : false;
     $scope.errors = [];
+    $scope.load = 0;
     
     $scope.addErrors = function(class_, value_) {
         $scope.errors.push({
@@ -271,6 +272,7 @@ app.controller("DesktopController", function($scope, $http) {
         } );
     } );
     
+    $scope.load++;
     $http.get( // Get user actions in current steps
         "/service/flows-documents/user/admin/current_actions"
     ).then(
@@ -282,14 +284,16 @@ app.controller("DesktopController", function($scope, $http) {
             } else {
                 alert(getErrorMessage(response.status));
             }
-            
             $scope.emptyActions = $scope.data.actions.total > 0 ? false : true;
+            $scope.load--;
         },
         function(response) { // Error
             alert(getErrorMessage(response.status));
+            $scope.load--;
         }
     );
     
+    $scope.load++;
     $http.get( // Get list of comments
         "/service/desktop/comments"
     ).then(
@@ -301,14 +305,16 @@ app.controller("DesktopController", function($scope, $http) {
             } else {
                 alert(getErrorMessage(response.status));
             }
-            
             $scope.emptyComments = $scope.data.comments.total > 0 ? false : true;
+            $scope.load--;
         },
         function(response) { // Error
             alert(getErrorMessage(response.status));
+            $scope.load--;
         }
     );
     
+    $scope.load++;
     $http.get( // Get list of user documents
         "/service/desktop/documents"
     ).then(
@@ -320,11 +326,12 @@ app.controller("DesktopController", function($scope, $http) {
             } else {
                 alert(getErrorMessage(response.status));
             }
-            
             $scope.emptyDocuments = $scope.data.documents.total > 0 ? false : true;
+            $scope.load--;
         },
         function(response) { // Error
             alert(getErrorMessage(response.status));
+            $scope.load--;
         }
     );
 } );
@@ -358,6 +365,7 @@ app.controller("UserController", function($scope, $cookies, $http, $interval, $l
         groups : []
     }
     
+    $scope.load++;
     $http.get( // Get basic information about user
         "/service/users/user"
     ).then(
@@ -367,6 +375,7 @@ app.controller("UserController", function($scope, $cookies, $http, $interval, $l
                     $scope.data.user = response.data;
                 }
             }
+            $scope.load--;
         },
         function(response) { // Error
             if(response.status == 404) {
@@ -376,9 +385,11 @@ app.controller("UserController", function($scope, $cookies, $http, $interval, $l
             } else if(response.status == 500) {
                 $scope.addErrors("error", "Błąd wewnętrzny serwera podczas próby pobrania danych użytkownika.");
             }
+            $scope.load--;
         }
     );
     
+    $scope.load++;
     $http.get( // Get user public key
         "/service/signing/user/" + $scope.login + "/keys"
     ).then(
@@ -388,6 +399,7 @@ app.controller("UserController", function($scope, $cookies, $http, $interval, $l
                     $scope.data.keys.public_key = response.data.public_key;
                 }
             }
+            $scope.load--;
         },
         function(response) { // Error
             if(response.status == 400) {
@@ -399,6 +411,7 @@ app.controller("UserController", function($scope, $cookies, $http, $interval, $l
             } else {
                 $scope.addErrors("error", "Nieoczekiwany błąd podczas próby pobrania klucza publicznego.");
             }
+            $scope.load--;
         }
     );
     
@@ -407,6 +420,7 @@ app.controller("UserController", function($scope, $cookies, $http, $interval, $l
         $scope.notice = [];
         
         if($scope.userForm.$valid) {
+            $scope.load++;
             $http.put( // Update user data
                 "/service/users/user/" + $scope.login,
                 JSON.stringify({
@@ -421,6 +435,7 @@ app.controller("UserController", function($scope, $cookies, $http, $interval, $l
                     if (response.status == 200) {
                         $scope.addErrors("success", "Profil został zaktualizowany.");
                     }
+                    $scope.load--;
                 },
                 function(response) { // Error
                     if(response.status == 400) {
@@ -434,9 +449,11 @@ app.controller("UserController", function($scope, $cookies, $http, $interval, $l
                     } else {
                         $scope.addErrors("error", "Nieoczekiwany błąd podczas próby zaktualizowania profilu.");
                     }
+                    $scope.load--;
                 }
             );
             
+            $scope.load++;
             $http.put( // Add or update user keys
                 "/service/signing/user/" + $scope.login + "/keys",
                 JSON.stringify($scope.data.keys)
@@ -445,6 +462,7 @@ app.controller("UserController", function($scope, $cookies, $http, $interval, $l
                     if (response.status == 200) {
                         $scope.addErrors("success", "Klucz publiczny lub prywatny zostały zaktualizowane.");
                     }
+                    $scope.load--;
                 },
                 function(response) { // Error
                     if(response.status == 400) {
@@ -458,9 +476,11 @@ app.controller("UserController", function($scope, $cookies, $http, $interval, $l
                     } else {
                         $scope.addErrors("error", "Nieoczekiwany błąd podczas próby zaktualizowania kluczy.");
                     }
+                    $scope.load--;
                 }
             );
             
+            $scope.load++;
             $http.post( // Change user password
                 "/service/users/change_password/" + $scope.login,
                 JSON.stringify({
@@ -472,6 +492,7 @@ app.controller("UserController", function($scope, $cookies, $http, $interval, $l
                     if (response.status == 200) {
                         $scope.addErrors("success", "Hasło zostało zmienione.");
                     }
+                    $scope.load--;
                 },
                 function(response) { // Error
                     if(response.status == 403) {
@@ -483,6 +504,7 @@ app.controller("UserController", function($scope, $cookies, $http, $interval, $l
                     } else {
                         $scope.addErrors("error", "Nieoczekiwany błąd podczas próby zmiany hasła.");
                     }
+                    $scope.load--;
                 }
             );
         } else {
@@ -508,6 +530,7 @@ app.controller("ActionController", function($scope, $routeParams, $http, $locati
         }
     }
     
+    $scope.load++;
     $http.get( // Get document by id
         "/service/documents/document/" + $scope.data.document.id
     ).then(
@@ -519,6 +542,7 @@ app.controller("ActionController", function($scope, $routeParams, $http, $locati
             } else {
                 alert(getErrorMessage(response.status));
             }
+            $scope.load--;
         },
         function(response) { // Error
             if(response.status == 404) {
@@ -526,12 +550,14 @@ app.controller("ActionController", function($scope, $routeParams, $http, $locati
             } else {
                 alert(getErrorMessage(response.status));
             }
+            $scope.load--;
         }
     );
     
     $scope.doAction = function($event) {
         $event.preventDefault();
         
+        $scope.load++;
         $http.put( // Perform a user action for a step
             "/service/flows-documents/action/" + $scope.data.document.id + "/" + $scope.data.step.id
         ).then(
@@ -542,6 +568,7 @@ app.controller("ActionController", function($scope, $routeParams, $http, $locati
                 } else {
                     alert(getErrorMessage(response.status));
                 }
+                $scope.load--;
             },
             function(response) { // Error
                 if(response.status == 404) {
@@ -549,6 +576,7 @@ app.controller("ActionController", function($scope, $routeParams, $http, $locati
                 } else {
                     alert(getErrorMessage(response.status));
                 }
+                $scope.load--;
             }
         );
     }
@@ -561,6 +589,7 @@ app.controller("ActionController", function($scope, $routeParams, $http, $locati
 app.controller("GetUsersController", function($scope, $http, $cookies, $location, $interval) {
     var result = [];
     
+    $scope.load++;
     $http.get( // Get list of users
         "/service/users/users",
     ).then(
@@ -609,6 +638,7 @@ app.controller("GetUsersController", function($scope, $http, $cookies, $location
                     });
                 }
             }
+            $scope.load--;
         },
         function(response) { // Error
             if(response.status == 400) {
@@ -620,6 +650,7 @@ app.controller("GetUsersController", function($scope, $http, $cookies, $location
             } else {
                 $scope.addErrors("error", "Nieoczekiwany błąd podczas próby pobrania listy użytkowników.");
             }
+            $scope.load--;
         }
     );
 });
@@ -631,6 +662,7 @@ app.controller("GetUsersController", function($scope, $http, $cookies, $location
 app.controller("GetFlowsController", function($scope, $http, $cookies, $location, $interval) {
     var result = [];
     
+    $scope.load++;
     $http.get( // Get list of flows
         "/service/flows/flows",
     ).then(
@@ -652,6 +684,7 @@ app.controller("GetFlowsController", function($scope, $http, $cookies, $location
                     } );
                 }
             }
+            $scope.load--;
         },
         function(response) { // Error
             if(response.status == 400) {
@@ -663,6 +696,7 @@ app.controller("GetFlowsController", function($scope, $http, $cookies, $location
             } else {
                 $scope.addErrors("error", "Nieoczekiwany błąd podczas próby pobrania listy przepływów.");
             }
+            $scope.load--;
         }
     );
 });
@@ -684,7 +718,6 @@ app.controller("UploadController", function($scope, $http, $cookies, $location, 
     
     $scope.saveDocument = function($event) {
         $event.preventDefault();
-        $scope.loadPage = true;
         $scope.notice = [];
         _document = {
             "id": "generate",
@@ -770,6 +803,7 @@ app.controller("UploadController", function($scope, $http, $cookies, $location, 
                         }
                         
                         if ($location.path() === "/add") {
+                            $scope.load++;
                             $http.post(
                                 "/service/documents/document/generate",
                                 JSON.stringify(_document)
@@ -794,6 +828,7 @@ app.controller("UploadController", function($scope, $http, $cookies, $location, 
                                     flow_name = document.getElementById("flow").value ? document.getElementById("flow").value : "";
                                     
                                     // Get list of flows
+                                    $scope.load++;
                                     $http.get(
                                         "/service/flows/flows?limit=1&search=" + flow_name,
                                     ).then(
@@ -802,6 +837,7 @@ app.controller("UploadController", function($scope, $http, $cookies, $location, 
                                                 _flow_document["flow"] = response.data.result[0].id;
                                                 
                                                 // Start a flow for a document
+                                                $scope.load++;
                                                 $http.post(
                                                     "/service/flows-documents/start",
                                                     JSON.stringify(_flow_document)
@@ -815,21 +851,23 @@ app.controller("UploadController", function($scope, $http, $cookies, $location, 
                                                     }
                                                 );
                                             }
+                                            $scope.load--;
                                         },
                                         function(response) { // Error
+                                            $scope.load--;
                                         }
                                     );
-                                    
-                                    $scope.loadPage = false;
+                                    $scope.load--;
                                 },
                                 function(response) { // Error
-                                    $scope.loadPage = false;
+                                    $scope.load--;
                                 }
                             );
                         } else {
                             var documentId = $scope.id;
                             _document.id = documentId;
 
+                            $scope.load++;
                             $http.put(
                                 "/service/documents/document/" + documentId,
                                 JSON.stringify(_document)
@@ -845,8 +883,7 @@ app.controller("UploadController", function($scope, $http, $cookies, $location, 
                                             "class": "alert-success"
                                         });
                                     }
-
-                                    $scope.loadPage = false;
+                                    $scope.load--;
                                 },
                                 function(response) { // Error
                                     if (response.status == 400) {
@@ -865,14 +902,12 @@ app.controller("UploadController", function($scope, $http, $cookies, $location, 
                                             "class": "alert-danger"
                                         });
                                     }
-
-                                    $scope.loadPage = false;
+                                    $scope.load--;
                                 }
                             );
                         }
                     } else {
                         $scope.addErrors("error", "Nieprawidłowo wypełniony formularz.");
-                        $scope.loadPage = false;
                     }
                 }
             }, 1
@@ -890,7 +925,6 @@ app.controller("DocumentsController", function($scope, $routeParams, $http, $loc
             $location.path("/documents/1");
         }
     } else {
-        $scope.loadPage = true;
         $scope.notice = [];
         $scope.data = {
             limit : 5,
@@ -932,6 +966,7 @@ app.controller("DocumentsController", function($scope, $routeParams, $http, $loc
             }
         }
         
+        $scope.load++;
         $http.get( // Get all documents
             "/service/documents/documents?limit=" + $scope.data.limit + "&offset=" + $scope.data.offset + "&search=" + $scope.data.phrase
         ).then(
@@ -949,9 +984,8 @@ app.controller("DocumentsController", function($scope, $routeParams, $http, $loc
                             });
                         }
                     }
-                    
-                    $scope.loadPage = false;
                 }
+                $scope.load--;
             },
             function(response) { // Error
                 if(response.status == 403) {
@@ -966,8 +1000,7 @@ app.controller("DocumentsController", function($scope, $routeParams, $http, $loc
                 } else {
                     $scope.addErrors("error", "Nieoczekiwany błąd podczas próby pobrania listy dokumentów.");
                 }
-                
-                $scope.loadPage = false;
+                $scope.load--;
             }
         );
     }
@@ -975,11 +1008,11 @@ app.controller("DocumentsController", function($scope, $routeParams, $http, $loc
     $scope.downloadDocument = function($event) {
         $event.preventDefault();
         
-        $scope.loadPage = true;
         documentId = $event.currentTarget.getAttribute("data-id");
         dlnk = document.getElementById("js-download-" + documentId);
         
         if(!dlnk.getAttribute("href")) {
+            $scope.load++;
             $http.get( // Get document by id
                 "/service/documents/document/" + documentId
             ).then(
@@ -994,8 +1027,7 @@ app.controller("DocumentsController", function($scope, $routeParams, $http, $loc
                             $scope.addErrors("info", "Brak zasobu do pobrania.");
                         }
                     }
-                    
-                    $scope.loadPage = false;
+                    $scope.load--;
                 },
                 function(response) { // Error
                     if(response.status == 403) {
@@ -1007,8 +1039,7 @@ app.controller("DocumentsController", function($scope, $routeParams, $http, $loc
                     } else {
                         $scope.addErrors("error", "Nieoczekiwany błąd podczas próby pobrania danych dokumentu.");
                     }
-
-                    $scope.loadPage = false;
+                    $scope.load--;
                 }
             );
         } else {
@@ -1020,9 +1051,9 @@ app.controller("DocumentsController", function($scope, $routeParams, $http, $loc
         $event.preventDefault();
         
         if (confirm("Czy na pewno usunąć wskazany dokument?")) {
-            $scope.loadPage = true;
             documentId = $event.currentTarget.getAttribute("data-id");
             
+            $scope.load++;
             $http.delete(
                 "/service/documents/document/" + documentId
             ).then(
@@ -1031,8 +1062,7 @@ app.controller("DocumentsController", function($scope, $routeParams, $http, $loc
                         $location.path("/documents");
                         $scope.addErrors("success", "Dokument został usunięty.");
                     }
-                    
-                    $scope.loadPage = false;
+                    $scope.load--;
                 },
                 function(response) { // Error
                     if(response.status == 403) {
@@ -1044,8 +1074,7 @@ app.controller("DocumentsController", function($scope, $routeParams, $http, $loc
                     } else {
                         $scope.addErrors("error", "Nieoczekiwany błąd podczas próby usunięcia dokumentu.");
                     }
-                    
-                    $scope.loadPage = false;
+                    $scope.load--;
                 }
             );
         }
@@ -1073,6 +1102,7 @@ app.controller("DocumentController", function($scope, $routeParams, $http, $cook
         sign : false
     }
     
+    $scope.load++;
     $http.get( // Get document by id
         "/service/documents/document/" + $scope.data.document.id
     ).then(
@@ -1083,6 +1113,7 @@ app.controller("DocumentController", function($scope, $routeParams, $http, $cook
                     $scope.data.owner = response.data.owner.join(', ');
                 }
             }
+            $scope.load--;
         },
         function(response) { // Error
             if(response.status == 403) {
@@ -1094,9 +1125,11 @@ app.controller("DocumentController", function($scope, $routeParams, $http, $cook
             } else {
                 $scope.addErrors("error", "Nieoczekiwany błąd podczas próby pobrania danych dokumentu.");
             }
+            $scope.load--;
         }
     );
     
+    $scope.load++;
     $http.get( // Verify if document in signed by user
         "/service/signing/verify/" + $scope.data.document.id + "/" + $scope.login
     ).then(
@@ -1104,6 +1137,7 @@ app.controller("DocumentController", function($scope, $routeParams, $http, $cook
             if(response.status == 200) {
                 $scope.data.sign = true;
             }
+            $scope.load--;
         },
         function(response) { // Error
             if(response.status == 400) {
@@ -1115,6 +1149,7 @@ app.controller("DocumentController", function($scope, $routeParams, $http, $cook
             } else {
                 $scope.addErrors("error", "Nieoczekiwany błąd podczas próby pobrania informacji o podpisie.");
             }
+            $scope.load--;
         }
     );
     
@@ -1130,6 +1165,7 @@ app.controller("DocumentController", function($scope, $routeParams, $http, $cook
         $event.preventDefault();
         
         if (confirm("Czy na pewno usunąć wskazany dokument?")) {
+            $scope.load++;
             $http.delete( // Delete document with given id
                 "/service/documents/document/" + $scope.data.document.id
             ).then(
@@ -1138,6 +1174,7 @@ app.controller("DocumentController", function($scope, $routeParams, $http, $cook
                         $location.path("/documents/1");
                         $scope.addErrors("success", "Dokument został usunięty.");
                     }
+                    $scope.load--;
                 },
                 function(response) { // Error
                     if(response.status == 403) {
@@ -1149,6 +1186,7 @@ app.controller("DocumentController", function($scope, $routeParams, $http, $cook
                     } else {
                         $scope.addErrors("error", "Nieoczekiwany błąd podczas próby usunięcia dokumentu.");
                     }
+                    $scope.load--;
                 }
             );
         }
@@ -1174,6 +1212,7 @@ app.controller("StatusController", function($scope, $routeParams, $http, $cookie
         return $scope.data.current_steps.indexOf(step_id) == -1 ? true : false;
     }
     
+    $scope.load++;
     $http.get( // Get document by id
         "/service/documents/document/" + $scope.data.document.id
     ).then(
@@ -1185,6 +1224,7 @@ app.controller("StatusController", function($scope, $routeParams, $http, $cookie
                     $scope.data.document.title = response.data.title;
                 }
             }
+            $scope.load--;
         },
         function(response) { // Error
             if(response.status == 403) {
@@ -1196,9 +1236,11 @@ app.controller("StatusController", function($scope, $routeParams, $http, $cookie
             } else {
                 $scope.addErrors("error", "Nieoczekiwany błąd podczas próby pobrania danych dokumentu.");
             }
+            $scope.load--;
         }
     );
     
+    $scope.load++;
     $http.get( // Get information about document status in flow
         "/service/flows-documents/status/" + $scope.data.document.id
     ).then(
@@ -1208,6 +1250,7 @@ app.controller("StatusController", function($scope, $routeParams, $http, $cookie
                     flowID = response.data.flow;
                     $scope.data.current_steps = response.data.current_steps;
                     
+                    $scope.load++;
                     $http.get( // Get flow steps by flow ID
                         "/service/flows/flow/" + flowID + "/steps"
                     ).then(
@@ -1217,6 +1260,7 @@ app.controller("StatusController", function($scope, $routeParams, $http, $cookie
                                     $scope.data.steps = response.data;
                                 }
                             }
+                            $scope.load--;
                         },
                         function(response) { // Error
                             if(response.status == 403) {
@@ -1228,10 +1272,12 @@ app.controller("StatusController", function($scope, $routeParams, $http, $cookie
                             } else {
                                 $scope.addErrors("error", "Nieoczekiwany błąd podczas próby pobrania kroków przepływu.");
                             }
+                            $scope.load--;
                         }
                     );
                 }
             }
+            $scope.load--;
         },
         function(response) { // Error
             if(response.status == 403) {
@@ -1243,6 +1289,7 @@ app.controller("StatusController", function($scope, $routeParams, $http, $cookie
             } else {
                 $scope.addErrors("error", "Nieoczekiwany błąd podczas próby pobrania statusu przepływu.");
             }
+            $scope.load--;
         }
     );
 });
@@ -1257,7 +1304,6 @@ app.controller("FlowsController", function($scope, $route, $routeParams, $http, 
             $location.path("/flows/1");
         }
     } else {
-        $scope.loadPage = true;
         $scope.notice = [];
         $scope.data = {
             limit : 5,
@@ -1299,6 +1345,7 @@ app.controller("FlowsController", function($scope, $route, $routeParams, $http, 
             }
         }
         
+        $scope.load++;
         $http.get( // Get list of flows
             "/service/flows/flows?limit=" + $scope.data.limit + "&offset=" + $scope.data.offset + "&search=" + $scope.data.phrase
         ).then(
@@ -1316,9 +1363,8 @@ app.controller("FlowsController", function($scope, $route, $routeParams, $http, 
                             });
                         }
                     }
-                    
-                    $scope.loadPage = false;
                 }
+                $scope.load--;
             },
             function(response) { // Error
                 if(response.status == 400) {
@@ -1330,8 +1376,7 @@ app.controller("FlowsController", function($scope, $route, $routeParams, $http, 
                 } else {
                     $scope.addErrors("error", "Nieoczekiwany błąd podczas próby pobrania listy przepływów.");
                 }
-                
-                $scope.loadPage = false;
+                $scope.load--;
             }
         );
         
@@ -1351,6 +1396,7 @@ app.controller("FlowsController", function($scope, $route, $routeParams, $http, 
             ) {
                 $scope.addErrors("error", "Błędna nazwa przepływu.");
             } else {
+                $scope.load++;
                 $http.post( // Create new flow
                     "/service/flows/flow/generate",
                     JSON.stringify(flow_data)
@@ -1360,8 +1406,7 @@ app.controller("FlowsController", function($scope, $route, $routeParams, $http, 
                             $scope.addErrors("success", "Przepływ został dodany.");
                             $route.reload();
                         }
-                        
-                        $scope.loadPage = false;
+                        $scope.load--;
                     },
 					function(response) { // Error
                         if(response.status == 400) {
@@ -1375,8 +1420,7 @@ app.controller("FlowsController", function($scope, $route, $routeParams, $http, 
                         } else {
                             $scope.addErrors("error", "Nieoczekiwany błąd podczas próby dodania przepływu.");
                         }
-                        
-                        $scope.loadPage = false;
+                        $scope.load--;
                     }
                 );
             }
@@ -1386,9 +1430,9 @@ app.controller("FlowsController", function($scope, $route, $routeParams, $http, 
             $event.preventDefault();
             
             if(confirm("Czy na pewno usunąć wskazany przepływ?")) {
-                $scope.loadPage = true;
                 flowId = $event.currentTarget.getAttribute("data-id");
                 
+                $scope.load++;
                 $http.delete( // Delete flow
                     "/service/flows/flow/" + flowId
                 ).then(
@@ -1397,8 +1441,7 @@ app.controller("FlowsController", function($scope, $route, $routeParams, $http, 
                             $scope.addErrors("success", "Przepływ został usunięty.");
                             $route.reload();
                         }
-                        
-                        $scope.loadPage = false;
+                        $scope.load--;
                     },
                     function(response) { // Error
                         if(response.status == 403) {
@@ -1410,8 +1453,7 @@ app.controller("FlowsController", function($scope, $route, $routeParams, $http, 
                         } else {
                             $scope.addErrors("error", "Nieoczekiwany błąd podczas próby usunięcia przepływu.");
                         }
-                        
-                        $scope.loadPage = false;
+                        $scope.load--;
                     }
                 );
             }
@@ -1439,6 +1481,7 @@ app.controller("FlowController", function($scope, $route, $routeParams, $http, $
         
         // Get all steps
         function getSteps() {
+            $scope.load++;
             $http.get(
                 "/service/flows/flow/" + $scope.id + "/steps"
             ).then(
@@ -1461,6 +1504,7 @@ app.controller("FlowController", function($scope, $route, $routeParams, $http, $
                             }
                         }
                     }
+                    $scope.load--;
                 },
                 function(response) { // Error
                     if (response.status == 400) {
@@ -1479,6 +1523,7 @@ app.controller("FlowController", function($scope, $route, $routeParams, $http, $
                             "class": "alert-danger"
                         });
                     }
+                    $scope.load--;
                 }
             );
         }
@@ -1496,6 +1541,7 @@ app.controller("FlowController", function($scope, $route, $routeParams, $http, $
                 "description": $scope.step_description ? $scope.step_description : ""
             }
             
+            $scope.load++;
             $http.post(
                 "/service/flows/flow/" + $scope.id + "/step/generate",
                 JSON.stringify(step_data)
@@ -1508,6 +1554,7 @@ app.controller("FlowController", function($scope, $route, $routeParams, $http, $
                         $scope.step_description = "";
                         alert("Krok został dodany.");
                     }
+                    $scope.load--;
                 },
                 function(response) { // Error
                     if (response.status == 400) {
@@ -1531,13 +1578,14 @@ app.controller("FlowController", function($scope, $route, $routeParams, $http, $
                             "class": "alert-danger"
                         });
                     }
-                    $scope.loadPage = false;
+                    $scope.load--;
                 }
             );
         }
         
         // Get step by id
         function getStepById(prev_id, self_id) {
+            $scope.load++;
             $http.get(
                 "/service/flows/flow/" + $scope.id + "/step/" + self_id
             ).then(
@@ -1545,9 +1593,11 @@ app.controller("FlowController", function($scope, $route, $routeParams, $http, $
                     if (response.status == 200) {
                         updateOrderSteps(prev_id, self_id, response.data);
                     }
+                    $scope.load--;
                 },
                 function(response) { // Error
                     alert(response.status);
+                    $scope.load--;
                 }
             );
         }
@@ -1609,6 +1659,7 @@ app.controller("FlowController", function($scope, $route, $routeParams, $http, $
         function updateOrderSteps(prev_id, self_id, step_data) {
             step_data.prev = [prev_id];
             
+            $scope.load++;
             $http.put(
                 "/service/flows/flow/" + $scope.id + "/step/" + self_id,
                 JSON.stringify(step_data)
@@ -1617,11 +1668,13 @@ app.controller("FlowController", function($scope, $route, $routeParams, $http, $
                     if (response.status == 200) {
                         alert("Kolejność kroków została zaktualizowana");
                     }
+                    $scope.load--;
                 },
                 function(response) { // Error
                     if (response.status == 409) {
                         alert("Operacja niedozwolona.");
                     }
+                    $scope.load--;
                 }
             );
         }
@@ -1632,6 +1685,7 @@ app.controller("FlowController", function($scope, $route, $routeParams, $http, $
             $scope.step_edit_id = $event.currentTarget.getAttribute("data-id");
             
             if($scope.step_edit_id) {
+                $scope.load++;
                 $http.get(
                     "/service/flows/flow/" + $scope.id + "/step/" + $scope.step_edit_id
                 ).then(
@@ -1640,9 +1694,11 @@ app.controller("FlowController", function($scope, $route, $routeParams, $http, $
                             $scope.step_edit_participants = response.data.participants;
                             $scope.step_edit_description = response.data.description;
                         }
+                        $scope.load--;
                     },
                     function(response) { // Error
                         alert(response.status);
+                        $scope.load--;
                     }
                 );
             }
@@ -1654,6 +1710,7 @@ app.controller("FlowController", function($scope, $route, $routeParams, $http, $
             
             if($scope.step_edit_id) {
                 // Get edit step
+                $scope.load++;
                 $http.get(
                     "/service/flows/flow/" + $scope.id + "/step/" + $scope.step_edit_id
                 ).then(
@@ -1664,6 +1721,7 @@ app.controller("FlowController", function($scope, $route, $routeParams, $http, $
                             step_data.participants = participants;
                             step_data.description = $scope.step_edit_description;
                             
+                            $scope.load++;
                             $http.put(
                                 "/service/flows/flow/" + $scope.id + "/step/" + $scope.step_edit_id,
                                 JSON.stringify(step_data)
@@ -1672,17 +1730,21 @@ app.controller("FlowController", function($scope, $route, $routeParams, $http, $
                                     if (response.status == 200) {
                                         alert("Krok został zaktualizowany.");
                                     }
+                                    $scope.load--;
                                 },
                                 function(response) { // Error
                                     if (response.status == 409) {
                                         alert("Operacja niedozwolona.");
                                     }
+                                    $scope.load--;
                                 }
                             );
                         }
+                        $scope.load--;
                     },
                     function(response) { // Error
                         alert(response.status);
+                        $scope.load--;
                     }
                 );
             }
@@ -1693,6 +1755,7 @@ app.controller("FlowController", function($scope, $route, $routeParams, $http, $
             $event.preventDefault();
             step_id = $event.currentTarget.getAttribute("data-id");
             
+            $scope.load++;
             $http.delete(
                 "/service/flows/flow/" + $scope.id + "/step/" + step_id
             ).then(
@@ -1700,14 +1763,17 @@ app.controller("FlowController", function($scope, $route, $routeParams, $http, $
                     if (response.status == 200) {
                         getSteps();
                         alert("Krok został usunięty.");
+                        $scope.load--;
                     }
                 },
                 function(response) { // Error
                     alert( response.status );
+                    $scope.load--;
                 }
             );
         }
         
+        $scope.load++;
         $http.get(
 			"/service/flows/flow/" + $scope.id
 		).then(
@@ -1715,6 +1781,7 @@ app.controller("FlowController", function($scope, $route, $routeParams, $http, $
 				if (response.status == 200) {
 					$scope.data = response.data;
 				}
+                $scope.load--;
 			},
 			function(response) { // Error
 				if (response.status == 403) {
@@ -1733,6 +1800,7 @@ app.controller("FlowController", function($scope, $route, $routeParams, $http, $
 						"class": "alert-danger"
 					});
 				}
+                $scope.load--;
 			}
 		);
 		
@@ -1764,6 +1832,7 @@ app.controller("FlowController", function($scope, $route, $routeParams, $http, $
 			if( flow_data["name"] == "" ) {
 				alert( "Błędna nazwa przepływu." );
 			} else {
+                $scope.load++;
 				$http.put(
 					"/service/flows/flow/" + $scope.id,
 					JSON.stringify(flow_data)
@@ -1773,6 +1842,7 @@ app.controller("FlowController", function($scope, $route, $routeParams, $http, $
 							$route.reload();
 							alert("Przepływ został zaktualizownay.");
 						}
+                        $scope.load--;
 					},
 					function(response) { // Error
 						if (response.status == 400) {
@@ -1796,8 +1866,7 @@ app.controller("FlowController", function($scope, $route, $routeParams, $http, $
 								"class": "alert-danger"
 							});
 						}
-
-						$scope.loadPage = false;
+                        $scope.load--;
 					}
 				);
 			}
@@ -1810,7 +1879,6 @@ app.controller("FlowController", function($scope, $route, $routeParams, $http, $
  ** Groups Controller
  */
 app.controller("GroupsController", function($route, $scope, $http, $routeParams, $cookies, $location) {
-    $scope.loadPage = true;
 	var dialog_new = null;
 	var dialog_edit = null;
     $scope.notice = [];
@@ -1852,6 +1920,7 @@ app.controller("GroupsController", function($route, $scope, $http, $routeParams,
         }
     }
     
+    $scope.load++;
     $http.get( // Get list of groups
         "/service/groups/groups?" + "search=" + $scope.data.phrase
     ).then(
@@ -1868,8 +1937,7 @@ app.controller("GroupsController", function($route, $scope, $http, $routeParams,
                     }
                 }
             }
-            
-            $scope.loadPage = false;
+            $scope.load--;
         },
         function(response) { // Error
             if(response.status == 400) {
@@ -1881,8 +1949,7 @@ app.controller("GroupsController", function($route, $scope, $http, $routeParams,
             } else {
                 $scope.addErrors("error", "Nieoczekiwany błąd podczas próby pobrania listy grup.");
             }
-            
-            $scope.loadPage = false;
+            $scope.load--;
         }
     );
     
@@ -1894,9 +1961,9 @@ app.controller("GroupsController", function($route, $scope, $http, $routeParams,
     
     $scope.addGroup = function($event) {
         $event.preventDefault();
-        $scope.loadPage = true;
         
         if($scope.data.new_group.name != "") {
+            $scope.load++;
             $http.post(
                 "/service/groups/group/" + encodeURIComponent($scope.data.new_group.name),
                 JSON.stringify({
@@ -1911,8 +1978,7 @@ app.controller("GroupsController", function($route, $scope, $http, $routeParams,
                         $scope.addErrors("success", "Grupa została dodana.");
                         $route.reload();
                     }
-                    
-                    $scope.loadPage = false;
+                    $scope.load--;
                 },
                 function(response) { // Error
                     if(response.status == 400) {
@@ -1926,13 +1992,11 @@ app.controller("GroupsController", function($route, $scope, $http, $routeParams,
                     } else {
                         $scope.addErrors("error", "Nieoczekiwany błąd podczas próby dodania grupy.");
                     }
-                    
-                    $scope.loadPage = false;
+                    $scope.load--;
                 }
             );
         } else {
             $scope.addErrors("error", "Nieprawidłowa nazwa grupy.");
-            $scope.loadPage = false;
         }
     }
     
@@ -1946,9 +2010,9 @@ app.controller("GroupsController", function($route, $scope, $http, $routeParams,
     
     $scope.saveGroup = function($event) {
         $event.preventDefault();
-        $scope.loadPage = true;
         
         if($scope.data.edit_group.name != "") {
+            $scope.load++;
             $http.put(
                 "/service/groups/group/" + $scope.data.edit_group.name,
                 JSON.stringify({
@@ -1963,8 +2027,7 @@ app.controller("GroupsController", function($route, $scope, $http, $routeParams,
                         $scope.addErrors("success", "Grupa została zaktualizowana.");
                         $route.reload();
                     }
-                    
-                    $scope.loadPage = false;
+                    $scope.load--;
                 },
                 function(response) { // Error
                     if(response.status == 400) {
@@ -1978,8 +2041,7 @@ app.controller("GroupsController", function($route, $scope, $http, $routeParams,
                     } else {
                         $scope.addErrors("error", "Nieoczekiwany błąd podczas próby zaktualizowania grupy.");
                     }
-
-                    $scope.loadPage = false;
+                    $scope.load--;
                 }
             );
         }
@@ -1988,10 +2050,10 @@ app.controller("GroupsController", function($route, $scope, $http, $routeParams,
     $scope.deleteGroup = function($event) {
         $event.preventDefault();
         
-        $scope.loadPage = true;
         groupName = $event.currentTarget.getAttribute("data-name");
         
         if(confirm("Czy na pewno usunąć wskazaną grupę?")) {
+            $scope.load++;
             $http.delete( // Delete group
                 "/service/groups/group/" + groupName
             ).then(
@@ -2000,8 +2062,7 @@ app.controller("GroupsController", function($route, $scope, $http, $routeParams,
                         $scope.addErrors("success", "Grupa została usunięta.");
                         $route.reload();
                     }
-                    
-                    $scope.loadPage = false;
+                    $scope.load--;
                 },
                 function(response) { // Error
                     if(response.status == 403) {
@@ -2013,8 +2074,7 @@ app.controller("GroupsController", function($route, $scope, $http, $routeParams,
                     } else {
                         $scope.addErrors("error", "Nieoczekiwany błąd podczas próby usunięcia grupy.");
                     }
-                    
-                    $scope.loadPage = false;
+                    $scope.load--;
                 }
             );
         }
@@ -2026,7 +2086,6 @@ app.controller("GroupsController", function($route, $scope, $http, $routeParams,
  ** Members Controller
  */
 app.controller("MembersController", function($route, $scope, $http, $routeParams, $cookies, $location) {
-    $scope.loadPage = true;
     $scope.notice = [];
     $scope.data = {
         new_user : "",
@@ -2042,6 +2101,7 @@ app.controller("MembersController", function($route, $scope, $http, $routeParams
         } );
     });
     
+    $scope.load++;
     $http.get( // Get group members
         "/service/groups/members/get/" + $scope.data.group_name
     ).then(
@@ -2065,8 +2125,7 @@ app.controller("MembersController", function($route, $scope, $http, $routeParams
                     });
                 }
             }
-            
-            $scope.loadPage = false;
+            $scope.load--;
         },
         function(response) { // Error
             if(response.status == 403) {
@@ -2078,8 +2137,7 @@ app.controller("MembersController", function($route, $scope, $http, $routeParams
             } else {
                 $scope.addErrors("error", "Nieoczekiwany błąd podczas próby pobrania listy użytkowników.");
             }
-            
-            $scope.loadPage = false;
+            $scope.load--;
         }
     );
     
@@ -2091,10 +2149,10 @@ app.controller("MembersController", function($route, $scope, $http, $routeParams
     
     $scope.saveUser = function($event) {
         $event.preventDefault();
-        $scope.loadPage = true;
         users = [$scope.data.new_user];
         
         if (users[0] != "") {
+            $scope.load++;
             $http.post( // Add users to group
                 "/service/groups/members/add/" + $scope.data.group_name,
                 JSON.stringify(users)
@@ -2105,8 +2163,7 @@ app.controller("MembersController", function($route, $scope, $http, $routeParams
                         $scope.data.new_user = "";
 						$route.reload();
                     }
-                    
-                    $scope.loadPage = false;
+                    $scope.load--;
                 },
                 function(response) { // Error
                     if(response.status == 400) {
@@ -2120,23 +2177,21 @@ app.controller("MembersController", function($route, $scope, $http, $routeParams
                     } else {
                         $scope.addErrors("error", "Nieoczekiwany błąd podczas próby dodania użytkownika do grupy.");
                     }
-                    
-                    $scope.loadPage = false;
+                    $scope.load--;
                 }
             );
         } else {
             $scope.addErrors("success", "Nieprawidłowa nazwa użytkownika.");
-            $scope.loadPage = false;
         }
     }
     
     $scope.deleteUser = function($event) {
         $event.preventDefault();
-        $scope.loadPage = true;
         userLogin = $event.currentTarget.getAttribute("data-name");
         users = [userLogin];
         
         if (confirm("Czy na pewno usunąć użytkownika z grupy?")) {
+            $scope.load++;
             $http.post( // Remove user from group
                 "/service/groups/members/remove/" + $scope.data.group_name,
                 JSON.stringify(users)
@@ -2146,8 +2201,7 @@ app.controller("MembersController", function($route, $scope, $http, $routeParams
                         $scope.addErrors("success", "Użytkownik został usunięty z grupy.");
                         $route.reload();
                     }
-                    
-                    $scope.loadPage = false;
+                    $scope.load--;
                 },
                 function(response) { // Error
                     if(response.status == 400) {
@@ -2161,10 +2215,10 @@ app.controller("MembersController", function($route, $scope, $http, $routeParams
                     } else {
                         $scope.addErrors("error", "Nieoczekiwany błąd podczas próby usunięcia użytkownika do grupy.");
                     }
-                    
-                    $scope.loadPage = false;
+                    $scope.load--;
                 }
             );
         }
     }
 });
+
