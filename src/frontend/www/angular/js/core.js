@@ -160,6 +160,16 @@ app.controller("ngDMSHead", ["$scope", function($scope) {
  */
 app.controller("menu", function($scope, $location) {
     $scope.path = $location.path();
+    
+    $scope.getMenuItemClass = function(path) {
+        regex = new RegExp("^" + path);
+        
+        if(regex.test($scope.path)) {
+            return "menu-current";
+        } else {
+            return "";
+        }
+    }
 });
 
 
