@@ -1,4 +1,4 @@
-<div class="page-documents" ng-controller="MembersController">
+<div class="page-documents">
 	<header class="header" ng-include="'/www/angular/header.html'"></header>
     <main class="main">
 		<button class="menu-toggle" type="button" ng-click="menuToggle()" ng-class="{'toggled-on' : toggle}">
@@ -8,7 +8,7 @@
         <article class="article">
             <div class="breadcrumb">
                 <header class="breadcrumb-header">
-					<h1 class="breadcrumb-title">{{group}}</h1>
+					<h1 class="breadcrumb-title">{{data.group_name}}</h1>
 				</header><!-- .breadcrumb-header -->
 				<span class="breadcrumb-item">
 					<a class="breadcrumb-link" href="/#!/">Home</a>
@@ -16,9 +16,17 @@
 				<span class="breadcrumb-item">
 					<a class="breadcrumb-link" href="/#!/groups">Grupy użytkowników</a>
 				</span><!-- .breadcrumb-item -->
-				<span class="breadcrumb-item breadcrumb-current">{{group}}</span>
+				<span class="breadcrumb-item breadcrumb-current">{{data.group_name}}</span>
             </div><!-- .breadcrumb -->
             <div class="content">
+				<form id="js-dialog-new" class="dialog" title="Przypisz użytkownika">
+					<input id="js-groups-name" class="input upload-input" type="text" placeholder="Nazwa użytkownika" ng-model="data.new_user" required>
+					<button class="button" type="submit" ng-click="saveUser($event)">Zapisz</button>
+				</form>
+                <form class="documents-form">
+					<a id="create-group" class="button" ng-click="addUser($event)">Przypisz użytkownika</a>
+					<div class="load" ng-show="loadPage"></div>
+                </form><!-- .documents-form -->
                 <table class="groups-table members-table">
                     <thead>
                         <tr>
@@ -28,27 +36,7 @@
                         </tr>
                     </thead>
                     <tbody>
-						<tr>
-							<td>
-								<div class="load" ng-show="loadPage"></div>
-							</td>
-							<td ng-controller="SearchUserController">
-								<input id="js-members-login" class="input groups-input js-get-login" type="text" placeholder="Nazwa użytkownika" value="" ng-keyup="searchUser($event)">
-								<ul id="js-users-prompt" class="users-prompt">
-									<li ng-repeat="(key, value) in users_prompt" ng-click="selectUser($event)" data-name="{{value.login}}">
-										<a>{{value.login}}</a>
-									</li>
-								</ul>
-							</td>
-							<td class="documents-menu">
-								<nav class="documents-actions">
-									<a class="groups-actions-link" ng-click="addUser($event)">
-										<i class="icon">&#xe809;</i>
-									</a><!-- .groups-actions-link -->
-								</nav><!-- .documents-actions -->
-							</td>
-						</tr>
-						<tr ng-repeat="(key, value) in users">
+						<tr ng-repeat="(key, value) in data.members">
 							<td>{{$index+1}}</td>
 							<td>{{value}}</td>
 							<td class="documents-menu">

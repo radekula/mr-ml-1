@@ -1,4 +1,4 @@
-<div class="page-documents" ng-controller="DocumentController">
+<div class="page-documents">
 	<header class="header" ng-include="'/www/angular/header.html'"></header>
     <main class="main">
 		<button class="menu-toggle" type="button" ng-click="menuToggle()" ng-class="{'toggled-on' : toggle}">
@@ -40,14 +40,6 @@
 						<textarea id="description" class="input upload-input upload-textarea" type="text" ng-model="data.document.description"></textarea>
 					</label><!-- .upload-label -->
 					<label class="upload-label">
-						<span class="upload-label-title">Przepływ:</span>
-						<input class="input upload-input" type="text" ng-value="data.flow != '' ? data.flow : 'Brak'" readonly>
-					</label><!-- .upload-label -->
-					<label class="upload-label">
-						<span class="upload-label-title">Status:</span>
-						<input class="input upload-input" type="text" ng-model="data.sign ? 'podpisany' : 'niepodpisany'" readonly>
-					</label><!-- .upload-label -->
-					<label class="upload-label">
 						<span class="upload-label-title">Data dodania:</span>
 						<input class="input upload-input" type="text" ng-model="data.document.create_date" readonly>
 					</label><!-- .upload-label -->
@@ -58,8 +50,8 @@
 					</div><!-- .container-button -->
                 </form><!-- .form-add -->
 				<div class="upload-document">
-					<nav id="documents-actions" class="documents-actions" ng-controller="ActionsController">
-						<a id="js-download" class="download"></a>
+					<nav id="documents-actions" class="documents-actions">
+						<a id="js-download" download="{{data.document.file_name}}" class="download"></a>
 						<a class="documents-actions-link" ng-click="downloadDocument($event)" data-id="{{data.document.id}}">
 							<i class="icon icon-download">&#xe800;</i>
 						</a><!-- .documents-actions-link -->

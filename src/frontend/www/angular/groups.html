@@ -1,4 +1,4 @@
-<div class="page-documents" ng-controller="GroupsController">
+<div class="page-documents">
 	<header class="header" ng-include="'/www/angular/header.html'"></header>
     <main class="main">
 		<button class="menu-toggle" type="button" ng-click="menuToggle()" ng-class="{'toggled-on' : toggle}">
@@ -16,9 +16,19 @@
 				<span class="breadcrumb-item breadcrumb-current">Grupy użytkowników</span>
             </div><!-- .breadcrumb -->
             <div class="content">
+				<form id="js-dialog-new" class="dialog" title="Dodaj grupę">
+					<input id="js-groups-name" class="input upload-input" type="text" placeholder="Nazwa" ng-model="data.new_group.name" required>
+					<textarea id="js-groups-description" class="input upload-input upload-textarea" ng-model="data.new_group.description" placeholder="Opis"></textarea>
+					<button class="button" type="submit" ng-click="addGroup($event)">Zapisz</button>
+				</form>
+				<form id="js-dialog-edit" class="dialog" title="Edytuj grupę">
+					<textarea id="js-groups-description" class="input upload-input upload-textarea" ng-model="data.edit_group.description" placeholder="Opis"></textarea>
+					<button class="button" type="submit" ng-click="saveGroup($event)">Zapisz</button>
+				</form>
                 <form class="documents-form">
                     <input class="input documents-input documents-phrase" name="search" type="text" placeholder="Nazwa grupy" ng-model="search">
 					<button class="button" type="submit" ng-click="filter($event)">Szukaj</button>
+					<a id="create-group" class="button" ng-click="createGroup($event)">Dodaj grupę</a>
 					<div class="load" ng-show="loadPage"></div>
                 </form><!-- .documents-form -->
                 <table class="groups-table">
@@ -33,43 +43,18 @@
                         </tr>
                     </thead>
                     <tbody>
-						<tr>
-							<td></td>
-							<td>
-								<input id="js-groups-name" class="input groups-input" type="text" placeholder="Nazwa grupy" value="">
-							</td>
-							<td>
-								<input id="js-groups-description" class="input groups-input" type="text" placeholder="Opis grupy" value="">
-							</td>
-							<td>{{login}}</td>
-							<td>{{date}}</td>
-							<td class="documents-menu">
-								<nav class="documents-actions">
-									<a class="groups-actions-link" ng-click="addGroup($event)">
-										<i class="icon">&#xe809;</i>
-									</a><!-- .groups-actions-link -->
-								</nav><!-- .documents-actions -->
-							</td>
-						</tr>
-						<tr ng-repeat="group in groups">
+						<tr ng-repeat="group in data.groups.result">
 							<td>{{$index+1}}</td>
-							<td>
-								<input id="js-groups-name-{{$index+1}}" class="input groups-input" type="text" value="{{group.name}}" ng-readonly="true">
-							</td>
-							<td>
-								<input id="js-groups-description-{{$index+1}}" class="input groups-input" type="text" value="{{group.description}}" ng-readonly="!readonly_bool_{{$index+1}}">
-							</td>
+							<td>{{group.name}}</td>
+							<td>{{group.description}}</td>
 							<td>{{group.creator}}</td>
 							<td>{{group.create_date}}</td>
 							<td class="documents-menu">
 								<nav class="documents-actions">
-									<a class="groups-actions-link js-groups-edit-{{$index+1}} js-groups-edit-{{$index+1}}" ng-click="editGroup($event)" data-id="{{$index+1}}" data-name="{{group.name}}" ng-show="!readonly_bool_{{$index+1}}">
+									<a class="groups-actions-link js-groups-edit-{{$index+1}} js-groups-edit-{{$index+1}}" ng-click="editGroup($event)" data-name="{{group.name}}" data-description="{{group.description}}">
 										<i class="icon">&#xe80c;</i>
 									</a><!-- .groups-actions-link -->
-									<a class="groups-actions-link js-groups-save-{{$index+1}}" ng-click="saveGroup($event)" data-id="{{$index+1}}" data-name="{{group.name}}" ng-show="readonly_bool_{{$index+1}}">
-										<i class="icon">&#xe809;</i>
-									</a><!-- .groups-actions-link -->
-									<a class="groups-actions-link" ng-click="showGroup($event)" data-name="{{group.name}}">
+									<a class="groups-actions-link" href="/#!/members/{{group.name}}">
 										<i class="icon">&#xe80b;</i>
 									</a><!-- .groups-actions-link -->
 									<a class="groups-actions-link" ng-click="deleteGroup($event)" data-id="{{$index+1}}" data-name="{{group.name}}">

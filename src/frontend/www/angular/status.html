@@ -6,7 +6,7 @@
 	<nav class="menu" ng-controller="menu" ng-include="'/www/angular/menu.html'"></nav>
 	<article class="article">
 		<div class="breadcrumb">
-			<header class="breadcrumb-header">{{document_name}}</h1>
+			<header class="breadcrumb-header">{{data.document.title}}</h1>
 			</header><!-- .breadcrumb-header -->
 			<span class="breadcrumb-item">
 				<a class="breadcrumb-link" href="/#!/">Home</a>
@@ -16,15 +16,15 @@
 			</span><!-- .breadcrumb-item -->
 			<span class="breadcrumb-item breadcrumb-current">Status</span>
 		</div><!-- .breadcrumb -->
-		<div class="content" ng-controller="StatusController">
-			<section class="steps" ng-show="flow_info ? true : false">
-				<section class="steps-step" ng-repeat="item in flow_info.history">
+		<div class="content">
+			<section class="steps">
+				<section class="steps-step" ng-repeat="item in data.steps">
 					<div class="steps-inner">
 						<header class="steps-header">
-							<h3 class="steps-title">{{steps[item.step]}}</h3>
+							<h3 class="steps-title">{{item.type}}</h3>
 						</header>
                         <p></p>
-						<i class="icon steps-status" ng-show="item.actions ? true : false">&#xe811;</i>
+						<i class="icon steps-status" ng-show="findCurrent(item.id)">&#xe811;</i>
 					</div>
                     <style>
                         .actions {
@@ -55,7 +55,6 @@
                     </table>
                 </section>
 			</section>
-            <p class="steps" ng-show="flow_info ? false : true">Nie zdefiniowano przepływu dla dokumentu.</p>
 		</div><!-- .content -->
 	</article><!-- .article -->
 </main><!-- .main -->

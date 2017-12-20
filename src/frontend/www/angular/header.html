@@ -36,3 +36,8 @@
 		</ul><!-- .header-menu-item -->
 	</nav><!-- .header-menu -->
 </div><!-- .header-outer -->
+<ul id="js-errors" class="errors">
+    <li ng-repeat="error in errors">
+        <span class="{{error.class}}">{{error.value}}</span>
+    </li>
+</ul>

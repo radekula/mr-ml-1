@@ -1,4 +1,4 @@
-<div class="page-documents" ng-controller="DocumentsController">
+<div class="page-documents">
 	<header class="header" ng-include="'/www/angular/header.html'"></header>
     <main class="main">
 		<button class="menu-toggle" type="button" ng-click="menuToggle()" ng-class="{'toggled-on' : toggle}">
@@ -15,7 +15,7 @@
 				</span><!-- .breadcrumb-item -->
 				<span class="breadcrumb-item breadcrumb-current">Lista dokumentów</span>
             </div><!-- .breadcrumb -->
-            <div class="content" ng-controller="ActionsController">
+            <div class="content">
                 <form class="documents-form">
                     <input class="input documents-input documents-phrase" name="phrase" type="text" placeholder="Fraza" ng-model="data.phrase">
 					<button class="button" type="submit" ng-click="filter($event)">Szukaj</button>
@@ -41,14 +41,14 @@
 							</td><!-- .documents-owner -->
 							<td class="documents-menu">
 								<nav class="documents-actions">
-									<a id="js-download-{{value.id}}" class="download-{{value.id}}"></a>
+									<a id="js-download-{{value.id}}" download="{{value.file_name}}" class="download-{{value.id}}"></a>
 									<a class="documents-actions-link" ng-click="downloadDocument($event)" data-id="{{value.id}}">
 										<i class="icon icon-download">&#xe800;</i>
 									</a><!-- .documents-actions-link -->
-									<a class="documents-actions-link" ng-click="redirectToDocument($event)" data-id="{{value.id}}">
+									<a class="documents-actions-link" href="/#!document/{{value.id}}">
 										<i class="icon">&#xf0f6;</i>
 									</a><!-- .documents-actions-link -->
-									<a href="/#!status/{{value.id}}" class="documents-actions-link">
+									<a class="documents-actions-link" href="/#!status/{{value.id}}">
 										<i class="icon">&#xe80f;</i>
 									</a><!-- .documents-actions-link -->
 									<a class="documents-actions-link" ng-click="deleteDocument($event)" data-id="{{value.id}}">
