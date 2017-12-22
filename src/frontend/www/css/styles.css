@@ -144,7 +144,6 @@ ul {
     background-color: #dff0d8 !important;
 }
 .input.ng-dirty.ng-invalid-required,
-.input.ng-empty.ng-invalid-required,
 .input-danger,
 .alert-danger {
     color: #a94442 !important;
