@@ -7,7 +7,7 @@
 	<article class="article">
 		<div class="breadcrumb">
 			<header class="breadcrumb-header">
-				<h1 class="breadcrumb-title">{{data.name}}</h1>
+				<h1 class="breadcrumb-title">{{data.flow.name}}</h1>
 			</header><!-- .breadcrumb-header -->
 			<span class="breadcrumb-item">
 				<a class="breadcrumb-link" href="/#!/">Home</a>
@@ -21,16 +21,14 @@
 			<form class="upload-form" name="uploadForm">
 				<label class="upload-label" for="js-flow-name">
 					<span class="upload-label-title upload-label-required">Nazwa:</span>
-					<input id="js-flow-name" class="input upload-input" type="text" value="{{data.name}}" autocomplete="off" required>
+					<input id="js-flow-name" class="input upload-input" type="text" value="{{data.flow.name}}" autocomplete="off" required>
 				</label><!-- .upload-label -->
 				<label class="upload-label" for="js-flow-description">
 					<span class="upload-label-title">Opis:</span>
-					<textarea id="js-flow-description" class="input upload-input upload-textarea" autocomplete="off">{{data.description}}</textarea>
+					<textarea id="js-flow-description" class="input upload-input upload-textarea" autocomplete="off">{{data.flow.description}}</textarea>
 				</label><!-- .upload-label -->
-				<p class="alert {{item.class}}" ng-repeat="item in notice">{{item.content}}</p>
 				<div class="container-button">
 					<button class="button" type="submit" ng-click="updateFlow($event)">Zapisz</button>
-					<div class="load" ng-show="loadPage"></div>
 				</div><!-- .container-button -->
 			</form><!-- .upload-form -->
 			<form id="dialog-create" class="dialog" title="Dodaj krok">
@@ -57,12 +55,12 @@
 					<i class="icon">&#xe810;</i>
 				</button>
 				<div id="sortable">
-					<section class="steps-step" ng-repeat="(key, value) in steps">
+					<section class="steps-step" ng-repeat="(key, value) in data.steps">
 						<div class="steps-inner" data-type="{{value.type}}" data-id="{{value.id}}">
 							<header class="steps-header">
 								<h3 class="steps-title">{{value.type}}</h3>
 							</header>
-							<nav class="steps-nav" ng-show="$index > 0 && $index < steps.length - 1">
+							<nav class="steps-nav" ng-show="$index > 0 && $index < data.steps.length - 1">
 								<a class="steps-link edit-step" ng-click="editStep($event)" data-id="{{value.id}}">
 									<i class="icon">&#xe80c;</i>
 								</a>

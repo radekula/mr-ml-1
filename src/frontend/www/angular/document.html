@@ -31,7 +31,7 @@
 						<span class="upload-label-title upload-label-required">Tytuł:</span>
 						<input id="title" class="input upload-input" type="text" ng-model="data.document.title" required>
 					</label><!-- .upload-label -->
-					<label id="owner-container" class="upload-label" for="owner">
+					<label id="owner-container" class="upload-label" for="owner" ng-controller="GetUsersController">
 						<span class="upload-label-title upload-label-required">Właściciel:</span>
 						<input id="owner" class="input upload-input" type="text" ng-model="data.owner" required>
 					</label><!-- .upload-label -->
@@ -43,7 +43,6 @@
 						<span class="upload-label-title">Data dodania:</span>
 						<input class="input upload-input" type="text" ng-model="data.document.create_date" readonly>
 					</label><!-- .upload-label -->
-					<p class="alert {{item.class}}" ng-repeat="item in notice">{{item.content}}</p>
 					<div class="container-button">
 						<button class="button" type="submit" ng-click="saveDocument($event)">Zapisz</button>
 						<div class="load" ng-show="loadPage"></div>
