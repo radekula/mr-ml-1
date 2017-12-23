@@ -19,7 +19,7 @@
 				<span class="breadcrumb-item breadcrumb-current">Dokument</span>
             </div><!-- .breadcrumb -->
             <div class="content">
- 				<form id="upload-form" class="upload-form" name="uploadForm" ng-model="uploadForm" ng-controller="UploadController">
+ 				<form id="upload-form" class="upload-form" name="uploadForm" ng-class="submitted ? 'submitted' : ''" ng-model="uploadForm" ng-controller="UploadController">
 					<label class="upload-label upload-label-file" for="file">
 						<p id="file-name" class="upload-label-title upload-label-required">Upuść plik tutaj <br>lub</p>
 						<input id="file" class="upload-input-file" type="file" ng-model="file" onchange="openFile(event)">
@@ -33,7 +33,7 @@
 					</label><!-- .upload-label -->
 					<label id="owner-container" class="upload-label" for="owner" ng-controller="GetUsersController">
 						<span class="upload-label-title upload-label-required">Właściciel:</span>
-						<input id="owner" class="input upload-input" type="text" ng-model="data.owner" required>
+						<input id="owner" class="input upload-input" type="text" ng-value="data.owner" required>
 					</label><!-- .upload-label -->
 					<label class="upload-label" for="description">
 						<span class="upload-label-title">Opis:</span>

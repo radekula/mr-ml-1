@@ -18,13 +18,12 @@
 		</div><!-- .breadcrumb -->
 		<div class="content">
 			<section class="steps">
-				<section class="steps-step" ng-repeat="item in data.steps">
-					<div class="steps-inner">
+                <section class="steps-step" ng-repeat="item in data.steps">
+					<div class="steps-inner" ng-class="findCurrent(item.id) ? 'current' : (findHistory(item.id) ? 'history' : '')">
 						<header class="steps-header">
 							<h3 class="steps-title">{{item.type}}</h3>
 						</header>
-                        <p></p>
-						<i class="icon steps-status" ng-show="findCurrent(item.id)">&#xe811;</i>
+						<i class="icon steps-status" ng-show="!findCurrent(item.id) && findHistory(item.id)">&#xe811;</i>
 					</div>
                     <style>
                         .actions {
