@@ -297,15 +297,15 @@ app.controller("DesktopController", function($scope, $http) {
             $scope.load--;
         },
         function(response) { // Error
-            // if(response.status == 400) {
-                // $scope.addErrors("error", "Błędne żądanie podczas próby pobrania listy akcji.");
-            // } else if(response.status == 403) {
-                // $scope.addErrors("error", "Nie można pobrać listy akcji (nieprawidłowy lub wygasły token).");
-            // } else if(response.status == 500) {
-                // $scope.addErrors("error", "Błąd wewnętrzny serwera podczas próby pobrania listy akcji.");
-            // } else {
-                // $scope.addErrors("error", "Nieoczekiwany błąd podczas próby pobrania listy akcji.");
-            // }
+            if(response.status == 400) {
+                $scope.addErrors("error", "Błędne żądanie podczas próby pobrania listy akcji.");
+            } else if(response.status == 403) {
+                $scope.addErrors("error", "Nie można pobrać listy akcji (nieprawidłowy lub wygasły token).");
+            } else if(response.status == 500) {
+                $scope.addErrors("error", "Błąd wewnętrzny serwera podczas próby pobrania listy akcji.");
+            } else {
+                $scope.addErrors("error", "Nieoczekiwany błąd podczas próby pobrania listy akcji.");
+            }
             $scope.load--;
         }
     );
@@ -776,8 +776,8 @@ app.controller("GetFlowsController", function($scope, $http, $cookies, $location
 /*
  ** Upload Controller
  */
-app.controller("UploadController", function($scope, $routeParams, $http, $cookies, $location, $interval) {
-    $scope.owner = "";
+app.controller("UploadController", function($scope, $routeParams, $http, $cookies, $location, $interval, $route) {
+    $scope.submitted = false;
     
     openFile = function(event) {
         var input = event.target;
@@ -787,10 +787,15 @@ app.controller("UploadController", function($scope, $routeParams, $http, $cookie
         }
     }
     
+    jQuery("#owner").on("keyup", function(){
+        jQuery(this).removeClass("error").removeClass("success");
+    });
+    
     $scope.saveDocument = function($event) {
         $event.preventDefault();
+        $scope.submitted = true;
         $scope.load++;
-        $scope.notice = [];
+        file_done = 0;
         _document = {
             "id": "generate",
             "title": "",
@@ -802,7 +807,6 @@ app.controller("UploadController", function($scope, $routeParams, $http, $cookie
             "thumbnail": "",
             "data": ""
         }
-        file_done = 0;
         
         // Set file a document
         fileReader = new FileReader();
@@ -842,6 +846,7 @@ app.controller("UploadController", function($scope, $routeParams, $http, $cookie
                 _document.file_name = file_name_base64.value;
                 _document.data = file_base64.value;
             } else {
+                $scope.addErrors("error", "Nie wskazano żadnego pliku.");
                 $scope.uploadForm.$valid = false;
             }
             
@@ -853,131 +858,201 @@ app.controller("UploadController", function($scope, $routeParams, $http, $cookie
                 if(file_done == 1) {
                     $interval.cancel(interval);
                     
-                    if ($scope.uploadForm.$valid) {
-                        // Set title of a document
-                        _document.title = $scope.title ? $scope.title : "";
-                        
-                        // Set date of a document
-                        _document.create_date = getNowDate();
-                        
-                        // Set description of a document
-                        _document.description = $scope.description ? $scope.description : "";
-                        
-                        // Set owners of a document
-                        owners = jQuery("#owner").val() ? jQuery("#owner").val().split(", ") : [];
-                        for(index in owners) {
-                            owner = owners[index].trim();
+                    // Set owners of a document
+                    owners = jQuery("#owner").val() ? jQuery("#owner").val().split(", ") : [];
+                    for(index in owners) {
+                        owner = owners[index].trim();
+                        if(owner != "") {
                             _document.owner.push(owner);
                         }
-                        
-                        if ($location.path() === "/add") {
-                            $http.post(
-                                "/service/documents/document/generate",
-                                JSON.stringify(_document)
-                            ).then(
-                                function(response) { // Success
-                                    if (response.status == 200) {
-                                        // Reset data
-                                        document.getElementById("file-name").innerHTML = "Upuść plik tutaj <br>lub";
-                                        document.getElementById("file").value = "";
-                                        document.getElementById("flow").value = "";
-                                        document.getElementById("owner").value = "";
-                                        $scope.owner = "";
-                                        $scope.title = "";
-                                        $scope.description = "";
-                                        $scope.uploadForm.$setPristine();
-                                        $scope.addErrors("success", "Dokument został zapisany.");
-                                    }
-                                    
-                                    _flow_document = {
-                                        "document": response.data.id,
-                                        "flow": ""
-                                    }
-                                    
-                                    flow_name = jQuery("#flow").val() ? jQuery("#flow").val() : "";
-                                    
-                                    // Get list of flows
-                                    $scope.load++;
-                                    $http.get(
-                                        "/service/flows/flows?limit=1&search=" + flow_name,
-                                    ).then(
-                                        function(response) { // Success
-                                            if(response.status == 200) {
-                                                _flow_document["flow"] = response.data.result[0].id;
-                                                
-                                                // Start a flow for a document
-                                                $scope.load++;
-                                                $http.post(
-                                                    "/service/flows-documents/start",
-                                                    JSON.stringify(_flow_document)
-                                                ).then(
-                                                    function(response) { // Success
-                                                        $scope.load--;
-                                                    },
-                                                    function(response) { // Error
-                                                        $scope.load--;
-                                                    }
-                                                );
-                                            }
-                                            $scope.load--;
-                                        },
-                                        function(response) { // Error
-                                            $scope.load--;
-                                        }
-                                    );
-                                    $scope.load--;
-                                },
-                                function(response) { // Error
-                                    $scope.load--;
-                                }
-                            );
-                        } else {
-                            document_data = _document.data;
-                            _document = $scope.data.document;
-                            _document.data = document_data != "" ? document_data : _document.data;
-                            _document.owner = [];
-                            
-                            // Set owners of a document
-                            owners = jQuery("#owner").val() ? jQuery("#owner").val().split(", ") : [];
-                            for(index in owners) {
-                                owner = owners[index].trim();
-                                _document.owner.push(owner);
-                            }
-                            
-                            $http.put( // Update document with given id
-                                "/service/documents/document/" + _document.id,
-                                JSON.stringify(_document)
-                            ).then(
-                                function(response) { // Success
-                                    if (response.status == 200) {
-                                        $scope.file_name = _document.file_name;
-                                        document.getElementById("file_name_base64").value = _document.file_name;
-                                        document.getElementById("file_base64").value = _document.data;
-                                        document.getElementById("document").setAttribute("data", _document.data);
-                                        $scope.uploadForm.$setPristine();
-                                        $scope.addErrors("success", "Dokument został zaktualizowany.");
-                                    }
-                                    $scope.load--;
-                                },
-                                function(response) { // Error
-                                    if(response.status == 400) {
-                                        $scope.addErrors("error", "Błędne żądanie podczas próby pobrania zaktualizowania dokumentu.");
-                                    } else if(response.status == 403) {
-                                        $scope.addErrors("error", "Nie można zaktualizować dokumentu (nieprawidłowy lub wygasły token).");
-                                    } else if(response.status == 404) {
-                                        $scope.addErrors("error", "Dokument nieznaleziony.");
-                                    } else if(response.status == 500) {
-                                        $scope.addErrors("error", "Błąd wewnętrzny serwera podczas próby zaktualiowania dokumentu.");
-                                    } else {
-                                        $scope.addErrors("error", "Nieoczekiwany błąd podczas próby zaktualiowania dokumentu.");
-                                    }
-                                    $scope.load--;
-                                }
-                            );
-                        }
-                    } else {
-                        $scope.addErrors("error", "Nieprawidłowo wypełniony formularz.");
                     }
+                    
+                    check_users = false;
+                    
+                    if(_document.owner.length == 0) {
+                        jQuery("#owner").addClass("error");
+                        $scope.uploadForm.$valid = false;
+                        
+                        check_users = true;
+                    } else {
+                        $http.get( // Get list of users
+                            "/service/users/users",
+                        ).then(
+                            function(response) { // Success
+                                if (response.status == 200) {
+                                    if(typeof response.data == "object") {
+                                        _users = [];
+                                        
+                                        for(index in response.data.result) {
+                                            _users.push(response.data.result[index].login);
+                                        }
+                                        
+                                        jQuery("#owner").removeClass("error");
+                                        
+                                        for(index in _document.owner) {
+                                            if(_users.indexOf(_document.owner[index]) == -1) {
+                                                jQuery("#owner").addClass("error");
+                                                $scope.addErrors("error", "Użytkownik o loginie " + _document.owner[index] + " nie istnieje." );
+                                                $scope.uploadForm.$valid = false;
+                                            }
+                                        }
+                                        
+                                        if(!jQuery("#owner").hasClass("error")) {
+                                            jQuery("#owner").addClass("success")
+                                        }
+                                    }
+                                }
+                                
+                                check_users = true;
+                                $scope.load--;
+                            },
+                            function(response) { // Error
+                                if(response.status == 400) {
+                                    $scope.addErrors("error", "Błędne żądanie podczas próby pobrania listy użytkowników.");
+                                } else if(response.status == 403) {
+                                    $scope.addErrors("error", "Nie można pobrać listy użytkowników (nieprawidłowy lub wygasły token).");
+                                } else if(response.status == 500) {
+                                    $scope.addErrors("error", "Błąd wewnętrzny serwera podczas próby pobrania listy użytkowników.");
+                                } else {
+                                    $scope.addErrors("error", "Nieoczekiwany błąd podczas próby pobrania listy użytkowników.");
+                                }
+                                
+                                check_users = true;
+                                $scope.load--;
+                            }
+                        );
+                    }
+                    
+                    interval = $interval(
+                        function() {
+                            if(check_users == true) {
+                                $interval.cancel(interval);
+                                
+                                if($scope.uploadForm.$valid) {
+                                    // Set title of a document
+                                    _document.title = $scope.title ? $scope.title : "";
+                                    
+                                    // Set date of a document
+                                    _document.create_date = getNowDate();
+                                    
+                                    // Set description of a document
+                                    _document.description = $scope.description ? $scope.description : "";
+                                    
+                                    if($location.path() === "/add") {
+                                        $http.post(
+                                            "/service/documents/document/generate",
+                                            JSON.stringify(_document)
+                                        ).then(
+                                            function(response) { // Success
+                                                if (response.status == 200) {
+                                                    $route.reload();
+                                                    $scope.addErrors("success", "Dokument został zapisany.");
+                                                }
+                                                
+                                                _flow_document = {
+                                                    "document": response.data.id,
+                                                    "flow": ""
+                                                }
+                                                
+                                                flow_name = document.getElementById("flow").value ? document.getElementById("flow").value : "";
+                                                
+                                                if(flow_name && flow_name != "") {
+                                                    $scope.load++;
+                                                    $http.get( // Get list of flows
+                                                        "/service/flows/flows?limit=1&search=" + flow_name,
+                                                    ).then(
+                                                        function(response) { // Success
+                                                            if(response.status == 200) {
+                                                                for(index in response.data.result) {
+                                                                    if(response.data.result[index].name == flow_name) {
+                                                                        _flow_document["flow"] = response.data.result[index].id;
+                                                                    }
+                                                                }
+                                                                
+                                                                if(_flow_document["flow"] == "") {
+                                                                    $scope.addErrors("error", "Przepływ o podanej nazwie nie istnieje. Podepnij przepływ edytując dokument.");
+                                                                } else {
+                                                                    // Start a flow for a document
+                                                                    $scope.load++;
+                                                                    $http.post(
+                                                                        "/service/flows-documents/start",
+                                                                        JSON.stringify(_flow_document)
+                                                                    ).then(
+                                                                        function(response) { // Success
+                                                                            $scope.addErrors("success", "Dokument został podpięty pod przepływ.");
+                                                                            $scope.load--;
+                                                                        },
+                                                                        function(response) { // Error
+                                                                            $scope.load--;
+                                                                        }
+                                                                    );
+                                                                }
+                                                                
+                                                                document.getElementById("flow").value = "";
+                                                            }
+                                                            $scope.load--;
+                                                        },
+                                                        function(response) { // Error
+                                                            $scope.load--;
+                                                        }
+                                                    );
+                                                }
+                                                $scope.load--;
+                                            },
+                                            function(response) { // Error
+                                                $scope.load--;
+                                            }
+                                        );
+                                    } else {
+                                        document_data = _document.data;
+                                        _document = $scope.data.document;
+                                        _document.data = document_data != "" ? document_data : _document.data;
+                                        _document.owner = [];
+                                        
+                                        // Set owners of a document
+                                        owners = jQuery("#owner").val() ? jQuery("#owner").val().split(", ") : [];
+                                        for(index in owners) {
+                                            owner = owners[index].trim();
+                                            if(owner != "") {
+                                                _document.owner.push(owner);
+                                            }
+                                        }
+                                        
+                                        $http.put( // Update document with given id
+                                            "/service/documents/document/" + _document.id,
+                                            JSON.stringify(_document)
+                                        ).then(
+                                            function(response) { // Success
+                                                if (response.status == 200) {
+                                                    $route.reload();
+                                                    $scope.addErrors("success", "Dokument został zaktualizowany.");
+                                                }
+                                                $scope.load--;
+                                            },
+                                            function(response) { // Error
+                                                if(response.status == 400) {
+                                                    $scope.addErrors("error", "Błędne żądanie podczas próby pobrania zaktualizowania dokumentu.");
+                                                } else if(response.status == 403) {
+                                                    $scope.addErrors("error", "Nie można zaktualizować dokumentu (nieprawidłowy lub wygasły token).");
+                                                } else if(response.status == 404) {
+                                                    $scope.addErrors("error", "Dokument nieznaleziony.");
+                                                } else if(response.status == 500) {
+                                                    $scope.addErrors("error", "Błąd wewnętrzny serwera podczas próby zaktualiowania dokumentu.");
+                                                } else {
+                                                    $scope.addErrors("error", "Nieoczekiwany błąd podczas próby zaktualiowania dokumentu.");
+                                                }
+                                                $scope.load--;
+                                            }
+                                        );
+                                    }
+                                }
+                                else {
+                                    $scope.addErrors("error", "Nieprawidłowo wypełniony formularz.");
+                                    $scope.load--;
+                                }
+                            }
+                        }, 1
+                    );
                 }
             }, 1
         );
@@ -1010,17 +1085,22 @@ app.controller("DocumentsController", function($scope, $routeParams, $http, $loc
         
         function getPagination() {
             if($scope.data.currentPage - 1 < $scope.data.numberOfPages) {
-                i = $scope.data.currentPage;
-                max = i + 3;
-                diff = max - $scope.data.numberOfPages;
+                min = parseInt($scope.data.currentPage) - 2;
+                max = min + 4;
                 
-                if(diff > 0) {
-                    i = ( i - diff ) > 1 ? ( i - diff ) : 1;
+                while(max > $scope.data.numberOfPages) {
+                    min -= 1;
+                    max -= 1;
                 }
                 
-                for(i; i <= max; i++) {
-                    if (i > $scope.data.numberOfPages) break;
-                    $scope.data.pages.push(i);
+                while(min <= 0) {
+                    min += 1;
+                    max += 1;
+                }
+                
+                for(min; min <= max; min++) {
+                    if(min > $scope.data.numberOfPages) break;
+                    $scope.data.pages.push(min);
                 }
             }
         }
@@ -1275,10 +1355,20 @@ app.controller("StatusController", function($scope, $routeParams, $http, $cookie
         document_name : "",
         current_steps : [],
         steps : [],
+        history : [],
     }
     
     $scope.findCurrent = function(step_id) {
-        return $scope.data.current_steps.indexOf(step_id) == -1 ? true : false;
+        return $scope.data.current_steps.indexOf(step_id) == -1 ? false : true;
+    }
+    
+    $scope.findHistory = function(step_id) {
+        for(index in $scope.data.history) {
+            if($scope.data.history[index].step == step_id) {
+                return true;
+            }
+        }
+        return false;
     }
     
     $scope.load++;
@@ -1318,6 +1408,7 @@ app.controller("StatusController", function($scope, $routeParams, $http, $cookie
                 if(typeof response.data == "object") {
                     flowID = response.data.flow;
                     $scope.data.current_steps = response.data.current_steps;
+                    $scope.data.history = response.data.history;
                     
                     $scope.load++;
                     $http.get( // Get flow steps by flow ID
@@ -1326,7 +1417,22 @@ app.controller("StatusController", function($scope, $routeParams, $http, $cookie
                         function(response) { // Success
                             if(response.status == 200) {
                                 if(typeof response.data == "object") {
-                                    $scope.data.steps = response.data;
+                                    data_length = response.data.length;
+                                    $scope.data.steps= [];
+                                    $scope.data.steps.push(response.data[0]);
+                                    id = response.data[0].id;
+                                    
+                                    i = data_length - 1;
+                                    while($scope.data.steps.length != data_length) {
+                                        if(response.data[i].prev == id) {
+                                            $scope.data.steps.push(response.data[i]);
+                                            id = response.data[i].id;
+                                        }
+                                        i--;
+                                        if(i == 0) {
+                                            i = data_length - 1;
+                                        }
+                                    }
                                 }
                             }
                             $scope.load--;
@@ -1378,7 +1484,7 @@ app.controller("FlowsController", function($scope, $route, $routeParams, $http, 
             limit : 5,
             currentPage : $routeParams.page,
             numberOfPages : 0,
-            phrase : $routeParams.phrase ? decodeURI($routeParams.phrase) : "",
+            phrase : $routeParams.phrase ? $routeParams.phrase : "",
             pages : [],
             flows : {
                 total : "0",
@@ -1389,17 +1495,22 @@ app.controller("FlowsController", function($scope, $route, $routeParams, $http, 
         
         function getPagination() {
             if($scope.data.currentPage - 1 < $scope.data.numberOfPages) {
-                i = $scope.data.currentPage;
-                max = i + 3;
-                diff = max - $scope.data.numberOfPages;
+                min = parseInt($scope.data.currentPage) - 2;
+                max = min + 4;
                 
-                if(diff > 0) {
-                    i = ( i - diff ) > 1 ? ( i - diff ) : 1;
+                while(max > $scope.data.numberOfPages) {
+                    min -= 1;
+                    max -= 1;
                 }
                 
-                for(i; i <= max; i++) {
-                    if (i > $scope.data.numberOfPages) break;
-                    $scope.data.pages.push(i);
+                while(min <= 0) {
+                    min += 1;
+                    max += 1;
+                }
+                
+                for(min; min <= max; min++) {
+                    if(min > $scope.data.numberOfPages) break;
+                    $scope.data.pages.push(min);
                 }
             }
         }
@@ -1408,46 +1519,55 @@ app.controller("FlowsController", function($scope, $route, $routeParams, $http, 
             $event.preventDefault();
             
             if( $scope.data.phrase !== "" ) {
-                $location.path("/flows/" + encodeURI($scope.data.phrase) + "/1");
+                $location.path("/flows/" + $scope.data.phrase + "/1");
             } else {
                 $location.path("/flows/1");
             }
         }
         
         $scope.load++;
-        $http.get( // Get list of flows
-            "/service/flows/flows?limit=" + $scope.data.limit + "&offset=" + $scope.data.offset + "&search=" + $scope.data.phrase
-        ).then(
-            function(response) { // Success
-                if (response.status == 200) {
-                    if(typeof response.data == "object") {
-                        $scope.data.flows = response.data;
-                        $scope.data.numberOfPages = Math.ceil($scope.data.flows.total / $scope.data.limit);
-                        getPagination();
-                        
-                        if($scope.data.flows.total == 0) {
-                            $scope.notice.push({
-                                "content": "Nie znaleziono przepływów.",
-                                "class": "alert-danger"
-                            });
+        if($scope.data.phrase.search(" ") > -1) {
+            $scope.data.flows = [];
+            $scope.notice.push({
+                "content": "Nie znaleziono przepływów.",
+                "class": "alert-danger"
+            });
+            $scope.load--;
+        } else {
+            $http.get( // Get list of flows
+                "/service/flows/flows?limit=" + $scope.data.limit + "&offset=" + $scope.data.offset + "&search=" + $scope.data.phrase
+            ).then(
+                function(response) { // Success
+                    if (response.status == 200) {
+                        if(typeof response.data == "object") {
+                            $scope.data.flows = response.data;
+                            $scope.data.numberOfPages = Math.ceil($scope.data.flows.total / $scope.data.limit);
+                            getPagination();
+                            
+                            if($scope.data.flows.total == 0) {
+                                $scope.notice.push({
+                                    "content": "Nie znaleziono przepływów.",
+                                    "class": "alert-danger"
+                                });
+                            }
                         }
                     }
+                    $scope.load--;
+                },
+                function(response) { // Error
+                    if(response.status == 400) {
+                        $scope.addErrors("error", "Błędne żądanie podczas próby pobrania listy przepływów.");
+                    } else if(response.status == 403) {
+                        $scope.addErrors("error", "Nie można pobrać listy przepływów (nieprawidłowy lub wygasły token).");
+                    } else if(response.status == 500) {
+                        $scope.addErrors("error", "Błąd wewnętrzny serwera podczas próby pobrania listy przepływów.");
+                    } else {
+                        $scope.addErrors("error", "Nieoczekiwany błąd podczas próby pobrania listy przepływów.");
+                    }
+                    $scope.load--;
                 }
-                $scope.load--;
-            },
-            function(response) { // Error
-                if(response.status == 400) {
-                    $scope.addErrors("error", "Błędne żądanie podczas próby pobrania listy przepływów.");
-                } else if(response.status == 403) {
-                    $scope.addErrors("error", "Nie można pobrać listy przepływów (nieprawidłowy lub wygasły token).");
-                } else if(response.status == 500) {
-                    $scope.addErrors("error", "Błąd wewnętrzny serwera podczas próby pobrania listy przepływów.");
-                } else {
-                    $scope.addErrors("error", "Nieoczekiwany błąd podczas próby pobrania listy przepływów.");
-                }
-                $scope.load--;
-            }
-        );
+            );
+        }
         
         $scope.addFlow = function($event) {
             $event.preventDefault();
@@ -1472,8 +1592,8 @@ app.controller("FlowsController", function($scope, $route, $routeParams, $http, 
                 ).then(
                     function(response) { // Success
                         if(response.status == 200) {
-                            $scope.addErrors("success", "Przepływ został dodany.");
                             $route.reload();
+                            $scope.addErrors("success", "Przepływ został dodany.");
                         }
                         $scope.load--;
                     },
@@ -1507,8 +1627,8 @@ app.controller("FlowsController", function($scope, $route, $routeParams, $http, 
                 ).then(
                     function(response) { // Success
                         if(response.status == 200) {
-                            $scope.addErrors("success", "Przepływ został usunięty.");
                             $route.reload();
+                            $scope.addErrors("success", "Przepływ został usunięty.");
                         }
                         $scope.load--;
                     },
@@ -1950,7 +2070,7 @@ app.controller("GroupsController", function($route, $scope, $http, $routeParams,
             description : ""
         },
         date : getNowDate(),
-        phrase : $routeParams.search ? $routeParams.search : "",
+        phrase : $.trim($routeParams.phrase) ? $.trim($routeParams.phrase) : "",
         groups : []
     }
     
@@ -1972,44 +2092,52 @@ app.controller("GroupsController", function($route, $scope, $http, $routeParams,
         $event.preventDefault();
         
         if( $scope.data.phrase !== "" ) {
-            $location.path("/groups/" + encodeURI($scope.data.phrase));
+            $location.path("/groups/" + $.trim($scope.data.phrase));
         } else {
             $location.path("/groups/");
         }
     }
     
-    $scope.load++;
-    $http.get( // Get list of groups
-        "/service/groups/groups?" + "search=" + $scope.data.phrase
-    ).then(
-        function(response) { // Success
-            if(response.status == 200) {
-                if(typeof response.data == "object") {
-                    $scope.data.groups = response.data;
-                    
-                    if($scope.data.groups.total == 0) {
-                        $scope.notice.push({
-                            "content": "Nie znaleziono grup.",
-                            "class": "alert-danger"
-                        });
+    if($scope.data.phrase.search(" ") > -1) {
+        $scope.data.groups = [];
+        $scope.notice.push({
+            "content": "Nie znaleziono grup.",
+            "class": "alert-danger"
+        });
+    } else {
+        $scope.load++;
+        $http.get( // Get list of groups
+            "/service/groups/groups?" + "search=" + $scope.data.phrase
+        ).then(
+            function(response) { // Success
+                if(response.status == 200) {
+                    if(typeof response.data == "object") {
+                        $scope.data.groups = response.data;
+                        
+                        if($scope.data.groups.total == 0) {
+                            $scope.notice.push({
+                                "content": "Nie znaleziono grup.",
+                                "class": "alert-danger"
+                            });
+                        }
                     }
                 }
+                $scope.load--;
+            },
+            function(response) { // Error
+                if(response.status == 400) {
+                    $scope.addErrors("error", "Błędne żądanie podczas próby pobrania listy grup.");
+                }  else if(response.status == 403) {
+                    $scope.addErrors("error", "Nie można pobrać listy grup (nieprawidłowy lub wygasły token).");
+                } else if(response.status == 500) {
+                    $scope.addErrors("error", "Błąd wewnętrzny serwera podczas próby pobrania listy grup.");
+                } else {
+                    $scope.addErrors("error", "Nieoczekiwany błąd podczas próby pobrania listy grup.");
+                }
+                $scope.load--;
             }
-            $scope.load--;
-        },
-        function(response) { // Error
-            if(response.status == 400) {
-                $scope.addErrors("error", "Błędne żądanie podczas próby pobrania listy grup.");
-            }  else if(response.status == 403) {
-                $scope.addErrors("error", "Nie można pobrać listy grup (nieprawidłowy lub wygasły token).");
-            } else if(response.status == 500) {
-                $scope.addErrors("error", "Błąd wewnętrzny serwera podczas próby pobrania listy grup.");
-            } else {
-                $scope.addErrors("error", "Nieoczekiwany błąd podczas próby pobrania listy grup.");
-            }
-            $scope.load--;
-        }
-    );
+        );
+    }
     
     $scope.createGroup = function($event) {
         $event.preventDefault();
@@ -2020,7 +2148,9 @@ app.controller("GroupsController", function($route, $scope, $http, $routeParams,
     $scope.addGroup = function($event) {
         $event.preventDefault();
         
-        if($scope.data.new_group.name != "") {
+        if( $scope.data.new_group.name.search(" ") > -1) {
+            $scope.addErrors("error", "Nazwa grupy zawiera niedozwolone znaki.");
+        } else if($scope.data.new_group.name != "") {
             $scope.load++;
             $http.post(
                 "/service/groups/group/" + encodeURIComponent($scope.data.new_group.name),
@@ -2033,8 +2163,8 @@ app.controller("GroupsController", function($route, $scope, $http, $routeParams,
             ).then(
                 function(response) { // Success
                     if(response.status == 200) {
-                        $scope.addErrors("success", "Grupa została dodana.");
                         $route.reload();
+                        $scope.addErrors("success", "Grupa została dodana.");
                     }
                     $scope.load--;
                 },
@@ -2082,8 +2212,8 @@ app.controller("GroupsController", function($route, $scope, $http, $routeParams,
             ).then(
                 function(response) { // Success
                     if(response.status == 200) {
-                        $scope.addErrors("success", "Grupa została zaktualizowana.");
                         $route.reload();
+                        $scope.addErrors("success", "Grupa została zaktualizowana.");
                     }
                     $scope.load--;
                 },
@@ -2117,8 +2247,8 @@ app.controller("GroupsController", function($route, $scope, $http, $routeParams,
             ).then(
                 function(response) { // Success
                     if(response.status == 200) {
-                        $scope.addErrors("success", "Grupa została usunięta.");
                         $route.reload();
+                        $scope.addErrors("success", "Grupa została usunięta.");
                     }
                     $scope.load--;
                 },
@@ -2217,9 +2347,8 @@ app.controller("MembersController", function($route, $scope, $http, $routeParams
             ).then(
                 function(response) { // Success
                     if (response.status == 200) {
-                        $scope.addErrors("success", "Użytkownik został dodany do grupy.");
-                        $scope.data.new_user = "";
 						$route.reload();
+                        $scope.addErrors("success", "Użytkownik został dodany do grupy.");
                     }
                     $scope.load--;
                 },
@@ -2256,8 +2385,8 @@ app.controller("MembersController", function($route, $scope, $http, $routeParams
             ).then(
                 function(response) { // Success
                     if(response.status == 200) {
-                        $scope.addErrors("success", "Użytkownik został usunięty z grupy.");
                         $route.reload();
+                        $scope.addErrors("success", "Użytkownik został usunięty z grupy.");
                     }
                     $scope.load--;
                 },
