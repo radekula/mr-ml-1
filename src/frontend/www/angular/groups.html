@@ -22,12 +22,12 @@
             <form id="js-dialog-new" class="dialog" title="Dodaj grupę">
                 <input class="input upload-input" placeholder="Nazwa" type="text" ng-model="data.new_group.name" required>
                 <textarea class="input upload-input upload-textarea" placeholder="Opis" ng-model="data.new_group.description"></textarea>
-                <button class="button" type="button" ng-click="addGroup($event)">Zapisz</button>
+                <button class="ui-button ui-corner-all ui-widget" type="button" ng-click="addGroup($event)">Zapisz</button>
             </form>
             <!-- .dialog -->
             <form id="js-dialog-edit" class="dialog" title="Edytuj grupę">
                 <textarea class="input upload-input upload-textarea" ng-model="data.edit_group.description" placeholder="Opis"></textarea>
-                <button class="button" type="button" ng-click="saveGroup($event)">Zapisz</button>
+                <button class="ui-button ui-corner-all ui-widget" type="button" ng-click="saveGroup($event)">Zapisz</button>
             </form>
             <!-- .dialog -->
             <form class="documents-form">

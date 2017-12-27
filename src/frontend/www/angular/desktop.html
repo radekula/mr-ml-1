@@ -23,9 +23,7 @@
 						<th></th>
 					</tr>
 					<tr ng-repeat="(key, value) in data.actions.result|limitTo:4">
-						<td>
-                            <a style="display: inline;" href="/#!/flow/{{value.flow}}">{{value.flow_name}}</a>
-                        </td>
+						<td>{{value.flow_name}}</td>
 						<td>{{value.type}}</td>
 						<td>
 							<a href="/#!/action/{{value.type}}/{{value.document}}/{{value.step}}">
@@ -40,14 +38,13 @@
 				<div class="box-table-more">
 					<table class="box-table">
 						<tr ng-repeat="(key, value) in data.actions.result|limitTo:100:4">
-							<td>{{value.title}}</td>
-							<td class="box-date"></td>
-							<td class="box-author"></td>
-							<td>
-								<a href="/#!/document/{{value.document}}">
-									<i class="icon">&#xf14c;</i>
-								</a>
-							</td>
+                            <td>{{value.flow_name}}</td>
+                            <td>{{value.type}}</td>
+                            <td>
+                                <a href="/#!/action/{{value.type}}/{{value.document}}/{{value.step}}">
+                                    <i class="icon">&#xf14c;</i>
+                                </a>
+                            </td>
 						</tr>
 					</table>
 				</div>

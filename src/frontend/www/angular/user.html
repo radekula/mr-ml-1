@@ -37,22 +37,22 @@
                 <!-- .upload-label -->
                 <label class="upload-label" for="password">
                     <span class="upload-label-title">Nowe hasło:</span>
-                    <input id="password" class="input upload-input" type="text" ng-model="data.password.new_password">
+                    <input id="password" class="input upload-input" type="password" ng-model="data.password.new_password">
                 </label>
                 <!-- .upload-label -->
-                <label class="upload-label" for="old-password">
-                    <span class="upload-label-title" ng-class="data.password.new_password ? 'upload-label-required' : ''">Obecne hasło:</span>
-                    <input id="old-password" class="input upload-input" type="text" ng-model="data.password.old_password" ng-required="data.password.new_password ? true : false">
+                <label class="upload-label" for="repeat-password">
+                    <span class="upload-label-title" ng-class="data.password.new_password ? 'upload-label-required' : ''">Powtórz hasło:</span>
+                    <input id="repeat-password" class="input upload-input" type="password" ng-model="data.password.old_password" ng-required="data.password.new_password ? true : false">
                 </label>
                 <!-- .upload-label -->
                 <label class="upload-label" for="key-public">
                     <span class="upload-label-title">Klucz publiczny:</span>
-                    <textarea id="key-public" class="input upload-input upload-textarea" ng-model="data.keys.public_key"></textarea>
+                    <textarea id="key-public" class="input upload-input upload-textarea" ng-change="changeKey()" ng-model="data.keys.public_key"></textarea>
                 </label>
                 <!-- .upload-label -->
                 <label class="upload-label" for="key-private">
                     <span class="upload-label-title">Klucz prywatny:</span>
-                    <textarea id="key-private" class="input upload-input upload-textarea" ng-model="data.keys.private_key"></textarea>
+                    <textarea id="key-private" class="input upload-input upload-textarea" ng-change="changeKey()" ng-model="data.keys.private_key"></textarea>
                 </label>
                 <!-- .upload-label -->
                 <label class="upload-label">
@@ -75,8 +75,18 @@
                     <input class="input upload-input" type="text" readonly ng-model="data.user.last_active">
                 </label>
                 <!-- .upload-label -->
+                <label class="upload-label">
+                    <span class="upload-label-title">Lista <br>grup:</span>
+                    <ul>
+                        <li ng-repeat="(key, value) in data.groups">
+                            <a href="/#!/members/{{value.name}}">{{value.name}}</a>
+                        </li>
+                        <li ng-show="emptyGroups">Użytkownik nie jest przpisany do żadnej z grup.</li>
+                    </ul>
+                </label>
+                <!-- .upload-label -->
                 <div class="container-button">
-                    <button class="button" type="submit" ng-click="saveUser($event)">Zapisz</button>
+                    <button class="button" type="submit" ng-click="saveUser($event, userForm)">Zapisz</button>
                 </div>
                 <!-- .container-button -->
             </form>
