@@ -130,6 +130,7 @@ ul {
 }
 
 form.submitted .ng-invalid,
+form.ng-dirty .ng-invalid,
 form.submitted .error {
     color: #a94442;
     background-color: #f2dede;
@@ -1047,27 +1048,6 @@ form .success {
 **
 */
 
-.ui-widget.ui-widget-content,
-.ui-menu .ui-menu-item-wrapper,
-.ui-menu .ui-menu-item-wrapper:hover {
-    border-color: transparent;
-}
-
-.ui-widget.ui-widget-content,
-.ui-menu .ui-menu-item-wrapper {
-    color: #3f4651;
-}
-
-.ui-menu .ui-menu-item-wrapper,
-.ui-menu .ui-menu-item-wrapper:hover {
-    font-weight: 300;
-}
-
-.ui-menu .ui-menu-item-wrapper:hover {
-    color: #fff;
-    background: #3f4651;
-}
-
 .upload-form {
     padding: 40px;
     width: 50%;
@@ -1136,6 +1116,18 @@ form .success {
 .upload-label-required:after {
     content: " *";
     color: red;
+}
+.upload-label li {
+    color: #999;
+}
+.upload-label a {
+    color: #3f4651;
+    text-decoration: none;
+}
+.upload-label a:hover,
+.upload-label a:focus {
+    color: #3f4651;
+    text-decoration: underline;
 }
 .upload-input {
     width: 20.625em;
@@ -1919,7 +1911,26 @@ form .success {
 }
 
 .ui-widget.ui-widget-content {
-	font: 300 16px/normal Roboto, sans-serif;
+    position: absolute;
+    z-index: 1;
+    font: 300 16px/normal Roboto, sans-serif;
+    background-color: #fafafa;
+    border: none;
+    border-right: 1px solid #dedede;
+    border-left: 1px solid #dedede;
+}
+
+.ui-dialog.ui-widget-content {
+    border: 1px solid #dedede;
+}
+
+.ui-menu .ui-menu-item-wrapper {
+    margin: 0;
+    padding: 8px 15px;
+    font-weight: 300;
+    color: #999;
+    border: none;
+    border-bottom: 1px solid #dedede;
 }
 
 .ui-dialog .ui-dialog-title {
