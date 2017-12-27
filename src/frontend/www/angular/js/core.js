@@ -18,27 +18,6 @@ function extractLast( term ) {
     return split( term ).pop();
 }
 
-function getErrorMessage(status) {
-    switch(status) {
-        case 400:
-            return "Błędne żądanie.";
-        break;
-        case 403:
-            return "Nieprawidłowy lub wygasły token.";
-        break;
-        case 406:
-            return "Użytkownik nie może wykonać tej akcji (nie jest przypisany do kroku).";
-        break;
-        case 500:
-            return "Błąd wewnętrzny serwera.";
-        break;
-        default:
-            return "Wystąpił nieoczekiwany błąd.";
-        break;
-    }
-}
-
-
 /*
  ** Routing
  */
@@ -257,12 +236,63 @@ app.controller("SearchController", function($scope, $location) {
 
 
 /*
+ ** Statement Controller
+ */
+app.controller("StatementController", function($scope, $http) {
+    $scope.data = {
+        actions : {
+            total : "0",
+            result : []
+        },
+        comments : {
+            total : "0",
+            result : []
+        }
+    }
+    
+    $scope.load++;
+    $http.get( // Get user actions in current steps
+        "/service/flows-documents/user/" + $scope.login + "/current_actions"
+    ).then(
+        function(response) { // Success
+            if (response.status == 200) { 
+                if(typeof response.data == "object") {
+                    $scope.data.actions = response.data;
+                }
+            }
+            $scope.load--;
+        },
+        function(response) { // Error
+            $scope.load--;
+        }
+    );
+    
+    $scope.load++;
+    $http.get( // Get list of comments
+        "/service/desktop/comments"
+    ).then(
+        function(response) { // Success
+            if (response.status == 200) {
+                if(typeof response.data == "object") {
+                    $scope.data.comments = response.data;
+                }
+            }
+            $scope.load--;
+        },
+        function(response) { // Error
+            $scope.load--;
+        }
+    );
+});
+
+
+/*
  ** Desktop Controller
  */
 app.controller("DesktopController", function($scope, $http) {
     $scope.data = {
         actions : {
-            total : "0",
+            total : 0,
             result : []
         },
         comments : {
@@ -319,8 +349,6 @@ app.controller("DesktopController", function($scope, $http) {
                 if(typeof response.data == "object") {
                     $scope.data.comments = response.data;
                 }
-            } else {
-                alert(getErrorMessage(response.status));
             }
             $scope.emptyComments = $scope.data.comments.total > 0 ? false : true;
             $scope.load--;
@@ -348,14 +376,11 @@ app.controller("DesktopController", function($scope, $http) {
                 if(typeof response.data == "object") {
                     $scope.data.documents = response.data;
                 }
-            } else {
-                alert(getErrorMessage(response.status));
             }
             $scope.emptyDocuments = $scope.data.documents.total > 0 ? false : true;
             $scope.load--;
         },
         function(response) { // Error
-            alert(getErrorMessage(response.status));
             $scope.load--;
         }
     );
@@ -366,6 +391,7 @@ app.controller("DesktopController", function($scope, $http) {
  ** User controller
  */
 app.controller("UserController", function($scope, $cookies, $http, $interval, $location) {
+    changeKey = false;
     $scope.data = {
         user : {
             type : "",
@@ -389,6 +415,11 @@ app.controller("UserController", function($scope, $cookies, $http, $interval, $l
         },
         groups : []
     }
+    $scope.emptyGroups = false;
+    
+    $scope.changeKey = function(){
+        changeKey = true;
+    };
     
     $scope.load++;
     $http.get( // Get basic information about user
@@ -440,9 +471,39 @@ app.controller("UserController", function($scope, $cookies, $http, $interval, $l
         }
     );
     
-    $scope.saveUser = function($event) {
+    $scope.load++;
+    $http.get( // Get user group list
+        "/service/groups/user/" + $scope.login + "/groups"
+    ).then(
+        function(response) { // Success
+            if(response.status == 200) {
+                if(typeof response.data == "object") {
+                    $scope.data.groups = response.data;
+                }
+                
+                if($scope.data.groups.length == 0) {
+                    $scope.emptyGroups = true;
+                }
+            }
+            $scope.load--;
+        },
+        function(response) { // Error
+            if(response.status == 400) {
+                $scope.addErrors("error", "Błędne żądanie podczas próby pobrania listy grup.");
+            } else if(response.status == 403) {
+                $scope.addErrors("error", "Nie można pobrać listy grup (nieprawidłowy lub wygasły token).");
+            } else if(response.status == 500) {
+                $scope.addErrors("error", "Błąd wewnętrzny serwera podczas próby pobrania listy grup.");
+            } else {
+                $scope.addErrors("error", "Nieoczekiwany błąd podczas próby pobrania listy grup.");
+            }
+            $scope.emptyGroups = true;
+            $scope.load--;
+        }
+    );
+    
+    $scope.saveUser = function($event, userForm) {
         $event.preventDefault();
-        $scope.notice = [];
         
         if($scope.userForm.$valid) {
             $scope.load++;
@@ -458,6 +519,7 @@ app.controller("UserController", function($scope, $cookies, $http, $interval, $l
             ).then(
                 function(response) { // Success
                     if (response.status == 200) {
+                        userForm.$setPristine();
                         $scope.addErrors("success", "Profil został zaktualizowany.");
                     }
                     $scope.load--;
@@ -478,60 +540,69 @@ app.controller("UserController", function($scope, $cookies, $http, $interval, $l
                 }
             );
             
-            $scope.load++;
-            $http.put( // Add or update user keys
-                "/service/signing/user/" + $scope.login + "/keys",
-                JSON.stringify($scope.data.keys)
-            ).then(
-                function(response) { // Success
-                    if (response.status == 200) {
-                        $scope.addErrors("success", "Klucz publiczny lub prywatny zostały zaktualizowane.");
+            if(changeKey) {
+                $scope.load++;
+                $http.put( // Add or update user keys
+                    "/service/signing/user/" + $scope.login + "/keys",
+                    JSON.stringify($scope.data.keys)
+                ).then(
+                    function(response) { // Success
+                        if (response.status == 200) {
+                            userForm.$setPristine();
+                            $scope.data.keys.private_key = "";
+                            $scope.addErrors("success", "Klucz publiczny i prywatny zostały zaktualizowane.");
+                        }
+                        $scope.load--;
+                    },
+                    function(response) { // Error
+                        if(response.status == 400) {
+                            $scope.addErrors("error", "Błędne żądanie podczas próby zaktualizowania kluczy.");
+                        } else if(response.status == 403) {
+                            $scope.addErrors("error", "Nie można zaktualizować kluczy (nieprawidłowy lub wygasły token).");
+                        } else if(response.status == 404) {
+                            $scope.addErrors("error", "Użytkownik nieznaleziony podczas próby zaktualizowania kluczy.");
+                        } else if(response.status == 500) {
+                            $scope.addErrors("error", "Błąd wewnętrzny serwera podczas próby zaktualizowania kluczy.");
+                        } else {
+                            $scope.addErrors("error", "Nieoczekiwany błąd podczas próby zaktualizowania kluczy.");
+                        }
+                        $scope.load--;
                     }
-                    $scope.load--;
-                },
-                function(response) { // Error
-                    if(response.status == 400) {
-                        $scope.addErrors("error", "Błędne żądanie podczas próby zaktualizowania kluczy.");
-                    } else if(response.status == 403) {
-                        $scope.addErrors("error", "Nie można zaktualizować kluczy (nieprawidłowy lub wygasły token).");
-                    } else if(response.status == 404) {
-                        $scope.addErrors("error", "Użytkownik nieznaleziony podczas próby zaktualizowania kluczy.");
-                    } else if(response.status == 500) {
-                        $scope.addErrors("error", "Błąd wewnętrzny serwera podczas próby zaktualizowania kluczy.");
-                    } else {
-                        $scope.addErrors("error", "Nieoczekiwany błąd podczas próby zaktualizowania kluczy.");
-                    }
-                    $scope.load--;
-                }
-            );
+                );
+            }
             
-            $scope.load++;
-            $http.post( // Change user password
-                "/service/users/change_password/" + $scope.login,
-                JSON.stringify({
-                    "old_password": $scope.data.password.old_password,
-                    "new_password": $scope.data.password.new_password
-                })
-            ).then(
-                function(response) { // Success
-                    if (response.status == 200) {
-                        $scope.addErrors("success", "Hasło zostało zmienione.");
+            if($scope.data.password.new_password != "") {
+                $scope.load++;
+                $http.post( // Change user password
+                    "/service/users/change_password/" + $scope.login,
+                    JSON.stringify({
+                        "old_password": $scope.data.password.old_password,
+                        "new_password": $scope.data.password.new_password
+                    })
+                ).then(
+                    function(response) { // Success
+                        if (response.status == 200) {
+                            userForm.$setPristine();
+                            $scope.data.password.old_password = "";
+                            $scope.data.password.new_password = "";
+                            $scope.addErrors("success", "Hasło zostało zmienione.");
+                        }
+                        $scope.load--;
+                    },
+                    function(response) { // Error
+                        if(response.status == 403) {
+                            $scope.addErrors("error", "Nie można zmienić hasła (nieprawidłowy lub wygasły token).");
+                        } else if(response.status == 404) {
+                            $scope.addErrors("error", "Użytkownik nieznaleziony podczas próby zmiany hasła.");
+                        } else if(response.status == 500) {
+                            $scope.addErrors("error", "Błąd wewnętrzny serwera podczas próby zmiany hasła.");
+                        } else {
+                            $scope.addErrors("error", "Nieoczekiwany błąd podczas próby zmiany hasła.");
+                        }
+                        $scope.load--;
                     }
-                    $scope.load--;
-                },
-                function(response) { // Error
-                    if(response.status == 403) {
-                        $scope.addErrors("error", "Nie można zmienić hasła (nieprawidłowy lub wygasły token).");
-                    } else if(response.status == 404) {
-                        $scope.addErrors("error", "Użytkownik nieznaleziony podczas próby zmiany hasła.");
-                    } else if(response.status == 500) {
-                        $scope.addErrors("error", "Błąd wewnętrzny serwera podczas próby zmiany hasła.");
-                    } else {
-                        $scope.addErrors("error", "Nieoczekiwany błąd podczas próby zmiany hasła.");
-                    }
-                    $scope.load--;
-                }
-            );
+                );
+            }
         } else {
             $scope.addErrors("error", "Błędnie wypełniony formularz.");
         }
@@ -565,7 +636,6 @@ app.controller("ActionController", function($scope, $routeParams, $http, $locati
                     $scope.data.document = response.data;
                 }
             } else {
-                alert(getErrorMessage(response.status));
             }
             $scope.load--;
         },
@@ -573,7 +643,6 @@ app.controller("ActionController", function($scope, $routeParams, $http, $locati
             if(response.status == 404) {
                 // $location.path("/404");
             } else {
-                alert(getErrorMessage(response.status));
             }
             $scope.load--;
         }
@@ -591,7 +660,6 @@ app.controller("ActionController", function($scope, $routeParams, $http, $locati
                     alert("Akcja została wykonana.");
                     $location.path("/");
                 } else {
-                    alert(getErrorMessage(response.status));
                 }
                 $scope.load--;
             },
@@ -599,7 +667,6 @@ app.controller("ActionController", function($scope, $routeParams, $http, $locati
                 if(response.status == 404) {
                     // $location.path("/404");
                 } else {
-                    alert(getErrorMessage(response.status));
                 }
                 $scope.load--;
             }
@@ -636,7 +703,7 @@ app.controller("GetUsersController", function($scope, $http, $cookies, $location
                                 event.preventDefault();
                             }
                         }).autocomplete( {
-                            minLength: 3,
+                            minLength: 1,
                             source: function( request, response ) {
                                 response(
                                     jQuery.ui.autocomplete.filter(
@@ -703,7 +770,7 @@ app.controller("GetUserController", function($scope, $http, $cookies, $location,
                     
                     jQuery(document).ready(function(){
                         jQuery( "#owner" ).autocomplete({
-                            minLength: 3,
+                            minLength: 1,
                             source: result
                         });
                     } );
@@ -749,7 +816,7 @@ app.controller("GetFlowsController", function($scope, $http, $cookies, $location
                     
                     jQuery(document).ready(function(){
                         jQuery( "#flow" ).autocomplete({
-                            minLength: 3,
+                            minLength: 1,
                             source: result
                         });
                     } );
@@ -1654,14 +1721,13 @@ app.controller("FlowsController", function($scope, $route, $routeParams, $http, 
 /*
  ** FlowController
  */
-app.controller("FlowController", function($scope, $route, $routeParams, $http, $timeout, $cookies, $location) {
-    $scope.id = $routeParams.page;
+app.controller("FlowController", function($scope, $route, $routeParams, $http, $timeout, $interval, $cookies, $location) {
+    $scope.result = [];
+    $scope.result_done = 0;
     $scope.step_type = "accept_single";
     $scope.step_participants = [];
     $scope.step_description = "";
-    $scope.step_edit_id = null;
-    $scope.step_edit_participants = [];
-    $scope.step_edit_description = "";
+    $scope.step_edit = null;
     
     $scope.data = {
         flow : {
@@ -1669,6 +1735,80 @@ app.controller("FlowController", function($scope, $route, $routeParams, $http, $
         },
         steps : []
     }
+    
+    $scope.load++;
+    $http.get( // Get list of users
+        "/service/users/users"
+    ).then(
+        function(response) { // Success
+            if (response.status == 200) {
+                if(typeof response.data == "object") {
+                    for(index in response.data.result) {
+                        $scope.result.push(response.data.result[index].login);
+                    }
+                }
+            }
+            $scope.result_done++;
+            $scope.load--;
+        },
+        function(response) { // Error
+            if(response.status == 400) {
+                $scope.addErrors("error", "Błędne żądanie podczas próby pobrania listy użytkowników.");
+            } else if(response.status == 403) {
+                $scope.addErrors("error", "Nie można pobrać listy użytkowników (nieprawidłowy lub wygasły token).");
+            } else if(response.status == 500) {
+                $scope.addErrors("error", "Błąd wewnętrzny serwera podczas próby pobrania listy użytkowników.");
+            } else {
+                $scope.addErrors("error", "Nieoczekiwany błąd podczas próby pobrania listy użytkowników.");
+            }
+            $scope.result_done++;
+            $scope.load--;
+        }
+    );
+    
+    $scope.load++;
+    $http.get( // Get list of groups
+        "/service/groups/groups"
+    ).then(
+        function(response) { // Success
+            if (response.status == 200) {
+                if(typeof response.data == "object") {
+                    for(index in response.data.result) {
+                        $scope.result.push(response.data.result[index].name);
+                    }
+                }
+            }
+            $scope.result_done++;
+            $scope.load--;
+        },
+        function(response) { // Error
+            if(response.status == 400) {
+                $scope.addErrors("error", "Błędne żądanie podczas próby pobrania listy grup.");
+            } else if(response.status == 403) {
+                $scope.addErrors("error", "Nie można pobrać listy grup (nieprawidłowy lub wygasły token).");
+            } else if(response.status == 500) {
+                $scope.addErrors("error", "Błąd wewnętrzny serwera podczas próby pobrania listy grup.");
+            } else {
+                $scope.addErrors("error", "Nieoczekiwany błąd podczas próby pobrania listy grup.");
+            }
+            $scope.result_done++;
+            $scope.load--;
+        }
+    );
+    
+    interval = $interval(
+        function() {
+            if($scope.result_done == 2) {
+                $interval.cancel(interval);
+                jQuery(document).ready(function(){
+                    jQuery(".owner").autocomplete({
+                        minLength: 1,
+                        source: $scope.result
+                    });
+                } );
+            }
+        }, 1
+    );
     
     $scope.load++;
     $http.get( // Get basic information about flow
@@ -1694,30 +1834,21 @@ app.controller("FlowController", function($scope, $route, $routeParams, $http, $
         }
     );
     
-    $scope.updateFlow = function($event) {
-        $event.preventDefault();
-        name = document.getElementById("js-flow-name").value;
-        description = document.getElementById("js-flow-description").value;
-        $scope.date = getNowDate();
+    $scope.updateFlow = function($event, uploadForm) {
+        $scope.data.flow.owner = $scope.login;
+        $scope.data.flow.create_date = getNowDate();
         
-        flow_data = {
-            "name": name ? name : "",
-            "active": true,
-            "owner": $scope.login,
-            "create_date": $scope.date,
-            "description": description ? description : ""
-        }
-        
-        if( flow_data["name"] == "" ) {
+        if(!$scope.data.flow.name) {
             $scope.addErrors("error", "Błędna nazwa przepływu.");
         } else {
             $scope.load++;
             $http.put( // Update flow data
                 "/service/flows/flow/" + $scope.data.flow.id,
-                JSON.stringify(flow_data)
+                JSON.stringify($scope.data.flow)
             ).then(
                 function(response) { // Success
                     if (response.status == 200) {
+                        uploadForm.$setPristine();
                         $scope.addErrors("success", "Przepływ został zaktualizownay.");
                     }
                     $scope.load--;
@@ -1796,28 +1927,30 @@ app.controller("FlowController", function($scope, $route, $routeParams, $http, $
         });
         
         jQuery("#sortable").sortable({
-            stop: function (event, ui) {
+            stop: function (event, ui, $scope) {
                 ui_item = jQuery(ui.item);
-                self_type = ui_item.find(".steps-inner").data("type");
-                prev_type = ui_item.prev().find(".steps-inner").data("type");
-                prev_id = ui_item.prev().find(".steps-inner").data("id");
+                self_step = ui_item.find(".steps-nav").data("step");
+                prev_step = ui_item.prev().find(".steps-nav").data("step");
                 
-                if( self_type == "start"   ||
-                    self_type == "archive" ||
-                    prev_type == "archive" ||
-                    prev_id == undefined
+                if(!prev_step                  ||
+                   self_step.type == "start"   ||
+                   self_step.type == "archive" ||
+                   prev_step.type == "archive"
                 ) {
                     getSteps();
-                    $scope.addErrors("error", "Operacja niedozwolona.");
+                    getError("error", "Operacja niedozwolona.");
                 } else {
-                    if(prev_id) {
-                        self_id = jQuery(ui.item).find(".steps-inner").data("id");
-                        getStepById(prev_id, self_id);
-                    }
+                    prev_id = prev_step.id;
+                    self_id = self_step.id;
+                    getStepById(prev_id, self_id);
                 }
             }
         });
     });
+    
+    function getError(class_, value) {
+        $scope.addErrors(class_, value);
+    }
     
     function getSteps() {
         $scope.load++;
@@ -1862,48 +1995,45 @@ app.controller("FlowController", function($scope, $route, $routeParams, $http, $
     getSteps();
     
     $scope.addStep = function($event) {
-        $event.preventDefault();
-        
         steps_prev_index = $scope.data.steps.length - 2;
         prev_id = $scope.data.steps[steps_prev_index].id;
-        participants = $scope.step_participants ? [$scope.step_participants] : [];
-        step_data = {
-            "type": $scope.step_type ? $scope.step_type : "",
-            "prev": [prev_id],
-            "participants": participants,
-            "description": $scope.step_description ? $scope.step_description : ""
-        }
         
-        $scope.load++;
-        $http.post( // Create new step in flow
-            "/service/flows/flow/" + $scope.id + "/step/generate",
-            JSON.stringify(step_data)
-        ).then(
-            function(response) { // Success
-                if (response.status == 200) {
-                    getSteps();
-                    $scope.step_type = "accept_single";
-                    $scope.step_participants = [];
-                    $scope.step_description = "";
-                    $scope.addErrors("success", "Krok został dodany.");
+        if($scope.result.indexOf($scope.step_participants) != -1) {
+            $scope.load++;
+            $http.post( // Create new step in flow
+                "/service/flows/flow/" + $scope.data.flow.id + "/step/generate",
+                JSON.stringify({
+                    "type": $scope.step_type ? $scope.step_type : "",
+                    "prev": [prev_id],
+                    "participants": [$scope.step_participants],
+                    "description": $scope.step_description ? $scope.step_description : ""
+                })
+            ).then(
+                function(response) { // Success
+                    if (response.status == 200) {
+                        $route.reload();
+                        $scope.addErrors("success", "Krok został dodany.");
+                    }
+                    $scope.load--;
+                },
+                function(response) { // Error
+                    if(response.status == 400) {
+                        $scope.addErrors("error", "Błędne żądanie podczas próby dodania kroku.");
+                    } else if(response.status == 403) {
+                        $scope.addErrors("error", "Nie można dodać kroku (nieprawidłowy lub wygasły token).");
+                    } else if(response.status == 409) {
+                        $scope.addErrors("error", "Nie można dodać kroku. Nieprawidłowy typ lub poprzednik lub krok o podanym identyfikatorze już istnieje.");
+                    } else if(response.status == 500) {
+                        $scope.addErrors("error", "Błąd wewnętrzny serwera podczas próby dodania kroku.");
+                    } else {
+                        $scope.addErrors("error", "Nieoczekiwany błąd podczas próby dodania kroku.");
+                    }
+                    $scope.load--;
                 }
-                $scope.load--;
-            },
-            function(response) { // Error
-                if(response.status == 400) {
-                    $scope.addErrors("error", "Błędne żądanie podczas próby dodania kroku.");
-                } else if(response.status == 403) {
-                    $scope.addErrors("error", "Nie można dodać kroku (nieprawidłowy lub wygasły token).");
-                } else if(response.status == 409) {
-                    $scope.addErrors("error", "Nie można dodać kroku. Nieprawidłowy typ lub poprzednik lub krok o podanym identyfikatorze już istnieje.");
-                } else if(response.status == 500) {
-                    $scope.addErrors("error", "Błąd wewnętrzny serwera podczas próby dodania kroku.");
-                } else {
-                    $scope.addErrors("error", "Nieoczekiwany błąd podczas próby dodania kroku.");
-                }
-                $scope.load--;
-            }
-        );
+            );
+        } else {
+            $scope.addErrors("error", "Nie istnieje użytkownik lub grupa o podanej nazwie.");
+        }
     }
     
     function updateOrderSteps(prev_id, self_id, step_data) {
@@ -1940,77 +2070,37 @@ app.controller("FlowController", function($scope, $route, $routeParams, $http, $
     }
     
     $scope.editStep = function($event) {
-        $event.preventDefault();
-        $scope.step_edit_id = $event.currentTarget.getAttribute("data-id");
-        
-        if($scope.step_edit_id) {
-            $scope.load++;
-            $http.get(
-                "/service/flows/flow/" + $scope.data.flow.id + "/step/" + $scope.step_edit_id
-            ).then(
-                function(response) { // Success
-                    if (response.status == 200) {
-                        $scope.step_edit_participants = response.data.participants;
-                        $scope.step_edit_description = response.data.description;
-                    }
-                    $scope.load--;
-                },
-                function(response) { // Error
-                    alert(response.status);
-                    $scope.load--;
-                }
-            );
-        }
+        $scope.step_edit = JSON.parse($event.currentTarget.parentElement.getAttribute("data-step"));
     }
     
     $scope.updateStep = function($event) {
-        $event.preventDefault();
-        
-        if($scope.step_edit_id) {
+        if($scope.step_edit) {
             $scope.load++;
-            $http.get(
-                "/service/flows/flow/" + $scope.id + "/step/" + $scope.step_edit_id
+            $http.put( // Update step data
+                "/service/flows/flow/" + $scope.data.flow.id + "/step/" + $scope.step_edit.id,
+                JSON.stringify($scope.step_edit)
             ).then(
                 function(response) { // Success
                     if (response.status == 200) {
-                        step_data = response.data;
-                        participants = $scope.step_edit_participants ? [$scope.step_edit_participants] : [];
-                        step_data.participants = participants;
-                        step_data.description = $scope.step_edit_description;
-                        
-                        $scope.load++;
-                        $http.put( // Update step data
-                            "/service/flows/flow/" + $scope.id + "/step/" + $scope.step_edit_id,
-                            JSON.stringify(step_data)
-                        ).then(
-                            function(response) { // Success
-                                if (response.status == 200) {
-                                    $scope.addErrors("success", "Krok został zaktualizowany.");
-                                }
-                                $scope.load--;
-                            },
-                            function(response) { // Error
-                                if(response.status == 400) {
-                                    $scope.addErrors("error", "Błędne żądanie podczas próby zaktualizowania kroku.");
-                                } else if(response.status == 403) {
-                                    $scope.addErrors("error", "Nie można zaktualizować kroku (nieprawidłowy lub wygasły token).");
-                                } else if(response.status == 404) {
-                                    $scope.addErrors("error", "Nie znaleziono kroku.");
-                                } else if(response.status == 409) {
-                                    $scope.addErrors("error", "Nie można zaktualizować kroku.");
-                                } else if(response.status == 500) {
-                                    $scope.addErrors("error", "Błąd wewnętrzny serwera podczas próby zaktualizowania kroku.");
-                                } else {
-                                    $scope.addErrors("error", "Nieoczekiwany błąd podczas próby zaktualizowania kroku.");
-                                }
-                                $scope.load--;
-                            }
-                        );
+                        $route.reload();
+                        $scope.addErrors("success", "Krok został zaktualizowany.");
                     }
                     $scope.load--;
                 },
                 function(response) { // Error
-                    alert(response.status);
+                    if(response.status == 400) {
+                        $scope.addErrors("error", "Błędne żądanie podczas próby zaktualizowania kroku.");
+                    } else if(response.status == 403) {
+                        $scope.addErrors("error", "Nie można zaktualizować kroku (nieprawidłowy lub wygasły token).");
+                    } else if(response.status == 404) {
+                        $scope.addErrors("error", "Nie znaleziono kroku.");
+                    } else if(response.status == 409) {
+                        $scope.addErrors("error", "Nie można zaktualizować kroku.");
+                    } else if(response.status == 500) {
+                        $scope.addErrors("error", "Błąd wewnętrzny serwera podczas próby zaktualizowania kroku.");
+                    } else {
+                        $scope.addErrors("error", "Nieoczekiwany błąd podczas próby zaktualizowania kroku.");
+                    }
                     $scope.load--;
                 }
             );
@@ -2018,17 +2108,16 @@ app.controller("FlowController", function($scope, $route, $routeParams, $http, $
     }
     
     $scope.deleteStep = function($event) {
-        $event.preventDefault();
-        step_id = $event.currentTarget.getAttribute("data-id");
+        step = JSON.parse($event.currentTarget.parentElement.getAttribute("data-step"));
         
-        if(confirm("Czy na pewno usunąć wskazany krok?")){
+        if(confirm("Czy na pewno usunąć wskazany krok?")) {
             $scope.load++;
             $http.delete(
-                "/service/flows/flow/" + $scope.data.flow.id + "/step/" + step_id
+                "/service/flows/flow/" + $scope.data.flow.id + "/step/" + step.id
             ).then(
                 function(response) { // Success
-                    if (response.status == 200) {
-                        getSteps();
+                    if(response.status == 200) {
+                        $route.reload();
                         $scope.addErrors("success", "Krok został usunięty.");
                         $scope.load--;
                     }
