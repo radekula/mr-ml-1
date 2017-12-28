@@ -137,7 +137,7 @@ form.submitted .error {
     border-color: #ebccd1;
 }
 
-form .ng-dirty.ng-valid-required,
+form .ng-dirty.ng-valid,
 form .success {
     color: #3c763d;
     background-color: #dff0d8;
@@ -823,11 +823,11 @@ form .success {
     margin: 0 .9375em 0 0;
 }
 .documents-form>.button {
-	display: -webkit-box !important;
-	display: -webkit-flex !important;
-	display: -moz-box !important;
-	display: -ms-flexbox !important;
-	display: flex !important;
+	display: -webkit-box;
+	display: -webkit-flex;
+	display: -moz-box;
+	display: -ms-flexbox;
+	display: flex;
 	-webkit-box-align: center !important;
 	-webkit-align-items: center !important;
 	   -moz-box-align: center !important;
