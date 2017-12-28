@@ -19,21 +19,21 @@
         </div>
         <!-- .breadcrumb -->
         <div class="content">
-            <form id="js-dialog-new" class="dialog" title="Dodaj grupę">
-                <input class="input upload-input" placeholder="Nazwa" type="text" ng-model="data.new_group.name" required>
+            <form id="js-dialog-new" class="dialog" ng-class="data.submitted ? 'submitted' : ''" name="dialog-new" title="Dodaj grupę">
+                <input class="input upload-input" placeholder="Nazwa" type="text" ng-model="data.new_group.name" ng-pattern="/^[a-zA-Z0-9]+$/" required>
                 <textarea class="input upload-input upload-textarea" placeholder="Opis" ng-model="data.new_group.description"></textarea>
                 <button class="ui-button ui-corner-all ui-widget" type="button" ng-click="addGroup($event)">Zapisz</button>
             </form>
             <!-- .dialog -->
             <form id="js-dialog-edit" class="dialog" title="Edytuj grupę">
                 <textarea class="input upload-input upload-textarea" ng-model="data.edit_group.description" placeholder="Opis"></textarea>
-                <button class="ui-button ui-corner-all ui-widget" type="button" ng-click="saveGroup($event)">Zapisz</button>
+                <button class="ui-button ui-corner-all ui-widget" type="button" ng-click="saveGroup()">Zapisz</button>
             </form>
             <!-- .dialog -->
             <form class="documents-form">
                 <input class="input documents-input" placeholder="Nazwa grupy" type="text" ng-model="data.phrase">
-                <button class="button" type="button" ng-click="filter($event)">Szukaj</button>
-                <button class="button" ng-click="createGroup($event)">Dodaj grupę</button>
+                <button class="button" type="button" ng-click="filter()">Szukaj</button>
+                <button class="button" type="button" ng-click="createGroup()">Dodaj grupę</button>
             </form>
             <!-- .documents-form -->
             <table class="groups-table">
@@ -53,8 +53,8 @@
                         <td>{{group.description}}</td>
                         <td>{{group.creator}}</td>
                         <td class="documents-menu">
-                            <nav class="documents-actions">
-                                <a class="groups-actions-link js-groups-edit-{{$index+1}} js-groups-edit-{{$index+1}}" ng-click="editGroup($event)" data-name="{{group.name}}" data-description="{{group.description}}">
+                            <nav class="documents-actions" data-group="{{group}}">
+                                <a class="groups-actions-link" ng-click="editGroup($event)">
                                     <i class="icon">&#xe80c;</i>
                                 </a>
                                 <!-- .groups-actions-link -->
@@ -62,7 +62,7 @@
                                     <i class="icon">&#xe80b;</i>
                                 </a>
                                 <!-- .groups-actions-link -->
-                                <a class="groups-actions-link" ng-click="deleteGroup($event)" data-id="{{$index+1}}" data-name="{{group.name}}">
+                                <a class="groups-actions-link" ng-click="deleteGroup($event)">
                                     <i class="icon">&#xe802;</i>
                                 </a>
                                 <!-- .groups-actions-link -->
@@ -70,7 +70,7 @@
                             <!-- .documents-actions -->
                         </td>
                     </tr>
-                    <tr ng-repeat="item in notice">
+                    <tr ng-repeat="item in data.notice">
                         <td colspan="5">{{item.content}}</td>
                     </tr>
                 </tbody>

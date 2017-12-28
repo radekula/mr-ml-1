@@ -1,36 +1,45 @@
 <header class="header" ng-include="'/www/angular/header.html'"></header>
 <main class="main">
-	<button class="menu-toggle" type="button" ng-click="menuToggle()" ng-class="{'toggled-on' : toggle}">
-		<span></span>
-	</button><!-- .menu-toggle -->
-	<nav class="menu" ng-controller="menu" ng-include="'/www/angular/menu.html'"></nav>
-	<article class="article">
-		<div class="breadcrumb">
-			<header class="breadcrumb-header">
-				<h1 class="breadcrumb-title">{{data.flow.name}}</h1>
-			</header><!-- .breadcrumb-header -->
-			<span class="breadcrumb-item">
-				<a class="breadcrumb-link" href="/#!/">Home</a>
-			</span><!-- .breadcrumb-item -->
-			<span class="breadcrumb-item">
-				<a class="breadcrumb-link" href="/#!flows">Przepływy</a>
-			</span><!-- .breadcrumb-item -->
-			<span class="breadcrumb-item breadcrumb-current">Przepływ</span>
-		</div><!-- .breadcrumb -->
-		<div class="content" ng-controller="FlowController">
-			<form class="upload-form" name="uploadForm">
-				<label class="upload-label" for="js-flow-name">
-					<span class="upload-label-title upload-label-required">Nazwa:</span>
-					<input id="js-flow-name" class="input upload-input" type="text" autocomplete="off" required ng-model="data.flow.name">
-				</label><!-- .upload-label -->
-				<label class="upload-label" for="js-flow-description">
-					<span class="upload-label-title">Opis:</span>
-					<textarea id="js-flow-description" class="input upload-input upload-textarea" autocomplete="off" ng-model="data.flow.description"></textarea>
-				</label><!-- .upload-label -->
-				<div class="container-button">
-					<button class="button" type="submit" ng-click="updateFlow($event, uploadForm)">Zapisz</button>
-				</div><!-- .container-button -->
-			</form><!-- .upload-form -->
+    <button class="menu-toggle" type="button" ng-click="menuToggle()" ng-class="{'toggled-on' : toggle}">
+        <span></span>
+    </button>
+    <!-- .menu-toggle -->
+    <nav class="menu" ng-controller="menu" ng-include="'/www/angular/menu.html'"></nav>
+    <article class="article">
+        <div class="breadcrumb">
+            <header class="breadcrumb-header">
+                <h1 class="breadcrumb-title">{{data.flow.name}}</h1>
+            </header>
+            <!-- .breadcrumb-header -->
+            <span class="breadcrumb-item">
+                <a class="breadcrumb-link" href="/#!/">Home</a>
+			</span>
+            <!-- .breadcrumb-item -->
+            <span class="breadcrumb-item">
+                <a class="breadcrumb-link" href="/#!flows">Przepływy</a>
+			</span>
+            <!-- .breadcrumb-item -->
+            <span class="breadcrumb-item breadcrumb-current">Przepływ</span>
+        </div>
+        <!-- .breadcrumb -->
+        <div class="content" ng-controller="FlowController">
+            <form class="upload-form" name="uploadForm">
+                <label class="upload-label" for="js-flow-name">
+                    <span class="upload-label-title upload-label-required">Nazwa:</span>
+                    <input id="js-flow-name" class="input upload-input" type="text" autocomplete="off" ng-pattern="/^[a-zA-Z0-9]+$/" required ng-model="data.flow.name">
+                </label>
+                <!-- .upload-label -->
+                <label class="upload-label" for="js-flow-description">
+                    <span class="upload-label-title">Opis:</span>
+                    <textarea id="js-flow-description" class="input upload-input upload-textarea" autocomplete="off" ng-model="data.flow.description"></textarea>
+                </label>
+                <!-- .upload-label -->
+                <div class="container-button">
+                    <button class="button" type="submit" ng-click="updateFlow(uploadForm)">Zapisz</button>
+                </div>
+                <!-- .container-button -->
+            </form>
+            <!-- .upload-form -->
             <form id="dialog-create" class="dialog" title="Dodaj krok">
                 <select class="input upload-input" ng-model="step_type">
                     <option value="accept_single" ng-selected="selected">accept_single</option>
@@ -43,35 +52,38 @@
                 </select>
                 <input class="input upload-input owner" type="text" placeholder="Uczestnicy" ng-model="step_participants">
                 <textarea class="input upload-input upload-textarea" placeholder="Opis" ng-model="step_description"></textarea>
-                <button id="dialog-create-close" type="button" ng-click="addStep($event)" data-id="">Zapisz</button>
+                <button class="ui-button ui-corner-all ui-widget" type="button" ng-click="saveStep()" data-id="">Zapisz</button>
             </form>
-			<form id="dialog-edit" class="dialog" title="Edytuj krok">
-				<input class="input upload-input owner" type="text" placeholder="Uczestnicy" ng-model="step_edit.participants">
-				<textarea class="input upload-input upload-textarea" placeholder="Opis" ng-model="step_edit.description"></textarea>
-				<button id="dialog-edit-close" type="button" ng-click="updateStep($event)">Zapisz</button>
-			</form>
-			<section class="steps">
-				<button id="create-step" class="steps-add" type="button" ng-show="result_done == 2">
-					<i class="icon">&#xe810;</i>
-				</button>
-				<div id="sortable">
-					<section class="steps-step" ng-repeat="(key, value) in data.steps">
-						<div class="steps-inner">
-							<header class="steps-header">
-								<h3 class="steps-title">{{value.type}}</h3>
-							</header>
-							<nav class="steps-nav" data-step="{{value}}" ng-show="$index > 0 && $index < data.steps.length - 1">
-								<a class="steps-link edit-step" ng-click="editStep($event)">
-									<i class="icon">&#xe80c;</i>
-								</a>
-								<a class="steps-link" ng-click="deleteStep($event)">
-									<i class="icon">&#xe802;</i>
-								</a>
-							</nav>
-						</div>
-					</section>
-				</div>
-			</section>
-		</div><!-- .content -->
-	</article><!-- .article -->
-</main><!-- .main -->
+            <form id="dialog-edit" class="dialog" title="Edytuj krok">
+                <input class="input upload-input owner" type="text" placeholder="Uczestnicy" ng-model="step_edit.participants">
+                <textarea class="input upload-input upload-textarea" placeholder="Opis" ng-model="step_edit.description"></textarea>
+                <button class="ui-button ui-corner-all ui-widget" type="button" ng-click="updateStep($event)">Zapisz</button>
+            </form>
+            <section class="steps">
+                <button id="create-step" class="steps-add" type="button" ng-click="addStep()" ng-show="result_done == 2">
+                    <i class="icon">&#xe810;</i>
+                </button>
+                <div id="sortable">
+                    <section class="steps-step" ng-repeat="(key, value) in data.steps">
+                        <div class="steps-inner">
+                            <header class="steps-header">
+                                <h3 class="steps-title">{{value.type}}</h3>
+                            </header>
+                            <nav class="steps-nav" data-step="{{value}}" ng-show="$index > 0 && $index < data.steps.length - 1">
+                                <a class="steps-link edit-step" ng-click="editStep($event)">
+                                    <i class="icon">&#xe80c;</i>
+                                </a>
+                                <a class="steps-link" ng-click="deleteStep($event)">
+                                    <i class="icon">&#xe802;</i>
+                                </a>
+                            </nav>
+                        </div>
+                    </section>
+                </div>
+            </section>
+        </div>
+        <!-- .content -->
+    </article>
+    <!-- .article -->
+</main>
+<!-- .main -->

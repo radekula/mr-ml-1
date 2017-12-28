@@ -1,45 +1,36 @@
 <div class="page-documents">
-	<header class="header" ng-include="'/www/angular/header.html'"></header>
+    <header class="header" ng-include="'/www/angular/header.html'"></header>
     <main class="main">
-		<button class="menu-toggle" type="button" ng-click="menuToggle()" ng-class="{'toggled-on' : toggle}">
-			<span></span>
-		</button><!-- .menu-toggle -->
-		<nav class="menu" ng-controller="menu" ng-include="'/www/angular/menu.html'"></nav>
+        <button class="menu-toggle" type="button" ng-click="menuToggle()" ng-class="{'toggled-on' : toggle}">
+            <span></span>
+        </button>
+        <!-- .menu-toggle -->
+        <nav class="menu" ng-controller="menu" ng-include="'/www/angular/menu.html'"></nav>
         <article class="article">
             <div class="breadcrumb">
                 <header class="breadcrumb-header">
-					<h1 class="breadcrumb-title">Przepływy</h1>
-				</header><!-- .breadcrumb-header -->
-				<span class="breadcrumb-item">
+                    <h1 class="breadcrumb-title">Przepływy</h1>
+                </header>
+                <!-- .breadcrumb-header -->
+                <span class="breadcrumb-item">
 					<a class="breadcrumb-link" href="/#!/">Home</a>
-				</span><!-- .breadcrumb-item -->
-				<span class="breadcrumb-item breadcrumb-current">Przepływy</span>
-            </div><!-- .breadcrumb -->
+				</span>
+                <!-- .breadcrumb-item -->
+                <span class="breadcrumb-item breadcrumb-current">Przepływy</span>
+            </div>
+            <!-- .breadcrumb -->
             <div class="content">
-				<form id="dialog" class="dialog" title="Dodaj przepływ">
-					<input id="js-flow-name" class="input upload-input" type="text" placeholder="Nazwa" ng-model="name" required>
-					<textarea id="js-flow-description" class="input upload-input upload-textarea" ng-model="description" placeholder="Opis"></textarea>
-					<button class="ui-button ui-corner-all ui-widget" type="submit" ng-click="addFlow($event)">Zapisz</button>
-				</form>
-				<script>
-					jQuery( document ).ready( function() {
-						dialog = $( "#dialog" ).dialog( {
-							autoOpen: false,
-							height: 402,
-							width: 500
-						} );
-						
-						$( "#create-user" ).button().on( "click", function() {
-							dialog.dialog( "open" );
-						});
-					} );
-				</script>
+                <form id="dialog" class="dialog" ng-class="data.submitted ? 'submitted' : ''" title="Dodaj przepływ">
+                    <input id="js-flow-name" class="input upload-input" type="text" placeholder="Nazwa" ng-model="name" ng-pattern="/^[a-zA-Z0-9]+$/" required>
+                    <textarea id="js-flow-description" class="input upload-input upload-textarea" ng-model="description" placeholder="Opis"></textarea>
+                    <button class="ui-button ui-corner-all ui-widget" type="button" ng-click="saveFlow()">Zapisz</button>
+                </form>
                 <form class="documents-form">
                     <input class="input documents-input flows-phrase" name="phrase" type="text" placeholder="Fraza" ng-model="data.phrase">
-					<button class="button" type="submit" ng-click="filter($event)">Szukaj</button>
-					<a id="create-user" class="button">Dodaj przepływ</a>
-					<div class="load" ng-show="loadPage"></div>
-                </form><!-- .documents-form -->
+                    <button class="button" type="submit" ng-click="filter()">Szukaj</button>
+                    <button class="button" type="button" ng-click="addFlow()">Dodaj przepływ</button>
+                </form>
+                <!-- .documents-form -->
                 <table class="documents-table">
                     <thead>
                         <tr>
@@ -51,43 +42,57 @@
                         </tr>
                     </thead>
                     <tbody>
-						<tr ng-repeat="(key, value) in data.flows.result">
-							<td>{{$index + offset + 1}}</td>
-							<td>{{value.name}}</td>
-							<td>{{value.create_date}}</td>
-							<td class="documents-owner">
-								<span>{{value.owner}}</span>
-							</td><!-- .documents-owner -->
-							<td class="documents-menu">
-								<nav class="documents-actions">
-									<a href="/#!flow/{{value.id}}" class="documents-actions-link">
-										<i class="icon">&#xe80f;</i>
-									</a><!-- .documents-actions-link -->
-									<a class="documents-actions-link" ng-click="deleteFlow($event)" data-id="{{value.id}}">
-										<i class="icon">&#xe802;</i>
-									</a><!-- .documents-actions-link -->
-								</nav><!-- .documents-actions -->
-							</td>
-						</tr>
-						<tr ng-repeat="item in notice">
-							<td colspan="5">{{item.content}}</td>
-						</tr>
-					</tbody>
-                </table><!-- .documents-table -->
-				<nav class="documents-pagination">
-					<ul class="documents-pagination-list">
-						<li class="documents-pagination-prev">
-							<a href="/#!/flows/{{data.currentPage - 1}}" class="button" ng-show="data.currentPage > 1">Poprzednia</a>
-						</li><!-- .documents-pagination-prev -->
-						<li class="documents-pagination-links" ng-repeat="page in data.pages">
-							<a href="/#!/flows/{{page}}" ng-class="page == data.currentPage ? 'current' : ''">{{page}}</a>
-						</li><!-- .documents-pagination-links -->
-						<li class="documents-pagination-next">
-							<a href="/#!/flows/{{data.currentPage * 1 + 1}}" class="button" ng-show="data.currentPage < data.numberOfPages">Następna</a>
-						</li><!-- .documents-pagination-next -->
-					</ul><!-- .documents-pagination-list -->
-				</nav><!-- .documents-pagination -->
-            </div><!-- .content -->
-        </article><!-- .article -->
-    </main><!-- .main -->
-</div><!-- .page-documents -->
+                        <tr ng-repeat="(key, value) in data.flows.result">
+                            <td>{{$index + offset + 1}}</td>
+                            <td>{{value.name}}</td>
+                            <td>{{value.create_date}}</td>
+                            <td class="documents-owner">
+                                <span>{{value.owner}}</span>
+                            </td>
+                            <!-- .documents-owner -->
+                            <td class="documents-menu">
+                                <nav class="documents-actions">
+                                    <a href="/#!flow/{{value.id}}" class="documents-actions-link">
+                                        <i class="icon">&#xe80f;</i>
+                                    </a>
+                                    <!-- .documents-actions-link -->
+                                    <a class="documents-actions-link" ng-click="deleteFlow($event)" data-id="{{value.id}}">
+                                        <i class="icon">&#xe802;</i>
+                                    </a>
+                                    <!-- .documents-actions-link -->
+                                </nav>
+                                <!-- .documents-actions -->
+                            </td>
+                        </tr>
+                        <tr ng-repeat="item in data.notice">
+                            <td colspan="5">{{item.content}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <!-- .documents-table -->
+                <nav class="documents-pagination">
+                    <ul class="documents-pagination-list">
+                        <li class="documents-pagination-prev">
+                            <a href="/#!/flows/{{data.currentPage - 1}}" class="button" ng-show="data.currentPage > 1">Poprzednia</a>
+                        </li>
+                        <!-- .documents-pagination-prev -->
+                        <li class="documents-pagination-links" ng-repeat="page in data.pages">
+                            <a href="/#!/flows/{{page}}" ng-class="page == data.currentPage ? 'current' : ''">{{page}}</a>
+                        </li>
+                        <!-- .documents-pagination-links -->
+                        <li class="documents-pagination-next">
+                            <a href="/#!/flows/{{data.currentPage * 1 + 1}}" class="button" ng-show="data.currentPage < data.numberOfPages">Następna</a>
+                        </li>
+                        <!-- .documents-pagination-next -->
+                    </ul>
+                    <!-- .documents-pagination-list -->
+                </nav>
+                <!-- .documents-pagination -->
+            </div>
+            <!-- .content -->
+        </article>
+        <!-- .article -->
+    </main>
+    <!-- .main -->
+</div>
+<!-- .page-documents -->

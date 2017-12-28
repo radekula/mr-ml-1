@@ -23,13 +23,13 @@
         </div>
         <!-- .breadcrumb -->
         <div class="content">
-            <form id="js-dialog-new" class="dialog" title="Przypisz użytkownika" ng-controller="GetUserController">
+            <form id="js-dialog-new" class="dialog" ng-class="data.submitted ? 'submitted' : ''" title="Przypisz użytkownika" ng-controller="GetUserController">
                 <input id="owner" class="input upload-input" placeholder="Nazwa użytkownika" type="text" required ng-model="data.new_user">
-                <button class="ui-button ui-corner-all ui-widget" type="button" ng-click="saveUser($event)">Zapisz</button>
+                <button class="ui-button ui-corner-all ui-widget" type="button" ng-click="saveUser()">Zapisz</button>
             </form>
             <!-- .dialog -->
             <form class="documents-form">
-                <button id="create-group" class="button" type="button" ng-click="addUser($event)">Przypisz użytkownika</button>
+                <button id="create-group" class="button" type="button" ng-click="addUser()" ng-show="data.check_users">Przypisz użytkownika</button>
             </form>
             <!-- .documents-form -->
             <table class="groups-table members-table">
@@ -45,8 +45,8 @@
                         <td>{{$index+1}}</td>
                         <td>{{value}}</td>
                         <td class="documents-menu">
-                            <nav class="documents-actions">
-                                <a class="groups-actions-link" ng-click="deleteUser($event)" data-id="{{$index+1}}" data-name="{{value}}">
+                            <nav class="documents-actions" data-user="{{value}}">
+                                <a class="groups-actions-link" ng-click="deleteUser($event)">
                                     <i class="icon">&#xe802;</i>
                                 </a>
                                 <!-- .groups-actions-link -->
@@ -54,7 +54,7 @@
                             <!-- .documents-actions -->
                         </td>
                     </tr>
-                    <tr ng-repeat="item in notice">
+                    <tr ng-repeat="item in data.notice">
                         <td colspan="3">{{item.content}}</td>
                     </tr>
                 </tbody>
