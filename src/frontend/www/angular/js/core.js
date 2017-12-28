@@ -680,6 +680,7 @@ app.controller("ActionController", function($scope, $routeParams, $http, $locati
  */
 app.controller("GetUsersController", function($scope, $http, $cookies, $location, $interval) {
     var result = [];
+    var result_tmp = [];
     
     $scope.load++;
     $http.get( // Get list of users
@@ -692,7 +693,12 @@ app.controller("GetUsersController", function($scope, $http, $cookies, $location
                     tmp_length = tmp.length;
                     
                     for(i = 0; i < tmp_length; i++ ) {
-                        result.push(tmp[i].login);
+                        login = $.trim(tmp[i].login);
+                        
+                        if(login != "") {
+                            result.push(login);
+                            result_tmp.push(login);
+                        }
                     }
                     
                     jQuery(document).ready(function(){
@@ -703,30 +709,43 @@ app.controller("GetUsersController", function($scope, $http, $cookies, $location
                                 event.preventDefault();
                             }
                         }).autocomplete( {
-                            minLength: 1,
+                            minLength: 0,
+                            appendTo: "#owner-container",
                             source: function( request, response ) {
+                                result_tmp = result;
+                                owners = request.term.split(", ");
+                                
+                                for(index in owners) {
+                                    owner = $.trim(owners[index]);
+                                    
+                                    if(owner != "") {
+                                        pos = result_tmp.indexOf(owner);
+                                        
+                                        if(pos != -1) {
+                                            left = result_tmp.slice(0,pos);
+                                            right = result_tmp.slice(pos+1,result_tmp.length);
+                                            result_tmp = left.concat(right);
+                                        }
+                                    }
+                                }
+                                
                                 response(
                                     jQuery.ui.autocomplete.filter(
-                                        result,
+                                        result_tmp,
                                         extractLast(request.term)
                                     )
                                 );
                             },
-                            focus: function() {
-                                return false;
-                            },
                             select: function(event,ui) {
-                                var terms = split( this.value );
+                                var terms = split(this.value);
                                 terms.pop();
                                 terms.push( ui.item.value );
                                 terms.push( "" );
                                 this.value = terms.join( ", " );
+                                
                                 return false;
                             }
-                        } );
-                        
-                        var ui_id_1 = jQuery("#ui-id-1").detach();
-                        jQuery("#owner-container").append(ui_id_1);
+                        });
                     });
                 }
             }
@@ -817,7 +836,8 @@ app.controller("GetFlowsController", function($scope, $http, $cookies, $location
                     jQuery(document).ready(function(){
                         jQuery( "#flow" ).autocomplete({
                             minLength: 1,
-                            source: result
+                            source: result,
+                            appendTo: "#flow-container"
                         });
                     } );
                 }
