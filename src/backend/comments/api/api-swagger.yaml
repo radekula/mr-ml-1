@@ -56,7 +56,7 @@ paths:
       parameters:
         - name: token
           in: path
-          description: Token of a user making a request
+          description: Token of an user making a request
           required: true
           type: string
         - name: document
@@ -165,7 +165,7 @@ definitions:
         description: ID of commented document.
       parent:
         type: string
-        description: ID of parent comment (null if You create a new thread).
+        description: ID of parent comment (null if You created a new thread).
       content:
         type: string
         description: Content of comment.

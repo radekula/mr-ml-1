@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
+	"time"
 
+	"github.com/satori/go.uuid"
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 
@@ -23,7 +25,7 @@ func getComments(c *mgo.Collection, params map[string][]string) []model.Comment 
 		"parent":      1,
 		"author":      1,
 		"create_date": 1,
-		"description": 1}
+		"content":     1}
 
 	findBy := bson.M{}
 	sortBy := "document_id"
@@ -49,6 +51,25 @@ func getComments(c *mgo.Collection, params map[string][]string) []model.Comment 
 	}
 
 	return comments
+}
+
+func writeComment(c *mgo.Collection, comment model.NewComment, login string) (model.CommentId, int) {
+	var addData model.DBComment
+	var commentID model.CommentId
+
+	t := time.Now()
+
+	addData.Id = uuid.NewV4().String()
+	addData.DocumentId = comment.DocumentId
+	addData.Parent = comment.Parent
+	addData.Author = login
+	addData.CreateDate = t.Format(time.UnixDate)
+	addData.Content = comment.Content
+
+	c.Insert(&addData)
+
+	commentID.Id = addData.Id
+	return commentID, 0
 }
 
 // Comments - REST handler
@@ -87,6 +108,38 @@ func Comments(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		w.Write(jsonMessage)
+	case "POST":
+		var comment model.NewComment
+
+		if len(pathArr) != 2 {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		token := pathArr[1]
+		login, ret := remote.VerifyToken(token)
+		if ret != 200 {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+
+		err := json.NewDecoder(r.Body).Decode(&comment)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+
+		commentId, ret := writeComment(db.GetCollection(), comment, login.Login)
+		if ret > 0 {
+			w.WriteHeader(http.StatusConflict)
+			return
+		}
+
+		jsonMessage, errJSON := json.Marshal(commentId)
+		if errJSON != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 		w.Write(jsonMessage)
 	}
 }
