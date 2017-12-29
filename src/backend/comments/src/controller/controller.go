@@ -26,7 +26,15 @@ func getComments(c *mgo.Collection, params map[string][]string) []model.Comment 
 		"description": 1}
 
 	findBy := bson.M{}
-	sortBy := "file_name"
+	sortBy := "document_id"
+
+	if value, ok := params["documentId"]; ok {
+		findBy = bson.M{"document_id": value[0]}
+	}
+
+	if value, ok := params["userId"]; ok {
+		findBy = bson.M{"author": value[0]}
+	}
 
 	c.Find(findBy).Select(selectFields).Sort(sortBy).All(&searchData)
 
@@ -70,7 +78,7 @@ func Comments(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusForbidden)
 			return
 		}
-		//w.Write([]byte("Pobranie komentarzy. Token: " + token))
+
 		comments := getComments(db.GetCollection(), r.URL.Query())
 
 		jsonMessage, errJSON := json.Marshal(comments)
