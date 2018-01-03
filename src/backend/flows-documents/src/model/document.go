@@ -16,3 +16,8 @@ type DocumentLite struct {
     Metadata []DocumentMetadata `json:"metadata"`
     Thumbnail string `json:"thumbnail"`
 }
+
+type Documents struct {
+    Total int `json:"total"`
+    Result []DocumentLite `json:"result"`
+}

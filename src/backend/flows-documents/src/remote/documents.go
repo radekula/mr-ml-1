@@ -28,6 +28,7 @@ func CheckValidDocument(id string, token string) (bool) {
 
 
 func GetDocumentInfo(id string, token string) (model.DocumentLite, int) {
+    var documents model.Documents
     var document model.DocumentLite
 
     config := config.GetConfig()
@@ -43,7 +44,19 @@ func GetDocumentInfo(id string, token string) (model.DocumentLite, int) {
         return document, resp.StatusCode
     }
 
-    json.NewDecoder(resp.Body).Decode(&document)
+    json.NewDecoder(resp.Body).Decode(&documents)
+    if documents.Total > 0 {
+        document.Id           = documents.Result[0].Id
+        document.Title        = documents.Result[0].Title
+        document.FileName     = documents.Result[0].FileName
+        document.CreateDate   = documents.Result[0].CreateDate
+        document.Description  = documents.Result[0].Description
+        document.Owner        = documents.Result[0].Owner
+        document.Metadata     = documents.Result[0].Metadata
+        document.Thumbnail    = documents.Result[0].Thumbnail
+    } else {
+        return document, 404
+    }
 
     return document, 200
 }

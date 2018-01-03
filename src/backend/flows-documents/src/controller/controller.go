@@ -512,17 +512,17 @@ func getUserActions(c *mgo.Collection, login string, token string) ([]model.User
         action.FlowName = step.FlowName
         action.Step = step.Id
         action.Type = getActionFromStep(step.Type)
-        
-        actions = append(actions, action)
-    }
 
-    // fill documents titles
-    for key, _ := range actions {
-        document, err := remote.GetDocumentInfo(actions[key].Document, token)
+        // fill documents titles
+        document, err := remote.GetDocumentInfo(action.Document, token)
+
         if err != 200 {
+            // document not found so we skip it
             continue
         }
-        actions[key].Title = document.Title
+        action.Title = document.Title
+
+        actions = append(actions, action)
     }
 
     return actions, len(actions)
