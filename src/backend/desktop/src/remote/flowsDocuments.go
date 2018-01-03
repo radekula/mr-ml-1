@@ -11,7 +11,7 @@ import (
 
 func GetUserActions(login string, token string, params map[string][]string) (model.UserActions) {
     var actions model.UserActions
-    var actionsList []model.UserAction
+    var actionsList model.UserActions
 
     config := config.GetConfig()
 
@@ -48,9 +48,8 @@ func GetUserActions(login string, token string, params map[string][]string) (mod
     json.NewDecoder(resp.Body).Decode(&actionsList)
 
     // Apply offset
-
     row := 0
-    for _, action := range actionsList {
+    for _, action := range actionsList.Result {
         if row > offset {
             if limit > -1 {
                 if row >= limit {
@@ -62,7 +61,7 @@ func GetUserActions(login string, token string, params map[string][]string) (mod
         row = row + 1
     }
 
-    actions.Total = len(actionsList)
+    actions.Total = actionsList.Total
 
     return actions
 }
