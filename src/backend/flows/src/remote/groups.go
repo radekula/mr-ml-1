@@ -21,6 +21,10 @@ func GetUserGroups(login string, token string) ([]string, int) {
         return groups, 500
     }
 
+    if resp.StatusCode == 404 {
+        return groups, 200
+    }
+
     if resp.StatusCode != 200 {
         return groups, resp.StatusCode
     }

@@ -797,7 +797,7 @@ func stepsHandler(w http.ResponseWriter, r *http.Request) {
 
 
 func About(w http.ResponseWriter, r *http.Request) {
-    test := model.AboutData{"Version: 0.1"}
+    test := model.AboutData{"Version: 0.2"}
 
     message, err := json.Marshal(test)
 
