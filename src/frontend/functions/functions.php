@@ -137,6 +137,9 @@ function callService($data, $config) {
         case "signing":
             return callSigning($data, $config);
             break;
+        case "comments":
+            return callComments($data, $config);
+            break;    
         default:
             render404($data, $config);
             break;
