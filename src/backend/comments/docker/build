@@ -7,4 +7,6 @@ export GOPATH=$DIR/go/
 
 go get gopkg.in/mgo.v2
 go get github.com/satori/go.uuid
-CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o documents ../src
+go get gopkg.in/mgo.v2/bson
+
+CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o comments ../src
