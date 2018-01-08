@@ -285,3 +285,30 @@ function callSigning($data, $config) {
     $ret = remoteCall($remoteUrl, $method, $data['body']);
     return $ret;
 }
+
+
+/*
+ * Call comments service
+ */
+function callComments($data, $config) {
+    $remoteUrl = $config['service']['signing'] . '/' . $data['params'][1];
+    $method = $data['method'];
+
+    $remoteUrl .= '/' . $data['token'];
+
+    if(isset($data['params_get'])) {
+        $getParams = [];
+        
+        foreach($data['params_get'] as $key => $value) {
+            $getParams[] = $key . '=' . $value;
+        }
+        $remoteParams = implode('&', $getParams);
+    };
+
+    if(!empty($remoteParams)) {
+        $remoteUrl .= '?' . $remoteParams;
+    }
+
+    $ret = remoteCall($remoteUrl, $method, $data['body']);
+    return $ret;
+}
