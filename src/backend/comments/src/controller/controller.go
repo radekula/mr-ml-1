@@ -59,7 +59,8 @@ func writeComment(c *mgo.Collection, comment model.NewComment, login string) (mo
 
 	t := time.Now()
 
-	addData.Id = uuid.NewV4().String()
+	myuuid := uuid.Must(uuid.NewV4())
+	addData.Id = myuuid.String()
 	addData.DocumentId = comment.DocumentId
 	addData.Parent = comment.Parent
 	addData.Author = login
