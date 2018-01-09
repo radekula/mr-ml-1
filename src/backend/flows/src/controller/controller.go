@@ -105,7 +105,7 @@ func createFlow(c *mgo.Collection, id string, data model.FlowData) (int) {
             return 1
         }
     } else {
-        id = uuid.NewV4().String()
+        id = uuid.Must(uuid.NewV4()).String()
     }
 
     var add_data model.DBFlowData
@@ -121,7 +121,7 @@ func createFlow(c *mgo.Collection, id string, data model.FlowData) (int) {
 
     var start_data model.DBStepData
 
-    start_data.Id           = uuid.NewV4().String()
+    start_data.Id           = uuid.Must(uuid.NewV4()).String()
     start_data.Flow         = id
     start_data.Type         = "start"
 
@@ -129,7 +129,7 @@ func createFlow(c *mgo.Collection, id string, data model.FlowData) (int) {
 
     var end_data model.DBStepData
 
-    end_data.Id           = uuid.NewV4().String()
+    end_data.Id           = uuid.Must(uuid.NewV4()).String()
     end_data.Flow         = id
     end_data.Prev         = append(end_data.Prev, start_data.Id)
     end_data.Type         = "archive"
@@ -296,7 +296,7 @@ func createStep(c *mgo.Collection, flow string, id string, data model.StepData, 
             return 1
         }
     } else {
-        id = uuid.NewV4().String()
+        id = uuid.Must(uuid.NewV4()).String()
     }
 
     // check if type is correct
@@ -329,7 +329,7 @@ func createStep(c *mgo.Collection, flow string, id string, data model.StepData, 
         // with split we always add archive step
         var archive model.DBStepData
 
-        archive.Id           = uuid.NewV4().String()
+        archive.Id           = uuid.Must(uuid.NewV4()).String()
         archive.Flow         = flow
         archive.Type         = "archive"
         archive.Prev         = append(archive.Prev, add_data.Id)

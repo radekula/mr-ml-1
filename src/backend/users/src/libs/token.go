@@ -6,5 +6,5 @@ import (
 
 
 func NewToken() (string) {
-    return uuid.NewV4().String()
+    return uuid.Must(uuid.NewV4()).String()
 }

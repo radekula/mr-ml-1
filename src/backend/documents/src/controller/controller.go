@@ -202,7 +202,7 @@ func writeDocument(c *mgo.Collection, document model.Document) (model.DocumentId
     add_data.Data        = document.Data
     
     if add_data.Id == "generate" {
-        add_data.Id = uuid.NewV4().String()
+        add_data.Id = uuid.Must(uuid.NewV4()).String()
         doc_id.Id = add_data.Id
     }
 
