@@ -60,29 +60,26 @@
 					<tr>
 						<th>Treść</th>
 						<th>Data</th>
-						<th>Autor</th>
 						<th></th>
 					</tr>
 					<tr ng-repeat="(key, value) in data.comments.result|limitTo:4">
 						<td>{{value.content}}</td>
-						<td class="box-date"></td>
-						<td class="box-author">{{value.author}}</td>
+						<td class="box-date">{{value.create_date}}</td>
 						<td>
-							<a href="/#!/document/{{value.document}}">
+							<a href="/#!/document/{{value.documentId}}">
 								<i class="icon">&#xf14c;</i>
 							</a>
 						</td>
 					</tr>
 					<tr class="box-info" ng-show="emptyComments">
-						<td colspan="4">Brak komentarzy.</td>
+						<td colspan="3">Brak komentarzy.</td>
 					</tr>
 				</table>
 				<div class="box-table-more">
 					<table class="box-table">
 						<tr ng-repeat="(key, value) in data.comments.result|limitTo:100:4">
 							<td>{{value.content}}</td>
-							<td class="box-date"></td>
-							<td class="box-author">{{value.author}}</td>
+							<td class="box-date">{{value.create_date}}</td>
 							<td>
 								<a href="/#!/document/{{value.document}}">
 									<i class="icon">&#xf14c;</i>
