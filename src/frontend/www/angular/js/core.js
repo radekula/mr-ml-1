@@ -270,20 +270,90 @@ app.controller("StatementController", function($scope, $http) {
             $scope.load--;
         }
     );
-
+    
     $scope.load++;
-    $http.get( // Get list of comments
-        "/service/desktop/comments"
+    $http.get( // List comments.
+        "/service/comments/comments/?userId=" + $scope.login
     ).then(
         function(response) { // Success
             if (response.status == 200) {
                 if (typeof response.data == "object") {
-                    $scope.data.comments = response.data;
+                    $scope.data.comments.result = response.data ? response.data : [];
+                    
+                    $scope.data.comments.result = [ // Do usunięcia, gdy komntarze będą działać
+                        {
+                            "id": "1",
+                            "documentId": "string",
+                            "parent": "null",
+                            "author": "admin",
+                            "create_date": "2017-12-03",
+                            "content": "Lorem ipsum."
+                        },
+                        {
+                            "id": "2",
+                            "documentId": "string",
+                            "parent": "1",
+                            "author": "admin1",
+                            "create_date": "2017-12-03",
+                            "content": "Lorem ipsum."
+                        },
+                        {
+                            "id": "3",
+                            "documentId": "string",
+                            "parent": "1",
+                            "author": "admin2",
+                            "create_date": "2017-12-03",
+                            "content": "Lorem ipsum."
+                        },
+                        {
+                            "id": "4",
+                            "documentId": "string",
+                            "parent": "null",
+                            "author": "admin3",
+                            "create_date": "2017-12-03",
+                            "content": "Lorem ipsum."
+                        },
+                        {
+                            "id": "5",
+                            "documentId": "string",
+                            "parent": "4",
+                            "author": "admin4",
+                            "create_date": "2017-12-03",
+                            "content": "Lorem ipsum."
+                        },
+                        {
+                            "id": "6",
+                            "documentId": "string",
+                            "parent": "5",
+                            "author": "admin4",
+                            "create_date": "2017-12-03",
+                            "content": "Lorem ipsum."
+                        },
+                        {
+                            "id": "7",
+                            "documentId": "string",
+                            "parent": "6",
+                            "author": "admin4",
+                            "create_date": "2017-12-03",
+                            "content": "Lorem ipsum."
+                        }
+                    ];
+                    
+                    $scope.data.comments.total = $scope.data.comments.result.length; // Do usunięcia, gdy komntarze będą działać
                 }
             }
             $scope.load--;
         },
         function(response) { // Error
+            if (response.status == 400) {
+                $scope.addErrors("error", "Błędne żądanie podczas próby pobrania listy komentarzy.");
+            } else if (response.status == 403) {
+                $scope.addErrors("error", "Nie można pobrać listy komentarzy (nieprawidłowy lub wygasły token).");
+            } else if (response.status == 500) {
+                $scope.addErrors("error", "Błąd wewnętrzny serwera podczas próby pobrania listy komentarzy.");
+            } else {
+                $scope.addErrors("error", "Nieoczekiwany błąd podczas próby pobrania listy komentarzy.");
+            }
             $scope.load--;
         }
     );
@@ -345,16 +415,78 @@ app.controller("DesktopController", function($scope, $http) {
     );
 
     $scope.load++;
-    $http.get( // Get list of comments
-        "/service/desktop/comments"
+    $http.get( // List comments.
+        "/service/comments/comments/?userId=" + $scope.login
     ).then(
         function(response) { // Success
             if (response.status == 200) {
                 if (typeof response.data == "object") {
-                    $scope.data.comments = response.data;
+                    $scope.data.comments = response.data ? response.data : [];
+                    
+                    $scope.data.comments.result = [ // Do usunięcia, gdy komntarze będą działać
+                        {
+                            "id": "1",
+                            "documentId": "string",
+                            "parent": "null",
+                            "author": "admin",
+                            "create_date": "2017-12-03",
+                            "content": "Lorem ipsum."
+                        },
+                        {
+                            "id": "2",
+                            "documentId": "string",
+                            "parent": "1",
+                            "author": "admin1",
+                            "create_date": "2017-12-03",
+                            "content": "Lorem ipsum."
+                        },
+                        {
+                            "id": "3",
+                            "documentId": "string",
+                            "parent": "1",
+                            "author": "admin2",
+                            "create_date": "2017-12-03",
+                            "content": "Lorem ipsum."
+                        },
+                        {
+                            "id": "4",
+                            "documentId": "string",
+                            "parent": "null",
+                            "author": "admin3",
+                            "create_date": "2017-12-03",
+                            "content": "Lorem ipsum."
+                        },
+                        {
+                            "id": "5",
+                            "documentId": "string",
+                            "parent": "4",
+                            "author": "admin4",
+                            "create_date": "2017-12-03",
+                            "content": "Lorem ipsum."
+                        },
+                        {
+                            "id": "6",
+                            "documentId": "string",
+                            "parent": "5",
+                            "author": "admin4",
+                            "create_date": "2017-12-03",
+                            "content": "Lorem ipsum."
+                        },
+                        {
+                            "id": "7",
+                            "documentId": "string",
+                            "parent": "6",
+                            "author": "admin4",
+                            "create_date": "2017-12-03",
+                            "content": "Lorem ipsum."
+                        }
+                    ];
+                    
+                    $scope.data.comments.total = $scope.data.comments.result.length; // Do usunięcia, gdy komntarze będą działać
+                    
+                    $scope.emptyComments = $scope.data.comments.total > 0 ? false : true;
                 }
             }
-            $scope.emptyComments = $scope.data.comments.total > 0 ? false : true;
             $scope.load--;
         },
         function(response) { // Error
@@ -1317,7 +1449,7 @@ app.controller("DocumentsController", function($scope, $routeParams, $http, $loc
 /*
  ** Document controller
  */
-app.controller("DocumentController", function($scope, $routeParams, $http, $cookies, $location) {
+app.controller("DocumentController", function($scope, $routeParams, $http, $cookies, $location, $route) {
     $scope.data = {
         document: {
             "id": $routeParams.document_id,
@@ -1330,8 +1462,12 @@ app.controller("DocumentController", function($scope, $routeParams, $http, $cook
             "thumbnail": "",
             "data": ""
         },
+        comments : {},
         owner: "",
-        sign: false
+        sign: false,
+        new_comment: "",
+        edit_comment: "",
+        answer_comment: ""
     }
 
     $scope.load++;
@@ -1384,6 +1520,278 @@ app.controller("DocumentController", function($scope, $routeParams, $http, $cook
             $scope.load--;
         }
     );
+    
+    $scope.load++;
+    $http.get( // List comments.
+        "/service/comments/comments/?documentId=" + $scope.data.document.id
+    ).then(
+        function(response) { // Success
+            if (response.status == 200) {
+                if (typeof response.data == "object") {
+                    $scope.data.comments = response.data.result ? response.data.result : [];
+                    
+                    $scope.data.comments = [ // Do usunięcia, gdy komntarze będą działać
+                        {
+                            "id": "1",
+                            "documentId": "string",
+                            "parent": "null",
+                            "author": "admin",
+                            "create_date": "2017-12-03",
+                            "content": "Lorem ipsum."
+                        },
+                        {
+                            "id": "2",
+                            "documentId": "string",
+                            "parent": "1",
+                            "author": "admin1",
+                            "create_date": "2017-12-03",
+                            "content": "Lorem ipsum."
+                        },
+                        {
+                            "id": "3",
+                            "documentId": "string",
+                            "parent": "1",
+                            "author": "admin2",
+                            "create_date": "2017-12-03",
+                            "content": "Lorem ipsum."
+                        },
+                        {
+                            "id": "4",
+                            "documentId": "string",
+                            "parent": "null",
+                            "author": "admin3",
+                            "create_date": "2017-12-03",
+                            "content": "Lorem ipsum."
+                        },
+                        {
+                            "id": "5",
+                            "documentId": "string",
+                            "parent": "4",
+                            "author": "admin4",
+                            "create_date": "2017-12-03",
+                            "content": "Lorem ipsum."
+                        },
+                        {
+                            "id": "6",
+                            "documentId": "string",
+                            "parent": "5",
+                            "author": "admin4",
+                            "create_date": "2017-12-03",
+                            "content": "Lorem ipsum."
+                        },
+                        {
+                            "id": "7",
+                            "documentId": "string",
+                            "parent": "6",
+                            "author": "admin4",
+                            "create_date": "2017-12-03",
+                            "content": "Lorem ipsum."
+                        }
+                    ];
+                    
+                    function getComment(ob) {
+                        comment = '<div class="comment" data-id="' + ob.id + '"><div class="comment-outer"><div class="comment-meta"><i class="icon">&#xf2c0;</i><p class="comment-author">' + ob.author + '</p><i class="icon">&#xe806;</i><p>' + ob.create_date + '</p>';
+                        
+                        if(ob.author == $scope.login) {
+                            comment += '<nav class="comment-nav"><a class="deleteComment">Usuń</a><a class="showEdit">Edytuj</a></nav>';
+                        }
+                        
+                        comment += '</div><p>' + ob.content + '</p><button class="button showAnswer" type="button">Odpowiedz</button><div id="answer_' + ob.id + '" class="comments-new comments-hidden"><textarea placeholder="Tutaj wpisz treść komentarza"></textarea><button class="button answerComment" type="button">Dodaj komentarz</button></div><div id="edit_' + ob.id + '" class="comments-new comments-hidden"><textarea placeholder="Tutaj wpisz treść komentarza"></textarea><button class="button editComment" type="button">Zapisz</button></div></div></div>';
+                        
+                        return comment;
+                    }
+                    
+                    for(index in $scope.data.comments) {
+                        var ob = $scope.data.comments[index];
+                        
+                        if( ob.parent == null ||
+                            ob.parent == "null"
+                        ) {
+                            jQuery(".comments").append(getComment(ob));
+                        }
+                        
+                        else {
+                            parentObject = jQuery(".comment[data-id='" + ob.parent + "']");
+                            
+                            if(parentObject) {
+                                parentObject.append(getComment(ob));
+                            }
+                        }
+                    }
+                }
+            }
+            $scope.load--;
+        },
+        function(response) { // Error
+            if (response.status == 400) {
+                $scope.addErrors("error", "Błędne żądanie podczas próby pobrania listy komentarzy.");
+            } else if (response.status == 403) {
+                $scope.addErrors("error", "Nie można pobrać listy komentarzy (nieprawidłowy lub wygasły token).");
+            } else if (response.status == 500) {
+                $scope.addErrors("error", "Błąd wewnętrzny serwera podczas próby pobrania listy komentarzy.");
+            } else {
+                $scope.addErrors("error", "Nieoczekiwany błąd podczas próby pobrania listy komentarzy.");
+            }
+            $scope.load--;
+        }
+    );
+    
+    $scope.addComment = function(id, content) {
+        if(content.length > 0) {
+            $scope.load++;
+            $http.post( // Create a comment.
+                "/service/comments/comments",
+                JSON.stringify({
+                    "documentId": $scope.data.document.id,
+                    "parent": id,
+                    "content": content
+                })
+            ).then(
+                function(response) { // Success
+                    if (response.status == 200) {
+                        $route.reload();
+                        $scope.addErrors("success", "Komentarz został dodany.");
+                    }
+                    $scope.load--;
+                },
+                function(response) { // Error
+                    if (response.status == 400) {
+                        $scope.addErrors("error", "Błędne żądanie podczas próby dodania komentarza.");
+                    } else if (response.status == 403) {
+                        $scope.addErrors("error", "Nie można dodać komentarza (nieprawidłowy lub wygasły token).");
+                    }  else if (response.status == 404) {
+                        $scope.addErrors("error", "Komentarz nie znaleziony.");
+                    } else if (response.status == 500) {
+                        $scope.addErrors("error", "Błąd wewnętrzny serwera podczas próby dodania komentarza.");
+                    } else {
+                        $scope.addErrors("error", "Nieoczekiwany błąd podczas próby dodania komentarza.");
+                    }
+                    $scope.load--;
+                }
+            );
+        } else {
+            $scope.addErrors("error", "Treść komentarza nie może być pusta.");
+        }
+    }
+    
+    jQuery(".comments").on("click", ".answerComment", function(){
+        id = jQuery(this).parents(".comment").data("id");
+        content = jQuery("#answer_" + id).find("textarea").val();
+        
+        if(content.length > 0) {
+            $scope.load++;
+            $http.post( // Create a comment.
+                "/service/comments/comments",
+                JSON.stringify({
+                    "documentId": $scope.data.document.id,
+                    "parent": id,
+                    "content": content
+                })
+            ).then(
+                function(response) { // Success
+                    if (response.status == 200) {
+                        $route.reload();
+                        $scope.addErrors("success", "Komentarz został dodany.");
+                    }
+                    $scope.load--;
+                },
+                function(response) { // Error
+                    if (response.status == 400) {
+                        $scope.addErrors("error", "Błędne żądanie podczas próby dodania komentarza.");
+                    } else if (response.status == 403) {
+                        $scope.addErrors("error", "Nie można dodać komentarza (nieprawidłowy lub wygasły token).");
+                    }  else if (response.status == 404) {
+                        $scope.addErrors("error", "Komentarz nie znaleziony.");
+                    } else if (response.status == 500) {
+                        $scope.addErrors("error", "Błąd wewnętrzny serwera podczas próby dodania komentarza.");
+                    } else {
+                        $scope.addErrors("error", "Nieoczekiwany błąd podczas próby dodania komentarza.");
+                    }
+                    $scope.load--;
+                }
+            );
+        } else {
+            $scope.addErrors("error", "Treść komentarza nie może być pusta.");
+        }
+    });
+    
+    jQuery(".comments").on("click", ".showAnswer", function(){
+        id = jQuery(this).parents(".comment").data("id");
+        jQuery("#answer_" + id).removeClass("comments-hidden");
+    });
+    
+    jQuery(".comments").on("click", ".showEdit", function(){
+        id = $(this).parents(".comment").data("id");
+        jQuery("#edit_" + id).removeClass("comments-hidden");
+    });
+    
+    jQuery(".comments").on("click", ".editComment", function(){
+        id = jQuery(this).parents(".comment").data("id");
+        content = jQuery("#edit_" + id).find("textarea").val();
+        
+        if(content.length > 0) {
+            $scope.load++;
+            $http.put( // Edit a comment.
+                "/service/comments/comments/" + id,
+                JSON.stringify({
+                    "content": content
+                })
+            ).then(
+                function(response) { // Success
+                    if (response.status == 200) {
+                        $route.reload();
+                        $scope.addErrors("success", "Komentarz został z edytowany.");
+                    }
+                    $scope.load--;
+                },
+                function(response) { // Error
+                    if (response.status == 400) {
+                        $scope.addErrors("error", "Błędne żądanie podczas próby edytowania komentarza.");
+                    } else if (response.status == 403) {
+                        $scope.addErrors("error", "Nie można z edytować komentarza (nieprawidłowy lub wygasły token).");
+                    }  else if (response.status == 404) {
+                        $scope.addErrors("error", "Komentarz nie znaleziony.");
+                    } else if (response.status == 500) {
+                        $scope.addErrors("error", "Błąd wewnętrzny serwera podczas próby z edytowania komentarza.");
+                    } else {
+                        $scope.addErrors("error", "Nieoczekiwany błąd podczas próby z edytowania komentarza.");
+                    }
+                    $scope.load--;
+                }
+            );
+        } else {
+            $scope.addErrors("error", "Treść komentarza nie może być pusta.");
+        }
+    });
+    
+    jQuery(".comments").on("click", ".deleteComment", function(){
+        id = jQuery(this).parents(".comment").data("id");
+        
+        $scope.load++;
+        $http.delete( // Create a comment.
+            "/service/comments/comments/" + id
+        ).then(
+            function(response) { // Success
+                if (response.status == 200) {
+                    $route.reload();
+                    $scope.addErrors("success", "Komentarz został usunięty.");
+                }
+                $scope.load--;
+            },
+            function(response) { // Error
+                if (response.status == 403) {
+                    $scope.addErrors("error", "Nie można usunąć komentarza (nieprawidłowy lub wygasły token).");
+                }  else if (response.status == 404) {
+                    $scope.addErrors("error", "Komentarz nie znaleziony.");
+                } else if (response.status == 500) {
+                    $scope.addErrors("error", "Błąd wewnętrzny serwera podczas próby usunięcia komentarza.");
+                } else {
+                    $scope.addErrors("error", "Nieoczekiwany błąd podczas próby usunięcia komentarza.");
+                }
+                $scope.load--;
+            }
+        );
+    });
 
     $scope.downloadDocument = function($event) {
         $event.preventDefault();
