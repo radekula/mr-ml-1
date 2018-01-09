@@ -1,0 +1,28 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: groups
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: groups
+    spec:
+      containers:
+      - name: groups
+        image: 192.168.1.10:5000/groups:latest
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - mountPath: /config.json
+          name: config
+          subPath: config.json
+        tty: true
+      volumes:
+      - name: config
+        configMap:
+          name: groups-config
+          items:
+          - key: config.json
+            path: config.json

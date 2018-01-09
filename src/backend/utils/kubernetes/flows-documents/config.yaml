@@ -1,0 +1,23 @@
+apiVersion: v1
+data:
+  config.json: |
+    {
+        "service": {
+            "port": 8080
+        },
+        "database": {
+            "host": "192.168.1.10",
+            "name": "flowsDocumentsDatabase",
+            "collection": "flowsDocuments"
+        },
+        "remotes": {
+            "users": "http://192.168.124.50:8080",
+            "groups": "http://192.168.124.50:8082",
+            "documents": "http://192.168.124.50:8081",
+            "flows": "http://192.168.124.50:8083",
+            "signing": "http://signing:8084"
+        }
+    }
+kind: ConfigMap
+metadata:
+  name: flows-documents-config

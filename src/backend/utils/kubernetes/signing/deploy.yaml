@@ -1,0 +1,28 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: signing
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: signing
+    spec:
+      containers:
+      - name: signing
+        image: 192.168.1.10:5000/signing:latest
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - mountPath: /config.json
+          name: config
+          subPath: config.json
+        tty: true
+      volumes:
+      - name: config
+        configMap:
+          name: signing-config
+          items:
+          - key: config.json
+            path: config.json

@@ -1,0 +1,16 @@
+apiVersion: v1
+data:
+  config.json: |
+    {
+        "service": {
+            "port": 8080
+        },
+        "database": {
+            "host": "192.168.1.10",
+            "name": "usersDatabase",
+            "collection": "users"
+        }
+    }
+kind: ConfigMap
+metadata:
+  name: users-config
