@@ -1446,6 +1446,28 @@ form .success {
     margin: 0 auto 0 0;
 }
 
+.comment-nav {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: flex;
+    margin-left: 15px;
+    padding-left: 5px;
+    border-left: 1px solid #3f4651;
+}
+
+.comments a {
+    font-weight: 300;
+    margin-left: 10px;
+    font-size: 13px;
+}
+
+.comments a:hover {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
 .comment-outer {
     display: -webkit-box;
     display: -webkit-flex;
@@ -1475,12 +1497,20 @@ form .success {
     border-top: 1px solid rgba(0, 0, 0, .05);
 }
 
+.comment-outer>.comments-hidden {
+    display: none;
+}
+
 .comment-meta {
     display: -webkit-box;
     display: -webkit-flex;
     display: -moz-box;
     display: -ms-flexbox;
     display: flex;
+}
+
+.comments-empty {
+    text-align: center;
 }
 
 
@@ -1717,6 +1747,11 @@ form .success {
 .box-table th:first-child,
 .box-table td:first-child {
     text-align: left;
+    overflow: hidden;
+    -o-text-overflow: ellipsis;
+       text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 300px;
 }
 
 .box-table td.box-date,
