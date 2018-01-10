@@ -63,7 +63,7 @@ desktop-test:
 comments-test:
     image: localhost:5000/comments:latest
     links:
-        - "mongo-test:documents-database-mongo"
+        - "mongo-test:comments-database-mongo"
         - "users-test:users"
     ports:
         - "9087:8080"
