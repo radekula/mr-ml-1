@@ -57,5 +57,13 @@ desktop-test:
         - "users-test:users"
         - "documents-test:documents"
         - "flows-documents-test:flows-documents"
+        - "comments-test:comments"
     ports:
         - "9085:8080"
+comments-test:
+    image: localhost:5000/comments:latest
+    links:
+        - "mongo-test:documents-database-mongo"
+        - "users-test:users"
+    ports:
+        - "9087:8080"
