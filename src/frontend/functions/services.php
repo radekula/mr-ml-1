@@ -291,7 +291,7 @@ function callSigning($data, $config) {
  * Call comments service
  */
 function callComments($data, $config) {
-    $remoteUrl = $config['service']['signing'] . '/' . $data['params'][1];
+    $remoteUrl = $config['service']['comments'] . '/' . $data['params'][1];
     $method = $data['method'];
 
     $remoteUrl .= '/' . $data['token'];
