@@ -6,5 +6,5 @@ type DBComment struct {
 	Parent     string `bson:"parent,omitempty"`
 	Author     string `bson:"author,omitempty"`
 	CreateDate string `bson:"create_date,omitempty"`
-	Content    string `bson:"description,omitempty"`
+	Content    string `bson:"content,omitempty"`
 }
