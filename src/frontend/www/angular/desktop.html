@@ -24,7 +24,12 @@
 					</tr>
 					<tr ng-repeat="(key, value) in data.actions.result|limitTo:4">
 						<td>{{value.flow_name}}</td>
-						<td>{{value.type}}</td>
+						<td class="box-step">
+                            <span ng-if="value.type == 'accept'">Akceptacja<span>
+                            <span ng-if="value.type == 'view'">Zapoznanie się<span>
+                            <span ng-if="value.type == 'sign'">Podpisz<span>
+                            <span ng-if="value.type == 'join'">Dołącz<span>
+                        </td>
 						<td>
 							<a href="/#!/action/{{value.type}}/{{value.document}}/{{value.step}}">
 								<i class="icon">&#xf14c;</i>
@@ -38,8 +43,13 @@
 				<div class="box-table-more">
 					<table class="box-table">
 						<tr ng-repeat="(key, value) in data.actions.result|limitTo:100:4">
-                            <td>{{value.flow_name}}</td>
-                            <td>{{value.type}}</td>
+							<td>{{value.flow_name}}</td>
+                            <td class="box-step">
+                                <span ng-if="value.type == 'accept'">Akceptacja<span>
+                                <span ng-if="value.type == 'view'">Zapoznanie się<span>
+                                <span ng-if="value.type == 'sign'">Podpisz<span>
+                                <span ng-if="value.type == 'join'">Dołącz<span>
+                            </td>
                             <td>
                                 <a href="/#!/action/{{value.type}}/{{value.document}}/{{value.step}}">
                                     <i class="icon">&#xf14c;</i>
@@ -48,7 +58,7 @@
 						</tr>
 					</table>
 				</div>
-				<a class="box-more js-box-more" ng-show="data.actions.total >= 4">
+				<a class="box-more js-box-more" ng-show="data.actions.total > 4">
 					<i class="icon">&#xe80e;</i>
 				</a>
 			</section>
@@ -88,7 +98,7 @@
 						</tr>
 					</table>
 				</div>
-				<a class="box-more js-box-more" ng-show="data.comments.total >= 4">
+				<a class="box-more js-box-more" ng-show="data.comments.total > 4">
 					<i class="icon">&#xe80e;</i>
 				</a>
 			</section>
@@ -128,7 +138,7 @@
 						</tr>
 					</table>
 				</div>
-				<a class="box-more js-box-more" ng-show="data.documents.total >= 4">
+				<a class="box-more js-box-more" ng-show="data.documents.total > 4">
 					<i class="icon">&#xe80e;</i>
 				</a>
 			</section>

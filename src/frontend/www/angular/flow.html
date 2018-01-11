@@ -42,13 +42,13 @@
             <!-- .upload-form -->
             <form id="dialog-create" class="dialog" title="Dodaj krok">
                 <select class="input upload-input" ng-model="step_type">
-                    <option value="accept_single" ng-selected="selected">accept_single</option>
-                    <option value="accept_all">accept_all</option>
-                    <option value="view_single">view_single</option>
-                    <option value="view_all">view_all</option>
-                    <option value="sign_single">sign_single</option>
-                    <option value="sign_all">sign_all</option>
-                    <option value="join_all">join_all</option>
+                    <option value="accept_single" ng-selected="selected">Akceptacja (użytkownik)</option>
+                    <option value="accept_all">Akceptacja (wszyscy)</option>
+                    <option value="view_single">Zapoznanie się (użytkownik)</option>
+                    <option value="view_all">Zapoznanie się (wszyscy)</option>
+                    <option value="sign_single">Podpisanie (użytkownik)</option>
+                    <option value="sign_all">Podpisanie (wszyscy)</option>
+                    <option value="join_all">Dołączenie (wszyscy)</option>
                 </select>
                 <input class="input upload-input owner" type="text" placeholder="Uczestnicy" ng-model="step_participants">
                 <textarea class="input upload-input upload-textarea" placeholder="Opis" ng-model="step_description"></textarea>
@@ -67,7 +67,15 @@
                     <section class="steps-step" ng-repeat="(key, value) in data.steps">
                         <div class="steps-inner">
                             <header class="steps-header">
-                                <h3 class="steps-title">{{value.type}}</h3>
+                                <h3 class="steps-title" ng-if="value.type == 'start'">Początek</h3>
+                                <h3 class="steps-title" ng-if="value.type == 'accept_single'">Akceptacja (użytkownik)</h3>
+                                <h3 class="steps-title" ng-if="value.type == 'accept_all'">Akceptacja (wszyscy)</h3>
+                                <h3 class="steps-title" ng-if="value.type == 'view_single'">Zapoznanie się (użytkownik)</h3>
+                                <h3 class="steps-title" ng-if="value.type == 'view_all'">Zapoznanie się (wszyscy)</h3>
+                                <h3 class="steps-title" ng-if="value.type == 'sign_single'">Podpisanie (użytkownik)</h3>
+                                <h3 class="steps-title" ng-if="value.type == 'sign_all'">Podpisanie (wszyscy)</h3>
+                                <h3 class="steps-title" ng-if="value.type == 'join_all'">Dołączenie (wszyscy)</h3>
+                                <h3 class="steps-title" ng-if="value.type == 'archive'">Archiwum</h3>
                             </header>
                             <nav class="steps-nav" data-step="{{value}}" ng-show="$index > 0 && $index < data.steps.length - 1">
                                 <a class="steps-link edit-step" ng-click="editStep($event)">

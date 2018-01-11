@@ -35,13 +35,26 @@
 						<span class="upload-label-title upload-label-required">Właściciel:</span>
 						<input id="owner" class="input upload-input" type="text" ng-value="data.owner" required>
 					</label><!-- .upload-label -->
+                    <label id="flow-container" class="upload-label" for="flow" ng-controller="GetFlowsController" ng-if="data.flow == ''">
+                        <span class="upload-label-title">Przepływ:</span>
+                        <input id="flow" class="input upload-input" type="text" autocomplete="off" ng-model="flow">
+                    </label>
+                    <!-- .upload-label -->
 					<label class="upload-label" for="description">
 						<span class="upload-label-title">Opis:</span>
 						<textarea id="description" class="input upload-input upload-textarea" type="text" ng-model="data.document.description"></textarea>
 					</label><!-- .upload-label -->
+                    <label class="upload-label" for="flow" ng-if="data.flow != ''">
+                        <span class="upload-label-title">Przepływ:</span>
+                        <input id="flow" class="input upload-input" type="text" autocomplete="off" readonly ng-model="flow">
+                    </label>
 					<label class="upload-label">
 						<span class="upload-label-title">Data dodania:</span>
 						<input class="input upload-input" type="text" ng-model="data.document.create_date" readonly>
+					</label><!-- .upload-label -->
+					<label class="upload-label">
+						<span class="upload-label-title">Status:</span>
+						<input class="input upload-input" type="text" ng-model="data.sign" readonly>
 					</label><!-- .upload-label -->
 					<div class="container-button">
 						<button class="button" type="submit" ng-click="saveDocument($event)">Zapisz</button>

@@ -21,24 +21,31 @@
                 <section class="steps-step" ng-repeat="item in data.steps">
 					<div class="steps-inner" ng-class="findCurrent(item.id) ? 'current' : (findHistory(item.id) ? 'history' : '')">
 						<header class="steps-header">
-							<h3 class="steps-title">{{item.type}}</h3>
+                            <h3 class="steps-title" ng-if="item.type == 'start'">Początek</h3>
+                            <h3 class="steps-title" ng-if="item.type == 'accept_single'">Akceptacja (użytkownik)</h3>
+                            <h3 class="steps-title" ng-if="item.type == 'accept_all'">Akceptacja (wszyscy)</h3>
+                            <h3 class="steps-title" ng-if="item.type == 'view_single'">Zapoznanie się (użytkownik)</h3>
+                            <h3 class="steps-title" ng-if="item.type == 'view_all'">Zapoznanie się (wszyscy)</h3>
+                            <h3 class="steps-title" ng-if="item.type == 'sign_single'">Podpisanie (użytkownik)</h3>
+                            <h3 class="steps-title" ng-if="item.type == 'sign_all'">Podpisanie (wszyscy)</h3>
+                            <h3 class="steps-title" ng-if="item.type == 'join_all'">Dołączenie (wszyscy)</h3>
+                            <h3 class="steps-title" ng-if="item.type == 'archive'">Archiwum</h3>
 						</header>
 						<i class="icon steps-status" ng-show="!findCurrent(item.id) && findHistory(item.id)">&#xe811;</i>
 					</div>
                     <style>
                         .actions {
                             width: 100%;
-                        border: 1px solid #fff;
-                        border-collapse: collapse;
-                            
+                            border: 1px solid #fff;
+                            border-collapse: collapse;
                         }
                         
                         .actions td,
                         .actions th {
-                        padding: 10px 20px;
-                        width: 33.33333333333333%;
-                        border: 1px solid #fff;
-                        color: #323945;
+                            padding: 10px 20px;
+                            width: 33.33333333333333%;
+                            border: 1px solid #fff;
+                            color: #323945;
                         }
                         .actions th {
                             font-weight: 400;
@@ -53,6 +60,7 @@
                         </tr>
                     </table>
                 </section>
+                <p class="steps-empty" ng-if="!data.active">Dokument nie został podpięty pod przepływ.</p>
 			</section>
 		</div><!-- .content -->
 	</article><!-- .article -->

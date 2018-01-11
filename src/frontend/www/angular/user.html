@@ -75,16 +75,6 @@
                     <input class="input upload-input" type="text" readonly ng-model="data.user.last_active">
                 </label>
                 <!-- .upload-label -->
-                <label class="upload-label">
-                    <span class="upload-label-title">Lista <br>grup:</span>
-                    <ul>
-                        <li ng-repeat="(key, value) in data.groups">
-                            <a href="/#!/members/{{value.name}}">{{value.name}}</a>
-                        </li>
-                        <li ng-show="emptyGroups">Użytkownik nie jest przpisany do żadnej z grup.</li>
-                    </ul>
-                </label>
-                <!-- .upload-label -->
                 <div class="container-button">
                     <button class="button" type="submit" ng-click="saveUser($event, userForm)">Zapisz</button>
                 </div>

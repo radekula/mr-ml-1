@@ -25,27 +25,21 @@
                         <p>Opis dokumentu:</p>
                         <p>{{data.document.description}}</p>
                     </div>
-					<div>
-                        <p>Typ kroku:</p>
-                        <p>{{data.step.type}}</p>
-                    </div>
 				</header>
 				<nav class="action-nav">
 					<a href="/#!/document/{{data.document.id}}" target="_blank" class="button action-link">Otwórz dokument</a>
 					<div class="action-reaction">
-						<button class="button action-link" ng-click="doAction($event)">
-                            <span ng-if="data.step.type == 'accept'">
-                                <i class="icon">&#xe814;</i> Zaakceptuj dokument
-                            </span>
-                            <span ng-if="data.step.type == 'accept2'">
-                                <i class="icon">&#xe813;</i> Podpisz jako użytkownik
-                            </span>
-                            <span ng-if="data.step.type == 'accept3'">
-                                <i class="icon">&#xe812;</i> Przekaż
-                            </span>
-                            <span ng-if="data.step.type == 'accept3'">
-                                <i class="icon">&#xe812;</i> Oznacz jako przeczytany
-                            </span>
+                        <button class="button action-link" ng-if="data.step.type == 'accept'" ng-click="doAction($event)">
+                            <i class="icon">&#xe814;</i> Zaakceptuj dokument
+                        </button>
+                        <button class="button action-link" ng-if="data.step.type == 'view'" ng-click="doAction($event)">
+                            <i class="icon">&#xe812;</i> Oznacz jako przeczytany
+                        </button>
+                        <button class="button action-link" ng-if="data.step.type == 'sign'" ng-click="doAction($event)">
+                            <i class="icon">&#xe813;</i> Podpisz
+                        </button>
+                        <button class="button action-link" ng-if="data.step.type == 'join'" ng-click="doAction($event)">
+                            <i class="icon">&#xe812;</i> Dołącz
                         </button>
 					</div>
 				</nav>
