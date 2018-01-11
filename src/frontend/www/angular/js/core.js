@@ -1657,65 +1657,6 @@ app.controller("DocumentController", function($scope, $routeParams, $http, $cook
                 if (typeof response.data == "object") {
                     $scope.data.comments = response.data.result ? response.data.result : [];
                     
-                    $scope.data.comments = [ // Do usunięcia, gdy komntarze będą działać
-                        {
-                            "id": "1",
-                            "documentId": "string",
-                            "parent": "null",
-                            "author": "admin",
-                            "create_date": "2017-12-03",
-                            "content": "Lorem ipsum."
-                        },
-                        {
-                            "id": "2",
-                            "documentId": "string",
-                            "parent": "1",
-                            "author": "admin1",
-                            "create_date": "2017-12-03",
-                            "content": "Lorem ipsum."
-                        },
-                        {
-                            "id": "3",
-                            "documentId": "string",
-                            "parent": "1",
-                            "author": "admin2",
-                            "create_date": "2017-12-03",
-                            "content": "Lorem ipsum."
-                        },
-                        {
-                            "id": "4",
-                            "documentId": "string",
-                            "parent": "null",
-                            "author": "admin3",
-                            "create_date": "2017-12-03",
-                            "content": "Lorem ipsum."
-                        },
-                        {
-                            "id": "5",
-                            "documentId": "string",
-                            "parent": "4",
-                            "author": "admin4",
-                            "create_date": "2017-12-03",
-                            "content": "Lorem ipsum."
-                        },
-                        {
-                            "id": "6",
-                            "documentId": "string",
-                            "parent": "5",
-                            "author": "admin4",
-                            "create_date": "2017-12-03",
-                            "content": "Lorem ipsum."
-                        },
-                        {
-                            "id": "7",
-                            "documentId": "string",
-                            "parent": "6",
-                            "author": "admin4",
-                            "create_date": "2017-12-03",
-                            "content": "Lorem ipsum."
-                        }
-                    ];
-                    
                     function getComment(ob) {
                         comment = '<div class="comment" data-id="' + ob.id + '"><div class="comment-outer"><div class="comment-meta"><i class="icon">&#xf2c0;</i><p class="comment-author">' + ob.author + '</p><i class="icon">&#xe806;</i><p>' + ob.create_date + '</p></div><p>' + ob.content + '</p><button class="button showAnswer" type="button">Odpowiedz</button><div id="answer_' + ob.id + '" class="comments-new comments-hidden"><textarea placeholder="Tutaj wpisz treść komentarza"></textarea><button class="button answerComment" type="button">Dodaj komentarz</button></div><div id="edit_' + ob.id + '" class="comments-new comments-hidden"><textarea placeholder="Tutaj wpisz treść komentarza"></textarea><button class="button editComment" type="button">Zapisz</button></div></div></div>';
                         
@@ -1739,6 +1680,8 @@ app.controller("DocumentController", function($scope, $routeParams, $http, $cook
                             }
                         }
                     }
+                } else {
+                    $scope.data.comments = [];
                 }
             }
             $scope.load--;
