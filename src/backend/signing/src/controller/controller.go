@@ -13,8 +13,50 @@ import (
     "../db"
     "../libs"
     "fmt"
+    "encoding/base64"
+    "crypto/rsa"
+    "crypto/rand"
+    "crypto/sha256"
+    "crypto"
 )
 
+
+
+func calculateSignature(document model.Document, PrivateKey rsa.PrivateKey) (string, int) {
+    var signature []byte
+
+    data, err := base64.StdEncoding.DecodeString(document.Data)
+    if err != nil {
+        return string(signature), -1
+    }
+
+    rng := rand.Reader
+    hashed := sha256.Sum256(data)
+
+    signature, err2 := rsa.SignPKCS1v15(rng, &PrivateKey, crypto.SHA256, hashed[:])
+    if err2 != nil {
+        return string(signature), -1
+    }
+
+    return string(signature), 0
+}
+
+
+func verifySignature(document model.Document, signature string, PublicKey rsa.PublicKey) (int) {
+    data, err := base64.StdEncoding.DecodeString(document.Data)
+    if err != nil {
+        return -1
+    }
+
+    hashed := sha256.Sum256(data)
+
+    err2 := rsa.VerifyPKCS1v15(&PublicKey, crypto.SHA256, hashed[:], []byte(signature))
+    if err2 != nil {
+        return 1
+    }
+
+    return 0
+}
 
 
 
