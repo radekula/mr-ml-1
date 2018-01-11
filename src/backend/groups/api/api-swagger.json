@@ -452,23 +452,17 @@
             "description": "Token of user performing operation (or system user token)",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "groups",
-            "in": "body",
-            "description": "List of groups",
-            "required": true,
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
             "schema": {
               "type": "array",
               "items": {
                 "$ref": "#/definitions/GroupDataFull"
               }
             }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful operation"
           },
           "400": {
             "description": "Invalid request"
